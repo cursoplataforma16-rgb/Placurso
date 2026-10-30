@@ -1,12 +1,13 @@
 from pathlib import Path
 from zipfile import ZipFile
 import shutil
+import subprocess
 
 ROOT = Path(__file__).resolve().parent.parent
 ARCHIVE = ROOT / 'placurso-site-root.zip'
 WORK = ROOT / '.site-extracted'
 PUBLIC = ROOT / 'public'
-OVERRIDE = ROOT / 'scripts' / 'psico-engine-v4.js'
+PATCH = ROOT / 'scripts' / 'patch_games_ui.py'
 
 if not ARCHIVE.exists():
     raise SystemExit('ERRO: placurso-site-root.zip não encontrado.')
@@ -18,12 +19,15 @@ PUBLIC.mkdir()
 with ZipFile(ARCHIVE) as z:
     z.extractall(WORK)
 
-if OVERRIDE.exists():
-    target = WORK / 'psico-engine.js'
-    shutil.copy2(OVERRIDE, target)
-    public_target = WORK / 'public' / 'psico-engine.js'
-    if public_target.parent.exists():
-        shutil.copy2(OVERRIDE, public_target)
+# Aplica a nova organização visual dos jogos sobre o motor existente.
+engine = WORK / 'psico-engine.js'
+if PATCH.exists() and engine.exists():
+    subprocess.run(['python3', str(PATCH), str(engine)], cwd=ROOT, check=True)
+
+# Se o ZIP já tiver uma cópia pública do motor, mantém a mesma versão.
+public_engine = WORK / 'public' / 'psico-engine.js'
+if public_engine.parent.exists() and engine.exists():
+    shutil.copy2(engine, public_engine)
 
 for item in WORK.iterdir():
     if item.name in {'public', '.site-extracted', 'netlify.toml'}:
