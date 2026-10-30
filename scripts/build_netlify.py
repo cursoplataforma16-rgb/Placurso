@@ -1,5 +1,6 @@
 from pathlib import Path
 from zipfile import ZipFile
+import re
 import shutil
 import subprocess
 
@@ -36,8 +37,7 @@ if public_engine.parent.exists() and engine.exists():
     shutil.copy2(engine, public_engine)
 
 # O Netlify procura funções em netlify/functions na raiz do repositório.
-# O ZIP é a fonte do site, por isso materializamos aqui apenas a função SEO
-# responsável por servir /cursos e a página inicial da Plataforma Curso.
+# O ZIP é a fonte do site; a função SEO trata /cursos, /p e os sitemaps.
 source_seo = WORK / 'netlify' / 'functions' / 'seo.mjs'
 if not source_seo.is_file():
     raise SystemExit('ERRO: netlify/functions/seo.mjs não encontrado no pacote.')
@@ -56,10 +56,26 @@ for item in WORK.iterdir():
     else:
         shutil.copy2(item, target)
 
+# A página principal já reconhece placurso.netlify.app e aplica a marca
+# Plataforma Curso. Não deve depender da função /cursos para abrir a raiz.
+redirects = PUBLIC / '_redirects'
+if not redirects.is_file():
+    raise SystemExit('ERRO: public/_redirects não foi preparado.')
+rules = redirects.read_text(encoding='utf-8')
+rules, changed = re.subn(
+    r'(?m)^(https://placurso\\.netlify\\.app/)\\s+\\S+\\s+(200!?)\\s*$',
+    r'\\1 /index.html \\2',
+    rules
+)
+if changed != 1:
+    raise SystemExit('ERRO: não foi possível corrigir a rota inicial exclusiva do Placurso.')
+redirects.write_text(rules, encoding='utf-8')
+
 if not (PUBLIC / 'index.html').is_file():
     raise SystemExit('ERRO: public/index.html não foi preparado.')
-if not (PUBLIC / '_redirects').is_file():
-    raise SystemExit('ERRO: public/_redirects não foi preparado.')
+if not (FUNCTIONS / 'seo.mjs').is_file():
+    raise SystemExit('ERRO: a função SEO não foi preparada.')
 
 print(f'OK: {sum(1 for x in PUBLIC.rglob("*") if x.is_file())} recursos estáticos preparados.')
+print('OK: / no domínio Placurso serve index.html; a página identifica o domínio e aplica a marca Plataforma Curso.')
 print(f'OK: função Netlify pronta: {FUNCTIONS / "seo.mjs"}')
