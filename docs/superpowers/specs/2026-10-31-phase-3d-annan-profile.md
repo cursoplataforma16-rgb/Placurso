@@ -28,8 +28,8 @@ Turn the existing activity records into a useful, honest personal evolution prof
 ## Scoring rules
 - Memory: correct/attempted in the Phase 3A memory game.
 - Focus: correct/attempted in the Phase 3A reflex game.
-- Decision: combine Phase 3A finance-game results and answered crypto-learning questions.
-- Finance: combine finance-game results and crypto-learning questions, with sample counts shown.
+- Decision: use Phase 3A finance-game results only.
+- Finance: combine finance-game results and answered crypto-learning questions, with sample counts shown.
 - Strategy: combine mini-business game results with advanced crypto scenario answers.
 - Business: mini-business game results.
 - AI: no score until a real IA experience is available.
