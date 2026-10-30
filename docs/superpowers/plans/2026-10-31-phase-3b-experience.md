@@ -2,13 +2,27 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-**Goal:** Add a professional, mobile-first experience layer over the existing Phase 3A games with persistent progress, skill feedback, mastery, and healthy return loops.
+**Goal:** Build a professional, mobile-first experience where presentation, interaction, progression and ANNAN feedback turn the Placurso idea into a repeatable growth loop. The user should enter to discover/test/improve something, not merely to browse courses.
 
-**Architecture:** Keep the current static archive and patch pipeline. Add one build-time patch script that appends a self-contained Phase 3B IIFE to `psico-engine.js`; it owns state, UI, and game progression without changing the Phase 3A engine. Update `build_netlify.py` to apply the patch after Phase 3A visibility. Validate the resulting engine with Node syntax checks and a browser smoke test before any production deploy.
+**Architecture:** Keep the current static archive and patch pipeline. Add one build-time Phase 3B experience layer over the Phase 3A engine. The layer owns presentation, profile/progression state, challenge entry points and healthy return cues without replacing existing game buttons. Future Trade/Finance, IA and Business experiences plug into the same profile model.
 
 **Tech Stack:** Existing HTML/CSS/vanilla JavaScript, Python build patching, localStorage.
 
 **Spec:** `docs/superpowers/specs/2026-10-31-phase-3b-experience.md`
+
+## Product hierarchy
+
+1. **O MEU NÍVEL / A MINHA EVOLUÇÃO** — main product identity.
+2. **Desafios** — fastest entry and engagement mechanism.
+3. **ANNAN** — interprets results and proposes the next improvement.
+4. **Skills** — Mente, Foco, Decisão, Dinheiro, Negócio, IA, Estratégia.
+5. **Cursos** — deeper solution after a need is discovered.
+
+## Growth loop
+
+`SOCIAL HOOK → CHALLENGE → RESULT → ANNAN INSIGHT → NEED → NEXT CHALLENGE/CONTENT/COURSE → PROGRESS → NEW REASON TO RETURN`
+
+Short-form/social content is an acquisition layer; the site itself must provide the interactive value. Current 2026 social research supports prioritizing short-form, interactive/educational content, authenticity, serialized experiences and community-oriented engagement. The implementation must not depend on any one social network.
 
 ## Global Constraints
 
@@ -17,7 +31,9 @@
 - No login/database dependency for Phase 3B.
 - Progress is stored in `placurso_phase3b_experience_v1`.
 - No manipulative retention mechanics.
+- Trade is educational/simulation-only in this phase: no profit guarantees, real-money execution, or personalized financial signals.
 - Validate JavaScript with `node --check`.
+- Batch work and test the whole phase before deployment; minimize production deploys.
 - Do not deploy to production until the complete phase passes verification.
 - Do not touch DIONUEL/Kunica.
 
@@ -28,43 +44,53 @@
 - Expired/timed-out rounds: no negative XP and no broken timers.
 - Repeat play: event listeners and timers must not accumulate.
 - Mobile layout: 360px width must not create horizontal scrolling.
+- Presentation must communicate value within seconds and avoid looking like an online store.
+- Every visible recommendation must lead to an actionable next step.
 
-### Task 1: Add the Phase 3B experience patch
+### Task 1: Experience foundation and presentation
 
 **Files:**
-- Create: `scripts/patch_phase3b_experience.py`
+- Create/modify: `scripts/patch_phase3b_experience.py`
 - Modify: `scripts/build_netlify.py`
 
-**Interfaces:**
-- Input: extracted `psico-engine.js` path passed as argv[1].
-- Output: same file with one marker `/* PLACURSO_PHASE3B_EXPERIENCE */` appended exactly once.
-- Build integration: `PATCH_PHASE3B` is applied after `PATCH_PHASE3A_VIS`.
+- [ ] Step 1: Add a patch script that fails if the Phase 3B marker already exists and fails clearly if `.pch-games-hub` support is absent.
+- [ ] Step 2: Implement safe state defaults/loading/saving under `placurso_phase3b_experience_v1`.
+- [ ] Step 3: Implement the primary “A tua evolução fica visível” experience card with immediate next action.
+- [ ] Step 4: Add visible skill pillars: Mente, Foco, Decisão, Dinheiro/Finanças, Estratégia, with IA and Negócio ready for expansion.
+- [ ] Step 5: Add progress, mastery, daily challenge and personal-best cues.
+- [ ] Step 6: Ensure the visual language feels like an interactive product, not a course shop.
 
-- [ ] Step 1: Add a patch script that fails if the Phase 3B marker already exists and fails clearly if `.pch-games-hub` support is absent from the source.
-- [ ] Step 2: Implement state defaults and safe localStorage loading/saving under `placurso_phase3b_experience_v1`.
-- [ ] Step 3: Implement the visible experience layer: progress card, skill meters, mastery cards, daily challenge, and return cue.
-- [ ] Step 4: Implement five-level game metadata and result handling for the four Phase 3A games without replacing their existing buttons.
-- [ ] Step 5: Add responsive styles, visible focus states, reduced-motion handling, and defensive event/timer cleanup.
-- [ ] Step 6: Update `build_netlify.py` to invoke the Phase 3B patch after Phase 3A visibility and update its success output.
-- [ ] Step 7: Run Python syntax checks and confirm the patch script is syntactically valid.
+### Task 2: Engagement and challenge layer
 
-### Task 2: Build verification
+- [ ] Step 1: Implement five-level metadata and meaningful difficulty changes for the four Phase 3A games.
+- [ ] Step 2: Make every round communicate objective → action → feedback → result → next action.
+- [ ] Step 3: Add deterministic daily challenge routing without manipulative streak loss.
+- [ ] Step 4: Add repeatable variations/mastery cues that create a legitimate reason to return.
+- [ ] Step 5: Add ANNAN-style result language that explains the user's current signal and suggests the next challenge.
 
-**Files:**
-- Test: generated `psico-engine.js` from the current source archive.
+### Task 3: Trend-entry experiences
+
+- [ ] Step 1: Add the information architecture for **Dinheiro / Trade** as an educational simulation category.
+- [ ] Step 2: Define initial trade scenarios around movement reading, probability, risk/reward, capital and decision timing.
+- [ ] Step 3: Add **IA** challenge entry points around practical AI use and problem solving.
+- [ ] Step 4: Add **Negócio** challenge entry points around price, margin, customer and resource decisions.
+- [ ] Step 5: Keep these as plug-in experiences feeding the same profile, rather than separate products.
+
+### Task 4: Build verification
+
+**Files:** generated `psico-engine.js` from the current source archive.
 
 - [ ] Step 1: Extract the source archive into a temporary directory.
-- [ ] Step 2: Apply the full build patch chain.
+- [ ] Step 2: Apply the complete build patch chain.
 - [ ] Step 3: Run `node --check` on the generated engine.
-- [ ] Step 4: Assert the Phase 3B marker, state key, five-level metadata, and responsive CSS are present exactly once.
-- [ ] Step 5: Run the generated site in a local browser-capable smoke environment and verify hub visibility, game launch, result state, refresh persistence, and mobile width behavior.
+- [ ] Step 4: Assert the Phase 3B marker, state key, profile pillars, five-level metadata and responsive CSS are present exactly once.
+- [ ] Step 5: Smoke-test desktop and 360px mobile behavior.
+- [ ] Step 6: Verify game launch, result handling, XP/skill/mastery update, daily completion and refresh persistence.
+- [ ] Step 7: Verify no horizontal overflow and no console-blocking error in the experience flow.
 
-### Task 3: Final review gate
-
-**Files:**
-- Review: all Phase 3B changes on `phase-3b-experience`.
+### Task 5: Final review gate
 
 - [ ] Step 1: Review the diff for accidental changes outside Placurso.
-- [ ] Step 2: Re-run the full syntax/build verification after any fix.
+- [ ] Step 2: Re-run full syntax/build/browser verification after any fix.
 - [ ] Step 3: Confirm production `main` remains unchanged by this phase.
-- [ ] Step 4: Stop before production deployment and report the verified branch commit plus the exact production deployment gate.
+- [ ] Step 4: Stop before production deployment and report the verified branch commit and exact deployment gate.
