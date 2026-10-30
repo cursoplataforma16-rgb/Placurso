@@ -57,7 +57,7 @@ if "placurso:progress" not in phase3a or "source:'phase3a'" not in phase3a:
     raise SystemExit("Phase 3A progress event bridge is missing.")
 
 builder = (SCRIPTS / "build_netlify.py").read_text(encoding="utf-8")
-if builder.index("PATCH_PHASE3C_CRYPTO") > builder.index("PATCH_PHASE3D"):
+if builder.index("if PATCH_PHASE3C_CRYPTO.exists()") > builder.index("if PATCH_PHASE3D.exists()"):
     raise SystemExit("Phase 3D must run after Phase 3C in the build chain.")
 if "patch_phase3d_annan_profile.py" not in builder:
     raise SystemExit("Phase 3D patch is not included in build_netlify.py.")
