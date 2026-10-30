@@ -61,7 +61,7 @@ run('finance and strategy combine independent evidence using weighted totals', (
       advanced: { answered: 3, correct: 2 }
     }
   });
-  assert.equal(profile.skills.finance.samples, 9);
+  assert.equal(profile.skills.finance.samples, 12);
   assert.equal(profile.skills.finance.score, 67);
   assert.equal(profile.skills.strategy.samples, 5);
   assert.equal(profile.skills.strategy.score, 60);
