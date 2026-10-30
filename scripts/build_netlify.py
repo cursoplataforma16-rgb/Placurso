@@ -1,6 +1,5 @@
 from pathlib import Path
 from zipfile import ZipFile
-import re
 import shutil
 import subprocess
 
@@ -56,20 +55,21 @@ for item in WORK.iterdir():
     else:
         shutil.copy2(item, target)
 
-# A página principal já reconhece placurso.netlify.app e aplica a marca
-# Plataforma Curso. Não deve depender da função /cursos para abrir a raiz.
+# A página principal reconhece placurso.netlify.app e aplica a marca
+# Plataforma Curso. A raiz não pode depender da função /cursos para abrir.
 redirects = PUBLIC / '_redirects'
 if not redirects.is_file():
     raise SystemExit('ERRO: public/_redirects não foi preparado.')
-rules = redirects.read_text(encoding='utf-8')
-rules, changed = re.subn(
-    r'(?m)^(https://placurso\\.netlify\\.app/)\\s+\\S+\\s+(200!?)\\s*$',
-    r'\\1 /index.html \\2',
-    rules
-)
+lines = redirects.read_text(encoding='utf-8').splitlines()
+changed = 0
+for i, line in enumerate(lines):
+    fields = line.split()
+    if len(fields) == 3 and fields[0] == 'https://placurso.netlify.app/' and fields[2] in {'200', '200!'}:
+        lines[i] = f'{fields[0]} /index.html {fields[2]}'
+        changed += 1
 if changed != 1:
     raise SystemExit('ERRO: não foi possível corrigir a rota inicial exclusiva do Placurso.')
-redirects.write_text(rules, encoding='utf-8')
+redirects.write_text('\n'.join(lines) + '\n', encoding='utf-8')
 
 if not (PUBLIC / 'index.html').is_file():
     raise SystemExit('ERRO: public/index.html não foi preparado.')
