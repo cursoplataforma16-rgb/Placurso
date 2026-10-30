@@ -10,6 +10,7 @@ PUBLIC = ROOT / 'public'
 FUNCTIONS = ROOT / 'netlify' / 'functions'
 PATCH = ROOT / 'scripts' / 'patch_games_ui.py'
 PATCH_PHASE2 = ROOT / 'scripts' / 'patch_phase2_progression.py'
+PATCH_PHASE3A = ROOT / 'scripts' / 'patch_phase3a_games.py'
 
 if not ARCHIVE.exists():
     raise SystemExit('ERRO: placurso-site-root.zip não encontrado.')
@@ -34,6 +35,10 @@ if PATCH.exists() and engine.exists():
 # Fase 2: progressão persistente de nível, XP, partidas, acertos e tempo.
 if PATCH_PHASE2.exists() and engine.exists():
     subprocess.run(['python3', str(PATCH_PHASE2), str(engine)], cwd=ROOT, check=True)
+
+# Fase 3A: quatro novos motores simples, mobile-first, com níveis progressivos.
+if PATCH_PHASE3A.exists() and engine.exists():
+    subprocess.run(['python3', str(PATCH_PHASE3A), str(engine)], cwd=ROOT, check=True)
 
 public_engine = WORK / 'public' / 'psico-engine.js'
 if public_engine.parent.exists() and engine.exists():
@@ -76,7 +81,8 @@ if not (FUNCTIONS / 'seo.mjs').is_file():
     raise SystemExit('ERRO: a função SEO não foi preparada.')
 
 print(f'OK: {sum(1 for x in PUBLIC.rglob("*") if x.is_file())} recursos estáticos preparados.')
-print('OK: Fase 1 + Fase 2 preparadas no motor de jogos.')
+print('OK: Fase 1 + Fase 2 + Fase 3A preparadas no motor de jogos.')
 print('OK: progressão persistente: nível, XP, partidas, acertos e tempo.')
+print('OK: 4 experiências novas: memória, reflexo, dinheiro e negócio.')
 print('OK: / no domínio Placurso serve index.html.')
 print(f'OK: função Netlify pronta: {FUNCTIONS / "seo.mjs"}')
