@@ -1,0 +1,42 @@
+name: Phase 3D verification
+
+on:
+  push:
+    branches:
+      - phase-3b-experience
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Node and build-pipeline checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Placurso
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Test crypto progression
+        run: node scripts/test_crypto_progression_core.js
+
+      - name: Test ANNAN profile calculations
+        run: node scripts/test_annan_profile_core.js
+
+      - name: Compile Python patch scripts
+        run: python -m py_compile scripts/*.py
+
+      - name: Verify Phase 3C and 3D patch composition
+        run: python scripts/test_phase3d_patch_pipeline.py
