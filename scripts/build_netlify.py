@@ -13,6 +13,7 @@ PATCH_PHASE2 = ROOT / 'scripts' / 'patch_phase2_progression.py'
 PATCH_PHASE3A = ROOT / 'scripts' / 'patch_phase3a_games.py'
 PATCH_PHASE3A_VIS = ROOT / 'scripts' / 'patch_phase3a_visibility.py'
 PATCH_PHASE3B = ROOT / 'scripts' / 'patch_phase3b_experience.py'
+PATCH_PHASE3B_TRADE = ROOT / 'scripts' / 'patch_phase3b_trade.py'
 
 if not ARCHIVE.exists():
     raise SystemExit('ERRO: placurso-site-root.zip não encontrado.')
@@ -40,6 +41,8 @@ if PATCH_PHASE3A_VIS.exists() and engine.exists():
     subprocess.run(['python3', str(PATCH_PHASE3A_VIS), str(engine)], cwd=ROOT, check=True)
 if PATCH_PHASE3B.exists() and engine.exists():
     subprocess.run(['python3', str(PATCH_PHASE3B), str(engine)], cwd=ROOT, check=True)
+if PATCH_PHASE3B_TRADE.exists() and engine.exists():
+    subprocess.run(['python3', str(PATCH_PHASE3B_TRADE), str(engine)], cwd=ROOT, check=True)
 
 if engine.exists():
     subprocess.run(['node', '--check', str(engine)], cwd=ROOT, check=True)
@@ -90,5 +93,6 @@ print('OK: fallback visual da Fase 3A preparado.')
 print('OK: progressão persistente: nível, XP, partidas, acertos e tempo.')
 print('OK: 4 experiências novas: memória, reflexo, dinheiro e negócio.')
 print('OK: experiência profissional Fase 3B: perfil, maestria e desafio diário.')
+print('OK: formação cripto/trade: básico, intermédio e avançado em formato de experiência.')
 print('OK: / no domínio Placurso serve index.html.')
 print(f'OK: função Netlify pronta: {FUNCTIONS / "seo.mjs"}')
