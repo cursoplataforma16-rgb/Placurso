@@ -142,9 +142,10 @@ script = r'''
        scores. Hide that small legacy strip; this evidence-based profile replaces it. */
     var legacySkills=hub.querySelector('.p3b-experience');
     if(legacySkills){
-      var legacyStyle=document.createElement('style');
-      legacyStyle.textContent='.p3b-experience .p3b-section-title:first-of-type,.p3b-experience #p3bSkills{display:none!important}';
-      document.head.appendChild(legacyStyle);
+      var legacyTitle=legacySkills.querySelector('.p3b-section-title');
+      var legacyGrid=legacySkills.querySelector('#p3bSkills');
+      if(legacyTitle)legacyTitle.style.display='none';
+      if(legacyGrid)legacyGrid.style.display='none';
     }
     render();
   }
