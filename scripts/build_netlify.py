@@ -9,6 +9,7 @@ WORK = ROOT / '.site-extracted'
 PUBLIC = ROOT / 'public'
 FUNCTIONS = ROOT / 'netlify' / 'functions'
 PATCH = ROOT / 'scripts' / 'patch_games_ui.py'
+PATCH_PHASE2 = ROOT / 'scripts' / 'patch_phase2_progression.py'
 
 if not ARCHIVE.exists():
     raise SystemExit('ERRO: placurso-site-root.zip não encontrado.')
@@ -25,18 +26,19 @@ with ZipFile(ARCHIVE) as archive:
         raise SystemExit(f'ERRO: ficheiro inválido no pacote: {invalid}')
     archive.extractall(WORK)
 
-# Aplica a organização visual dos jogos sobre o motor existente.
+# Fase 1: interface mobile-first e catálogo de microjogos.
 engine = WORK / 'psico-engine.js'
 if PATCH.exists() and engine.exists():
     subprocess.run(['python3', str(PATCH), str(engine)], cwd=ROOT, check=True)
 
-# Mantém a cópia pública do motor alinhada, quando o pacote incluir uma.
+# Fase 2: progressão persistente de nível, XP, partidas, acertos e tempo.
+if PATCH_PHASE2.exists() and engine.exists():
+    subprocess.run(['python3', str(PATCH_PHASE2), str(engine)], cwd=ROOT, check=True)
+
 public_engine = WORK / 'public' / 'psico-engine.js'
 if public_engine.parent.exists() and engine.exists():
     shutil.copy2(engine, public_engine)
 
-# O Netlify procura funções em netlify/functions na raiz do repositório.
-# O ZIP é a fonte do site; a função SEO trata /cursos, /p e os sitemaps.
 source_seo = WORK / 'netlify' / 'functions' / 'seo.mjs'
 if not source_seo.is_file():
     raise SystemExit('ERRO: netlify/functions/seo.mjs não encontrado no pacote.')
@@ -45,7 +47,6 @@ if FUNCTIONS.exists():
 FUNCTIONS.mkdir(parents=True, exist_ok=True)
 shutil.copy2(source_seo, FUNCTIONS / 'seo.mjs')
 
-# Publica os recursos estáticos, mas nunca expõe o código das funções.
 for item in WORK.iterdir():
     if item.name in {'public', '.site-extracted', 'netlify.toml', 'netlify'}:
         continue
@@ -55,8 +56,6 @@ for item in WORK.iterdir():
     else:
         shutil.copy2(item, target)
 
-# A página principal reconhece placurso.netlify.app e aplica a marca
-# Plataforma Curso. A raiz não pode depender da função /cursos para abrir.
 redirects = PUBLIC / '_redirects'
 if not redirects.is_file():
     raise SystemExit('ERRO: public/_redirects não foi preparado.')
@@ -77,5 +76,7 @@ if not (FUNCTIONS / 'seo.mjs').is_file():
     raise SystemExit('ERRO: a função SEO não foi preparada.')
 
 print(f'OK: {sum(1 for x in PUBLIC.rglob("*") if x.is_file())} recursos estáticos preparados.')
-print('OK: / no domínio Placurso serve index.html; a página identifica o domínio e aplica a marca Plataforma Curso.')
+print('OK: Fase 1 + Fase 2 preparadas no motor de jogos.')
+print('OK: progressão persistente: nível, XP, partidas, acertos e tempo.')
+print('OK: / no domínio Placurso serve index.html.')
 print(f'OK: função Netlify pronta: {FUNCTIONS / "seo.mjs"}')
