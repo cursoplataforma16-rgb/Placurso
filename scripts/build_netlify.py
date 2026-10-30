@@ -40,6 +40,10 @@ if PATCH_PHASE2.exists() and engine.exists():
 if PATCH_PHASE3A.exists() and engine.exists():
     subprocess.run(['python3', str(PATCH_PHASE3A), str(engine)], cwd=ROOT, check=True)
 
+# Bloqueia a publicação se o motor de jogos tiver erro de sintaxe JavaScript.
+if engine.exists():
+    subprocess.run(['node', '--check', str(engine)], cwd=ROOT, check=True)
+
 public_engine = WORK / 'public' / 'psico-engine.js'
 if public_engine.parent.exists() and engine.exists():
     shutil.copy2(engine, public_engine)
