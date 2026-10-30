@@ -1,6 +1,6 @@
 [build]
-  command = "unzip -o placurso-site-root.zip -d ."
-  publish = "."
+  command = "python3 scripts/build_netlify.py"
+  publish = "public"
 
 [functions]
   directory = "netlify/functions"
