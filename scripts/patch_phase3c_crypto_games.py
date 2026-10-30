@@ -85,7 +85,7 @@ script = r'''
       persist();
       refreshLevels();
       if(window.dispatchEvent&&typeof CustomEvent==='function'){
-        window.dispatchEvent(new CustomEvent('placurso:progress',{detail:{source:'crypto',level:current,correct:score,total:g.questions.length,passed:result.passed}}));
+        window.dispatchEvent(new CustomEvent('placurso:progress',{detail:{id:'crypto-'+Date.now()+'-'+state.completed,source:'crypto',level:current,correct:score,total:g.questions.length,passed:result.passed}}));
       }
       var unlockedNext=current==='basic'?'intermediate':current==='intermediate'?'advanced':null;
       var nextButton=unlockedNext&&Progress.canStartCryptoLevel(state,unlockedNext)
