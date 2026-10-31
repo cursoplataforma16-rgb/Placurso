@@ -19,16 +19,32 @@ with tempfile.TemporaryDirectory(prefix="placurso-phase3d-") as temp:
     )
 
     for patch in PATCHES:
-        subprocess.run(
+        result = subprocess.run(
             [sys.executable, str(patch), str(engine)],
             cwd=ROOT,
-            check=True,
+            check=False,
             capture_output=True,
             text=True,
         )
+        if result.returncode != 0:
+            raise SystemExit(
+                f"Patch failed: {patch.name}\n"
+                f"stdout:\n{result.stdout}\n"
+                f"stderr:\n{result.stderr}"
+            )
+        if patch.name == "patch_phase3c_crypto_games.py":
+            after = engine.read_text(encoding="utf-8")
+            marker = "PLACURSO_PHASE3C_CRYPTO_GAMES"
+            if marker not in after:
+                raise SystemExit(
+                    "Phase 3C patch returned success but did not write its marker.\n"
+                    f"stdout:\n{result.stdout}\n"
+                    f"tail:\n{after[-1200:]}"
+                )
 
     generated = engine.read_text(encoding="utf-8")
     required = [
+        "PLACURSO_PHASE3B_TRADE_EDUCATION",
         "PLACURSO_CRYPTO_PROGRESS_CORE",
         "PLACURSO_PHASE3C_CRYPTO_GAMES",
         "PLACURSO_ANNAN_PROFILE_CORE",
