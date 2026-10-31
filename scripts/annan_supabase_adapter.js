@@ -33,37 +33,20 @@
 
   function normalizeEvent(detail){
     if(!detail||typeof detail!=='object'||typeof detail.id!=='string'||!detail.id) return null;
-    var score=Number(detail.score);
-    if(!Number.isFinite(score)) score=null;
-    var correct=Number(detail.correct);
-    if(!Number.isFinite(correct)) correct=null;
-    var total=Number(detail.total);
-    if(!Number.isFinite(total)) total=null;
-    return {
-      event_id:detail.id,
-      source:typeof detail.source==='string'?detail.source:null,
-      game:typeof detail.game==='string'?detail.game:null,
-      level:typeof detail.level==='string'?detail.level:null,
-      correct:correct,
-      total:total,
-      score:score,
-      passed:typeof detail.passed==='boolean'?detail.passed:null,
-      occurred_at:typeof detail.occurredAt==='string'?detail.occurredAt:(typeof detail.occurred_at==='string'?detail.occurred_at:new Date().toISOString())
-    };
+    var score=Number(detail.score); if(!Number.isFinite(score)) score=null;
+    var correct=Number(detail.correct); if(!Number.isFinite(correct)) correct=null;
+    var total=Number(detail.total); if(!Number.isFinite(total)) total=null;
+    return {event_id:detail.id,source:typeof detail.source==='string'?detail.source:null,game:typeof detail.game==='string'?detail.game:null,level:typeof detail.level==='string'?detail.level:null,correct:correct,total:total,score:score,passed:typeof detail.passed==='boolean'?detail.passed:null,occurred_at:typeof detail.occurredAt==='string'?detail.occurredAt:(typeof detail.occurred_at==='string'?detail.occurred_at:new Date().toISOString())};
   }
 
   function syncEvent(detail){
     var event=normalizeEvent(detail);
     if(!event||!event.source||!event.game) return Promise.resolve({ok:false,reason:'invalid_event'});
-    queue=queue.then(function(){return getClient().then(function(sb){
-      return sb.auth.getUser().then(function(result){
-        if(result.error||!result.data||!result.data.user) return {ok:false,reason:'unauthenticated'};
-        event.user_id=result.data.user.id;
-        return sb.from(TABLE).upsert(event,{onConflict:'user_id,event_id'}).then(function(result){
-          return result.error?{ok:false,reason:result.error.message}:{ok:true,event_id:event.event_id};
-        });
-      });
-    });});
+    queue=queue.then(function(){return getClient().then(function(sb){return sb.auth.getUser().then(function(result){
+      if(result.error||!result.data||!result.data.user) return {ok:false,reason:'unauthenticated'};
+      event.user_id=result.data.user.id;
+      return sb.from(TABLE).upsert(event,{onConflict:'user_id,event_id'}).then(function(result){return result.error?{ok:false,reason:result.error.message}:{ok:true,event_id:event.event_id};});
+    });});});
     return queue;
   }
 
@@ -71,9 +54,7 @@
     var size=Math.min(Math.max(Number(limit)||120,1),240);
     return getClient().then(function(sb){return sb.auth.getUser().then(function(result){
       if(result.error||!result.data||!result.data.user) return {ok:false,reason:'unauthenticated',events:[]};
-      return sb.from(TABLE).select('event_id,source,game,level,correct,total,score,passed,occurred_at').eq('user_id',result.data.user.id).order('occurred_at',{ascending:false}).limit(size).then(function(result){
-        return result.error?{ok:false,reason:result.error.message,events:[]}:{ok:true,events:Array.isArray(result.data)?result.data:[]};
-      });
+      return sb.from(TABLE).select('event_id,source,game,level,correct,total,score,passed,occurred_at').eq('user_id',result.data.user.id).order('occurred_at',{ascending:false}).limit(size).then(function(result){return result.error?{ok:false,reason:result.error.message,events:[]}:{ok:true,events:Array.isArray(result.data)?result.data:[]};});
     });});
   }
 
@@ -118,4 +99,17 @@
 
   window.PlacursoAnnanPersistence={version:1,key:CLIENT_KEY,projectUrl:PROJECT_URL,getClient:getClient,normalizeEvent:normalizeEvent,syncEvent:syncEvent,loadEvents:loadEvents,upsertProfile:upsertProfile,loadProfile:loadProfile,bootstrap:bootstrap,isConfigured:function(){return !!PROJECT_URL&&!!PUBLISHABLE_KEY;}};
   window.addEventListener('placurso:progress',function(event){syncEvent(event&&event.detail?event.detail:null);});
+
+  function bootstrapWhenReady(){
+    var Learning=window.PlacursoAnnanLearningCore;
+    if(!Learning){setTimeout(bootstrapWhenReady,500);return;}
+    var state=null;
+    try{state=JSON.parse(localStorage.getItem('placurso_annan_learning_v1')||'null');}catch(e){state=null;}
+    bootstrap(Learning,state).then(function(result){
+      if(result&&result.ok) window.dispatchEvent(new CustomEvent('placurso:annan-persistence-status',{detail:{ok:true,count:result.events.length}}));
+    }).catch(function(){
+      window.dispatchEvent(new CustomEvent('placurso:annan-persistence-status',{detail:{ok:false}}));
+    });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',bootstrapWhenReady); else setTimeout(bootstrapWhenReady,0);
 })();
