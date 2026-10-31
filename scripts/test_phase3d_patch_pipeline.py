@@ -32,6 +32,15 @@ with tempfile.TemporaryDirectory(prefix="placurso-phase3d-") as temp:
                 f"stdout:\n{result.stdout}\n"
                 f"stderr:\n{result.stderr}"
             )
+        if patch.name == "patch_phase3c_crypto_games.py":
+            after = engine.read_text(encoding="utf-8")
+            marker = "PLACURSO_PHASE3C_CRYPTO_GAMES"
+            if marker not in after:
+                raise SystemExit(
+                    "Phase 3C patch returned success but did not write its marker.\n"
+                    f"stdout:\n{result.stdout}\n"
+                    f"tail:\n{after[-1200:]}"
+                )
 
     generated = engine.read_text(encoding="utf-8")
     required = [
