@@ -49,6 +49,11 @@ with tempfile.TemporaryDirectory(prefix="placurso-phase3d-") as temp:
         "PLACURSO_PHASE3C_CRYPTO_GAMES",
         "PLACURSO_ANNAN_PROFILE_CORE",
         "PLACURSO_PHASE3D_ANNAN_PROFILE",
+        "PLACURSO_ANNAN_LEARNING_CORE",
+        "PlacursoAnnanLearningCore",
+        "Learning.recordLearningEvent",
+        "Learning.recommendNextAction",
+        "placurso_annan_learning_v1",
         "placurso_crypto_learning_v2",
         "placurso_annan_profile_v1",
         "placurso:progress",
@@ -61,6 +66,7 @@ with tempfile.TemporaryDirectory(prefix="placurso-phase3d-") as temp:
         "/* PLACURSO_CRYPTO_PROGRESS_CORE */",
         "/* PLACURSO_PHASE3C_CRYPTO_GAMES */",
         "/* PLACURSO_ANNAN_PROFILE_CORE */",
+        "/* PLACURSO_ANNAN_LEARNING_CORE */",
         "/* PLACURSO_PHASE3D_ANNAN_PROFILE */",
     ]:
         if generated.count(marker) != 1:
