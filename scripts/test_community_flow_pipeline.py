@@ -19,7 +19,9 @@ with tempfile.TemporaryDirectory(prefix='placurso-community-') as temp:
         raise SystemExit(f'community patch failed:\n{r.stdout}\n{r.stderr}')
     subprocess.run(['node','--check',str(engine)],cwd=ROOT,check=True)
     generated=engine.read_text(encoding='utf-8')
-    for marker in ['PLACURSO_PHASE3C_CRYPTO_GAMES','PLACURSO_PHASE3D_ANNAN_PROFILE','PLACURSO_COMMUNITY_FUNCTIONAL_FLOW_V1','PlacursoCommunityAccess','PlacursoPsychotechnical','PlacursoBibleLearning','Área de Aluno','Centro de Desafios']:
+    for marker in ['PLACURSO_PHASE3C_CRYPTO_GAMES','PLACURSO_PHASE3D_ANNAN_PROFILE','PLACURSO_ANNAN_LEARNING_CORE','PLACURSO_COMMUNITY_FUNCTIONAL_FLOW_V1','PlacursoCommunityAccess','PlacursoPsychotechnical','PlacursoBibleLearning','Área de Aluno','Centro de Desafios']:
         if marker not in generated: raise SystemExit('Missing marker: '+marker)
+    for event_marker in ["source:'psychotechnical'", "source:'bible'", "placurso_bible_progress_v1"]:
+        if event_marker not in generated: raise SystemExit('Missing ANNAN learning event integration: '+event_marker)
     if generated.count('PLACURSO_COMMUNITY_FUNCTIONAL_FLOW_V1')!=1: raise SystemExit('Community marker duplicated.')
 print('OK: community flow composes with Phase 3C/3D and passes Node syntax.')
