@@ -17,6 +17,18 @@ jobs:
       - name: Verify ANNAN Supabase schema contract
         run: python scripts/test_annan_supabase_schema.py
 
+  browser-persistence-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Verify browser ANNAN persistence contract
+        run: python scripts/test_phase6_browser_persistence_contract.py
+      - name: Check browser adapter syntax
+        run: node --check scripts/annan_supabase_adapter.js
+
   aads-preservation:
     runs-on: ubuntu-latest
     steps:
