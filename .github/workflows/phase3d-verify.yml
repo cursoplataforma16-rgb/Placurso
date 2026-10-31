@@ -40,3 +40,6 @@ jobs:
 
       - name: Verify Phase 3C and 3D patch composition
         run: python scripts/test_phase3d_patch_pipeline.py
+
+      - name: Reproduce the exact Netlify build command
+        run: python3 scripts/build_netlify.py && python3 scripts/strategic_games_patch.py && python3 scripts/strategic_decision_game.py
