@@ -1,0 +1,1 @@
+Phase 7 first slice: deterministic opportunity normalization, allow-listed product types, source traceability, fixed production stages, no external side effects, and A-Ads boundary verification.
