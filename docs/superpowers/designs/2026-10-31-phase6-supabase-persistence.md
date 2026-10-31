@@ -6,7 +6,7 @@ Move ANNAN learning memory from device-only persistence to secure account-backed
 ## Current state
 Phase 5 is now merged into `main`. ANNAN records bounded learning outcomes locally in `placurso_annan_learning_v1`, summarizes evidence, and recommends a next action. No raw psychotechnical answers are stored.
 
-The configured Supabase project for Placurso is `plataforma-curso` (`ebdrrsrvjsdjthatfbcd`), but it is currently inactive because the account has reached its free-project active limit. Therefore database execution must remain blocked until the project can be restored or the user chooses an active Placurso Supabase project.
+The configured Supabase project for Placurso is `plataforma-curso` (`ebdrrsrvjsdjthatfbcd`) and is ACTIVE_HEALTHY. The schema is live: migration versions `20261031175433` (ANNAN tables, RLS and ownership policies) and `20261031175547` (least-privilege API grants) are applied. Anonymous access is revoked; authenticated students can select, insert and update only their own rows. The browser adapter, authenticated session bridge, cross-device merge, and typed client integration remain to be implemented.
 
 ## Design
 1. **Identity:** Supabase Auth identifies a registered student. Anonymous/public visitors remain outside the persistent student ledger.
