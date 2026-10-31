@@ -1,6 +1,6 @@
 # ANNAN Learning Engine Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Give ANNAN a bounded, duplicate-safe learning memory and evidence-based next-action recommendations connected to existing Placurso experiences.
 
@@ -42,10 +42,10 @@
 - `summarizeLearning(state)`
 - `recommendNextAction(profile, state, profileAnalysis)`
 
-- [ ] Write tests for rejected invalid events, event normalization, duplicate IDs, the 120-event cap, safe sanitization, accurate summaries, weak-result reinforcement, Bible continuation, and profile fallback.
-- [ ] Run the new Node test before implementation and confirm it fails because the learning API is missing.
-- [ ] Implement the smallest pure core that satisfies the tests.
-- [ ] Run the focused test and the existing ANNAN profile tests.
+- [x] Write tests for rejected invalid events, event normalization, duplicate IDs, the 120-event cap, safe sanitization, accurate summaries, weak-result reinforcement, Bible continuation, and profile fallback.
+- [x] Run the new Node test before implementation and confirm it fails because the learning API is missing.
+- [x] Implement the smallest pure core that satisfies the tests.
+- [x] Run the focused test and the existing ANNAN profile tests.
 
 ### Task 2: Capture psychotechnical and Biblical results
 
@@ -57,10 +57,10 @@
 - Publish `placurso:progress` events with stable IDs and source/game labels `psychotechnical` and `bible`.
 - Keep the existing 7-question completion and Bible progression behavior unchanged.
 
-- [ ] Add pipeline assertions for both event producers.
-- [ ] Verify the assertions fail before the integration change.
-- [ ] Add event dispatch only after each result has been calculated and persisted.
-- [ ] Run the community pipeline test.
+- [x] Add pipeline assertions for both event producers.
+- [x] Verify the assertions fail before the integration change.
+- [x] Add event dispatch only after each result has been calculated and persisted.
+- [x] Run the community pipeline test.
 
 ### Task 3: Connect the learning core to Phase 3D
 
@@ -74,11 +74,11 @@
 - Consume the shared `placurso:progress` event, ignore duplicate IDs, and render an action/reason from `recommendNextAction`.
 - Keep existing profile snapshots and score calculations intact.
 
-- [ ] Add pipeline assertions for the learning core marker, store key, event listener and recommendation call.
-- [ ] Verify the assertions fail before patcher changes.
-- [ ] Integrate the core and event listener with safe localStorage handling.
-- [ ] Add the Bible route to the existing launch behavior without changing Bible questions or scoring.
-- [ ] Run Phase 3D pipeline and JavaScript syntax verification.
+- [x] Add pipeline assertions for the learning core marker, store key, event listener and recommendation call.
+- [x] Verify the assertions fail before patcher changes.
+- [x] Integrate the core and event listener with safe localStorage handling.
+- [x] Add the Bible route to the existing launch behavior without changing Bible questions or scoring.
+- [x] Run Phase 3D pipeline and JavaScript syntax verification.
 
 ### Task 4: CI and full regression
 
@@ -86,9 +86,17 @@
 - Modify: `.github/workflows/phase3d-verify.yml`
 - Verify: existing Node and Python tests, exact Netlify build command.
 
-- [ ] Add the new learning-core Node test to CI.
-- [ ] Run all Node core tests.
-- [ ] Run all existing Python pipeline/guard tests and Python compilation.
-- [ ] Reproduce the Netlify build in CI and verify generated engine syntax and markers.
-- [ ] Inspect the final diff and open a pull request to `main`.
-- [ ] Do not deploy until the complete batch is verified and production target is confirmed.
+- [x] Add the new learning-core Node test to CI.
+- [x] Run all Node core tests.
+- [x] Run all existing Python pipeline/guard tests and Python compilation.
+- [x] Reproduce the Netlify build in CI and verify generated engine syntax and markers.
+- [x] Inspect the final diff and open a pull request to `main`.
+- [x] Do not deploy until the complete batch is verified and production target is confirmed.
+
+
+## Release status
+
+- [x] PR #5 opened against `main`.
+- [x] GitHub Actions functional verification passed on the branch and again for the pull request.
+- [x] Netlify pull-request preview checks completed; this is not a production release.
+- [x] No production deployment was initiated in this phase.
