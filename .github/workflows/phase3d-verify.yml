@@ -51,5 +51,8 @@ jobs:
       - name: Verify community composition with Phase 3C and 3D
         run: python scripts/test_community_flow_pipeline.py
 
+      - name: Verify Phase 4 public guard
+        run: python scripts/test_phase4_public_guard.py
+
       - name: Reproduce the exact Netlify build command
         run: python3 scripts/build_netlify.py
