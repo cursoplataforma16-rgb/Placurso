@@ -6,7 +6,7 @@ SCRIPT = PATCH.split("script=r'''", 1)[1].split("'''", 1)[0]
 
 def test_a_ads_are_explicitly_exempted_from_public_ad_cleanup():
     assert "function isAAdsElement(el)" in SCRIPT
-    assert "a-?ads\\\\.com" in SCRIPT
+    assert "a-?ads\\.com" in SCRIPT
     assert "if(isAAdsElement(el)) return;" in SCRIPT
     assert "if(!isAAdsElement(target))" in SCRIPT
     assert 'a[href*="aads.com"]' not in SCRIPT
