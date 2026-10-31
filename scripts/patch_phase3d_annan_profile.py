@@ -17,14 +17,24 @@ core_source = core_path.read_text(encoding='utf-8')
 if core_marker in s:
     raise SystemExit('ERRO: núcleo do perfil ANNAN já existe no motor base.')
 
+learning_core_path = Path(__file__).with_name('annan_learning_core.js')
+if not learning_core_path.is_file():
+    raise SystemExit('ERRO: annan_learning_core.js não encontrado.')
+learning_core_source = learning_core_path.read_text(encoding='utf-8')
+learning_core_marker = 'PLACURSO_ANNAN_LEARNING_CORE'
+if learning_core_marker in s:
+    raise SystemExit('ERRO: núcleo de aprendizagem ANNAN já existe no motor base.')
+
 script = r'''
 (function(){
   function boot(){
     var hub=document.querySelector('.pch-games-hub');
     var Core=window.PlacursoAnnanProfileCore;
-    if(!hub||!Core||hub.dataset.phase3dAnnan==='1') return;
+    var Learning=window.PlacursoAnnanLearningCore;
+    if(!hub||!Core||!Learning||hub.dataset.phase3dAnnan==='1') return;
     hub.dataset.phase3dAnnan='1';
     var PROFILE_KEY='placurso_annan_profile_v1';
+    var LEARNING_KEY='placurso_annan_learning_v1';
     var GAME_KEY='placurso_phase3a_games_v1';
     var CRYPTO_KEY='placurso_crypto_learning_v2';
 
@@ -39,6 +49,8 @@ script = r'''
       return {history:Array.isArray(saved.history)?saved.history.slice(-30):[],updatedAt:typeof saved.updatedAt==='string'?saved.updatedAt:null,lastEventId:typeof saved.lastEventId==='string'?saved.lastEventId:null};
     }
     var state=safeState();
+    function safeLearningState(){return Learning.sanitizeLearningState(read(LEARNING_KEY)||{});}
+    var learningState=safeLearningState();
 
     var css=document.createElement('style');
     css.textContent=".p3d-profile{margin:14px 0 20px;padding:16px;border:1px solid #D9C8A7;border-radius:20px;background:#F9F6EF;color:#202A24}.p3d-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.p3d-kicker{font-size:9px;letter-spacing:1.3px;font-weight:950;color:#A43D2F}.p3d-title{margin:6px 0 4px;font-size:21px;line-height:1.15}.p3d-intro{margin:0;color:#696357;font-size:11px;line-height:1.5;max-width:620px}.p3d-updated{padding:5px 8px;border-radius:999px;background:#EEE6D6;color:#574E42;font-size:8px;font-weight:900;white-space:nowrap}.p3d-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:13px}.p3d-skill{display:block;width:100%;min-width:0;padding:11px;border:1px solid #E0D5C2;border-radius:13px;background:#fff;text-align:left;color:#202A24;cursor:pointer}.p3d-skill:disabled{opacity:.72;cursor:default}.p3d-skill:focus-visible,.p3d-next:focus-visible{outline:3px solid #A43D2F;outline-offset:2px}.p3d-skill-top{display:flex;justify-content:space-between;align-items:center;gap:6px;font-size:10px;font-weight:900}.p3d-skill-score{display:block;margin-top:7px;font-size:21px;font-weight:950;line-height:1}.p3d-skill-status{display:block;margin-top:6px;color:#756D60;font-size:9px;line-height:1.35}.p3d-meter{height:5px;margin-top:8px;border-radius:99px;background:#E8E0D2;overflow:hidden}.p3d-meter i{display:block;height:100%;border-radius:99px;background:#A43D2F}.p3d-analysis{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;margin-top:12px;padding:13px;border-radius:15px;background:#202A24;color:#F7EBD1}.p3d-analysis-label{font-size:8px;letter-spacing:1px;font-weight:950;color:#D8C59F}.p3d-message{margin:5px 0 0;font-size:11px;line-height:1.55}.p3d-trend{margin:5px 0 0;color:#D9D0C0;font-size:9px;line-height:1.4}.p3d-next{min-height:42px;padding:0 13px;border:0;border-radius:11px;background:#A43D2F;color:#fff;font-size:10px;font-weight:950;cursor:pointer}.p3d-history{margin-top:9px;color:#756D60;font-size:9px;line-height:1.4}.p3d-note{margin:8px 0 0;color:#756D60;font-size:8px;line-height:1.4}@media(max-width:720px){.p3d-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.p3d-head{display:block}.p3d-updated{display:inline-block;margin-top:8px}.p3d-analysis{grid-template-columns:1fr}.p3d-next{width:100%}}@media(max-width:360px){.p3d-profile{padding:12px}.p3d-grid{gap:6px}.p3d-skill{padding:9px}.p3d-skill-top{font-size:9px}}";
@@ -58,12 +70,17 @@ script = r'''
     function persist(){
       try{localStorage.setItem(PROFILE_KEY,JSON.stringify(state));}catch(e){}
     }
+    function persistLearning(){
+      try{localStorage.setItem(LEARNING_KEY,JSON.stringify(learningState));return true;}catch(e){return false;}
+    }
     function hasRecordedData(profile){
       return Object.keys(profile.skills).some(function(id){return profile.skills[id].samples>0;});
     }
     function render(){
       var profile=currentProfile();
       var analysis=Core.analyseAnnanProfile(profile);
+      var learningSummary=Learning.summarizeLearning(learningState);
+      var recommended=Learning.recommendNextAction(profile,learningState,analysis);
       var host=section.querySelector('#p3dSkills');
       var order=['memory','focus','decision','finance','strategy','business','ai'];
       host.innerHTML=order.map(function(id){
@@ -74,19 +91,22 @@ script = r'''
         var disabled=!skill.action;
         return '<button type="button" class="p3d-skill" data-p3d-skill="'+id+'" aria-label="'+skill.label+': '+(skill.score===null?status:score+', '+status)+'" '+(disabled?'disabled':'')+'><span class="p3d-skill-top"><span>'+skill.icon+' '+skill.label+'</span><span>'+score+'</span></span>'+meter+'<span class="p3d-skill-status">'+status+'</span></button>';
       }).join('');
-      section.querySelector('#p3dMessage').textContent=analysis.message;
+      section.querySelector('#p3dMessage').textContent=recommended.reason;
       var trend=analysis.next?Core.getSkillTrend(state.history,analysis.next.id):null;
-      section.querySelector('#p3dTrend').textContent=trend
-        ? 'Evolução em '+analysis.next.label+': '+(trend.change>0?'+':'')+trend.change+' pontos percentuais desde o registo anterior.'
-        : 'A evolução recente aparecerá quando existirem dois registos comparáveis.';
-      section.querySelector('#p3dNext').textContent=analysis.next?'Praticar '+analysis.next.label:'Ver desafios';
-      section.querySelector('#p3dNext').disabled=!analysis.next;
-      section.querySelector('#p3dHistory').textContent=state.history.length===0
-        ? 'Ainda sem histórico. O primeiro registo será guardado após o próximo desafio.'
-        : state.history.length===1
-          ? 'Base inicial guardada. O próximo desafio permitirá comparar a evolução.'
-          : state.history.length+' registos guardados neste dispositivo.';
-      section.querySelector('#p3dUpdated').textContent=state.updatedAt?'Perfil actualizado':'A acompanhar';
+      var trendText=trend
+        ? 'Evolução em '+analysis.next.label+': '+(trend.change>0?'+':'')+trend.change+' pontos percentuais.'
+        : 'A comparação de evolução será apresentada quando existirem dois registos comparáveis.';
+      section.querySelector('#p3dTrend').textContent=learningSummary.totalEvents
+        ? learningSummary.totalEvents+' resultados guardados · média recente '+learningSummary.recentAverageScore+'%. '+trendText
+        : trendText;
+      section.querySelector('#p3dNext').textContent=recommended.label||'Ver desafios';
+      section.querySelector('#p3dNext').disabled=!recommended.action;
+      section.querySelector('#p3dHistory').textContent=learningSummary.totalEvents
+        ? learningSummary.totalEvents+' resultados guardados neste dispositivo; histórico de evolução com '+state.history.length+' registos.'
+        : state.history.length===0
+          ? 'Ainda sem histórico. O primeiro resultado será guardado após o próximo desafio.'
+          : state.history.length+' registos de evolução guardados neste dispositivo.';
+      section.querySelector('#p3dUpdated').textContent=(learningState.updatedAt||state.updatedAt)?'Perfil actualizado':'A acompanhar';
       if(!state.history.length&&hasRecordedData(profile)){
         state.history=Core.addProfileSnapshot(state.history,profile,new Date().toISOString(),'baseline-'+new Date().toISOString().slice(0,10));
         state.updatedAt=new Date().toISOString();
@@ -98,6 +118,10 @@ script = r'''
 
     function launch(skill){
       if(!skill||!skill.action)return;
+      if(skill.action==='biblia'){
+        var bibleButton=document.querySelector('[data-member-game="biblia"]');
+        if(bibleButton){bibleButton.click();return;}
+      }
       if(skill.action==='crypto'){
         var cryptoState=read(CRYPTO_KEY)||{};
         var crypto=window.PlacursoCryptoProgression;
@@ -114,7 +138,10 @@ script = r'''
     }
 
     section.querySelector('#p3dNext').addEventListener('click',function(){
-      launch(Core.analyseAnnanProfile(currentProfile()).next);
+      var profile=currentProfile();
+      var analysis=Core.analyseAnnanProfile(profile);
+      var recommended=Learning.recommendNextAction(profile,learningState,analysis);
+      launch({action:recommended.action});
     });
     section.querySelector('#p3dSkills').addEventListener('click',function(e){
       var button=e.target.closest('[data-p3d-skill]');
@@ -123,17 +150,22 @@ script = r'''
 
     window.addEventListener('placurso:progress',function(e){
       var detail=e&&e.detail?e.detail:{};
-      if(!detail.id||detail.id===state.lastEventId)return;
-      var profile=currentProfile();
-      state.history=Core.addProfileSnapshot(state.history,profile,new Date().toISOString(),detail.id);
-      state.lastEventId=detail.id;
-      state.updatedAt=new Date().toISOString();
-      persist();
+      if(!detail.id)return;
+      var recorded=Learning.recordLearningEvent(learningState,detail,new Date().toISOString());
+      if(recorded.added){learningState=recorded.state;persistLearning();}
+      if(detail.id!==state.lastEventId){
+        var profile=currentProfile();
+        state.history=Core.addProfileSnapshot(state.history,profile,new Date().toISOString(),detail.id);
+        state.lastEventId=detail.id;
+        state.updatedAt=new Date().toISOString();
+        persist();
+      }
       render();
     });
     window.addEventListener('storage',function(e){
-      if(e&&[PROFILE_KEY,GAME_KEY,CRYPTO_KEY].indexOf(e.key)>=0){
+      if(e&&[PROFILE_KEY,LEARNING_KEY,GAME_KEY,CRYPTO_KEY].indexOf(e.key)>=0){
         if(e.key===PROFILE_KEY)state=safeState();
+        if(e.key===LEARNING_KEY)learningState=safeLearningState();
         render();
       }
     });
@@ -152,6 +184,6 @@ script = r'''
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
 '''
-s += "\n/* " + core_marker + " */\n" + core_source + marker + script
+s += "\n/* " + core_marker + " */\n" + core_source + "\n/* " + learning_core_marker + " */\n" + learning_core_source + marker + script
 p.write_text(s, encoding='utf-8')
 print('OK: Fase 3D: perfil ANNAN e histórico de evolução adicionados.')
