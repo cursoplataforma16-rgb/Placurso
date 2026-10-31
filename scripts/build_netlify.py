@@ -21,6 +21,7 @@ CORE_ACCESS = ROOT / 'scripts' / 'community_access_core.js'
 CORE_PSYCH = ROOT / 'scripts' / 'psychotechnical_core.js'
 CORE_BIBLE = ROOT / 'scripts' / 'bible_learning_core.js'
 CORE_PRODUCT_FACTORY = ROOT / 'scripts' / 'annan_product_factory.js'
+CORE_INTEGRATION_GATEWAY = ROOT / 'scripts' / 'annan_integration_gateway.js'
 
 if not ARCHIVE.exists():
     raise SystemExit('ERRO: placurso-site-root.zip não encontrado.')
@@ -53,9 +54,6 @@ for core in [CORE_ACCESS, CORE_PSYCH, CORE_BIBLE]:
         raise SystemExit(f'ERRO: core obrigatório não encontrado: {core.name}')
     engine.write_text(engine.read_text(encoding='utf-8') + '\n' + core.read_text(encoding='utf-8'), encoding='utf-8')
 
-# Product Factory is a capability of the existing ANNAN runtime, not a
-# second agent. Keep it in the same generated engine and expose its bounded
-# planning API without changing learner scoring or recommendation behavior.
 if not CORE_PRODUCT_FACTORY.is_file():
     raise SystemExit('ERRO: annan_product_factory.js não encontrado.')
 product_factory_source = CORE_PRODUCT_FACTORY.read_text(encoding='utf-8')
@@ -67,6 +65,22 @@ engine.write_text(
     engine.read_text(encoding='utf-8')
     + '\n/* PLACURSO_ANNAN_PRODUCT_FACTORY */\n'
     + product_factory_source,
+    encoding='utf-8',
+)
+
+# Phase 8: add a bounded integration boundary to the same ANNAN runtime.
+# It does not create a second agent, call external services, or carry secrets.
+if not CORE_INTEGRATION_GATEWAY.is_file():
+    raise SystemExit('ERRO: annan_integration_gateway.js não encontrado.')
+integration_source = CORE_INTEGRATION_GATEWAY.read_text(encoding='utf-8')
+if 'PlacursoAnnanIntegrationGateway' not in integration_source:
+    raise SystemExit('ERRO: API PlacursoAnnanIntegrationGateway não encontrada.')
+if 'PLACURSO_ANNAN_INTEGRATION_GATEWAY' in engine.read_text(encoding='utf-8'):
+    raise SystemExit('ERRO: Integration Gateway já foi integrado ao motor.')
+engine.write_text(
+    engine.read_text(encoding='utf-8')
+    + '\n/* PLACURSO_ANNAN_INTEGRATION_GATEWAY */\n'
+    + integration_source,
     encoding='utf-8',
 )
 
@@ -121,6 +135,7 @@ print('OK: perfil ANNAN/evolução preservado como núcleo necessário à experi
 print('OK: adaptador ANNAN → Supabase integrado com fallback local.')
 print('OK: core de acesso, psicotécnico de 7 perguntas e aprendizagem bíblica integrado.')
 print('OK: Product Factory integrado no mesmo motor ANNAN do Placurso.')
+print('OK: Integration Gateway integrado no mesmo motor ANNAN do Placurso.')
 print('OK: fluxo público → convite → inscrição → Área de Aluno integrado.')
 print('OK: guardião público da Fase 4 integrado; A-Ads preservado.')
 print('OK: Centro de Desafios horizontal no público e no topo do aluno.')
