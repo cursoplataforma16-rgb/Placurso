@@ -6,6 +6,7 @@ on:
       - 'scripts/annan_product_factory.js'
       - 'scripts/test_annan_product_factory_contract.py'
       - 'scripts/test_phase7_no_side_effects.py'
+      - 'scripts/test_phase7_aads_boundary.py'
       - 'docs/superpowers/plans/2026-10-31-phase7-annan-product-factory.md'
       - '.github/workflows/phase7-verify.yml'
 
@@ -22,3 +23,5 @@ jobs:
         run: python scripts/test_annan_product_factory_contract.py
       - name: Run Product Factory side-effect guard
         run: python scripts/test_phase7_no_side_effects.py
+      - name: Run A-Ads boundary guard
+        run: python scripts/test_phase7_aads_boundary.py
