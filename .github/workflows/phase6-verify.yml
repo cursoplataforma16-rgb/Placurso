@@ -16,3 +16,13 @@ jobs:
           python-version: '3.x'
       - name: Verify ANNAN Supabase schema contract
         run: python scripts/test_annan_supabase_schema.py
+
+  aads-preservation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Verify A-ADS remains enabled and other ad cleanup remains
+        run: python scripts/test_aads_ad_preserved.py
