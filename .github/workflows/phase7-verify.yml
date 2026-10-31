@@ -7,6 +7,9 @@ on:
       - 'scripts/test_annan_product_factory_contract.py'
       - 'scripts/test_phase7_no_side_effects.py'
       - 'scripts/test_phase7_aads_boundary.py'
+      - 'scripts/test_phase7_build_integration.py'
+      - 'scripts/build_netlify.py'
+      - 'placurso-site-root.zip'
       - 'docs/superpowers/plans/2026-10-31-phase7-annan-product-factory.md'
       - '.github/workflows/phase7-verify.yml'
 
@@ -25,3 +28,5 @@ jobs:
         run: python scripts/test_phase7_no_side_effects.py
       - name: Run A-Ads boundary guard
         run: python scripts/test_phase7_aads_boundary.py
+      - name: Verify Product Factory is included in the existing ANNAN runtime
+        run: python scripts/test_phase7_build_integration.py
