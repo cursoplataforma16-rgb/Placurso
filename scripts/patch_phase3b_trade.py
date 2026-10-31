@@ -6,8 +6,6 @@ s = p.read_text(encoding='utf-8')
 marker = "\n/* PLACURSO_PHASE3B_TRADE_EDUCATION */\n"
 if marker in s:
     raise SystemExit('Trade educacional da Fase 3B já aplicado.')
-if 'PLACURSO_PHASE3B_EXPERIENCE' not in s:
-    raise SystemExit('ERRO: o módulo de experiência da Fase 3B deve ser aplicado antes do Trade.')
 
 script = r'''
 /* PLACURSO_PHASE3B_TRADE_EDUCATION */
@@ -54,8 +52,7 @@ script = r'''
       <div class="p3b-trade-panel" data-trade-panel="intermediate"><h4>Intermédio · Decisão</h4><p>Treina leitura de movimento, probabilidade, risco/recompensa e gestão de capital em cenários simulados.</p><div class="p3b-trade-topics"><div class="p3b-trade-topic"><strong>Movimento</strong><br>Identificar força e correção.</div><div class="p3b-trade-topic"><strong>Probabilidade</strong><br>Trabalhar com cenários, não certezas.</div><div class="p3b-trade-topic"><strong>Capital</strong><br>Dimensionar uma decisão.</div><div class="p3b-trade-topic"><strong>Timing</strong><br>Entrar, esperar ou sair.</div></div></div>
       <div class="p3b-trade-panel" data-trade-panel="advanced"><h4>Avançado · Cenários</h4><p>Simula múltiplas condições de mercado e aprende a escolher uma ação coerente com risco, contexto e objetivo.</p><div class="p3b-trade-topics"><div class="p3b-trade-topic"><strong>Cenários</strong><br>Alta, correção, lateralização.</div><div class="p3b-trade-topic"><strong>Gestão</strong><br>Risco por operação e sequência.</div><div class="p3b-trade-topic"><strong>Estratégia</strong><br>Confluência de sinais.</div><div class="p3b-trade-topic"><strong>Disciplina</strong><br>Executar regras sem improviso.</div></div></div>
       <div class="p3b-trade-note">Formação e simulação educativa. Não é recomendação financeira nem promessa de lucro.</div>`;
-    var anchor=hub.querySelector('.p3b-experience');
-    if(anchor&&anchor.parentNode) anchor.parentNode.insertBefore(section,anchor.nextSibling); else hub.insertBefore(section,hub.firstChild||null);
+    hub.insertBefore(section,hub.firstChild||null);
     section.addEventListener('click',function(e){
       var btn=e.target.closest('[data-trade-level]');
       if(!btn) return;
