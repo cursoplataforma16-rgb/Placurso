@@ -1,0 +1,18 @@
+name: Phase 4 guard verification
+
+on:
+  push:
+    branches: [main, "fix/**"]
+  pull_request:
+    branches: [main]
+
+jobs:
+  phase4-guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Run Phase 4 advertising regression
+        run: python3 scripts/tests/test_phase4_public_guard.py
