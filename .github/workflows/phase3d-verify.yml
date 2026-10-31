@@ -1,9 +1,10 @@
-name: Phase 3D verification
+name: Placurso functional verification
 
 on:
   push:
     branches:
-      - phase-3b-experience
+      - main
+      - feature/community-functional-flow
   pull_request:
     branches:
       - main
@@ -13,7 +14,7 @@ permissions:
 
 jobs:
   verify:
-    name: Node and build-pipeline checks
+    name: Functional and build checks
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Placurso
@@ -35,14 +36,20 @@ jobs:
       - name: Test ANNAN profile calculations
         run: node scripts/test_annan_profile_core.js
 
+      - name: Test community access
+        run: node scripts/test_community_access_core.js
+
+      - name: Test seven-question psychotechnical
+        run: node scripts/test_psychotechnical_core.js
+
+      - name: Test biblical learning
+        run: node scripts/test_bible_learning_core.js
+
       - name: Compile Python patch scripts
         run: python -m py_compile scripts/*.py
 
       - name: Verify Phase 3C and 3D patch composition
         run: python scripts/test_phase3d_patch_pipeline.py
 
-      - name: Verify simple home composition
-        run: python scripts/test_simple_home_patch.py
-
       - name: Reproduce the exact Netlify build command
-        run: python3 scripts/build_netlify.py && python3 scripts/strategic_games_patch.py && python3 scripts/strategic_decision_game.py
+        run: python3 scripts/build_netlify.py
