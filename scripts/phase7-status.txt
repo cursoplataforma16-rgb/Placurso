@@ -1,0 +1,1 @@
+ANNAN Product Factory branch active. Contract test, implementation core, CI workflow, and design/plan artifacts are present. Next verification occurs through the pull request workflow.

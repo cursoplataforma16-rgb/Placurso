@@ -1,0 +1,32 @@
+name: Phase 7 Verification
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/annan_product_factory.js'
+      - 'scripts/test_annan_product_factory_contract.py'
+      - 'scripts/test_phase7_no_side_effects.py'
+      - 'scripts/test_phase7_aads_boundary.py'
+      - 'scripts/test_phase7_build_integration.py'
+      - 'scripts/build_netlify.py'
+      - 'placurso-site-root.zip'
+      - 'docs/superpowers/plans/2026-10-31-phase7-annan-product-factory.md'
+      - '.github/workflows/phase7-verify.yml'
+
+jobs:
+  product-factory-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run ANNAN Product Factory contract tests
+        run: python scripts/test_annan_product_factory_contract.py
+      - name: Run Product Factory side-effect guard
+        run: python scripts/test_phase7_no_side_effects.py
+      - name: Run A-Ads boundary guard
+        run: python scripts/test_phase7_aads_boundary.py
+      - name: Verify Product Factory is included in the existing ANNAN runtime
+        run: python scripts/test_phase7_build_integration.py
