@@ -17,6 +17,7 @@ PATCH_PHASE3B_TRADE = ROOT / 'scripts' / 'patch_phase3b_trade.py'
 PATCH_PHASE3C_CRYPTO = ROOT / 'scripts' / 'patch_phase3c_crypto_games.py'
 PATCH_PHASE3D = ROOT / 'scripts' / 'patch_phase3d_annan_profile.py'
 PATCH_COMMUNITY = ROOT / 'scripts' / 'patch_community_flow.py'
+PATCH_PHASE4_GUARD = ROOT / 'scripts' / 'patch_phase4_public_guard.py'
 CORE_ACCESS = ROOT / 'scripts' / 'community_access_core.js'
 CORE_PSYCH = ROOT / 'scripts' / 'psychotechnical_core.js'
 CORE_BIBLE = ROOT / 'scripts' / 'bible_learning_core.js'
@@ -50,6 +51,7 @@ for core in [CORE_ACCESS, CORE_PSYCH, CORE_BIBLE]:
     engine.write_text(engine.read_text(encoding='utf-8') + '\n' + core.read_text(encoding='utf-8'), encoding='utf-8')
 
 subprocess.run(['python3', str(PATCH_COMMUNITY), str(engine)], cwd=ROOT, check=True)
+subprocess.run(['python3', str(PATCH_PHASE4_GUARD), str(engine)], cwd=ROOT, check=True)
 subprocess.run(['node', '--check', str(engine)], cwd=ROOT, check=True)
 
 public_engine = WORK / 'public' / 'psico-engine.js'
@@ -96,6 +98,7 @@ print(f'OK: {sum(1 for x in PUBLIC.rglob("*") if x.is_file())} recursos estátic
 print('OK: motores Phase 1 + 2 + 3A + 3B + 3C + 3D preservados.')
 print('OK: core de acesso, psicotécnico de 7 perguntas e aprendizagem bíblica integrado.')
 print('OK: fluxo público → convite → inscrição → Área de Aluno integrado.')
+print('OK: guardião público da Fase 4 integrado para esconder superfícies legadas e anúncios externos.')
 print('OK: Centro de Desafios horizontal no público e no topo do aluno.')
 print('OK: / no domínio Placurso serve index.html.')
 print(f'OK: função Netlify pronta: {FUNCTIONS / "seo.mjs"}')
