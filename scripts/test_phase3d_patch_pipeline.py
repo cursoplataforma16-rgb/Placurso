@@ -29,6 +29,7 @@ with tempfile.TemporaryDirectory(prefix="placurso-phase3d-") as temp:
 
     generated = engine.read_text(encoding="utf-8")
     required = [
+        "PLACURSO_PHASE3B_TRADE_EDUCATION",
         "PLACURSO_CRYPTO_PROGRESS_CORE",
         "PLACURSO_PHASE3C_CRYPTO_GAMES",
         "PLACURSO_ANNAN_PROFILE_CORE",
