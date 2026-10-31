@@ -39,11 +39,11 @@
 - `annan_learning_events`: `id`, `user_id`, `event_id`, `source`, `game`, `level`, `correct`, `total`, `score`, `passed`, `occurred_at`, `created_at`; unique `(user_id,event_id)`.
 - `annan_student_profiles`: `user_id` primary key plus compact derived profile JSON and timestamps.
 
-- [ ] Write failing schema/security assertions covering tables, unique key, foreign key to `auth.users`, RLS, SELECT/INSERT/UPDATE ownership policies, and absence of raw-answer columns.
-- [ ] Run the schema test against repository SQL and verify it fails before implementation.
-- [ ] Add the migration with strict types, checks, indexes, RLS, and ownership policies.
-- [ ] Run the schema test and verify it passes.
-- [ ] Commit the migration and test.
+- [x] Write schema/security assertions covering tables, unique key, foreign key to `auth.users`, RLS, SELECT/INSERT/UPDATE ownership policies, and absence of raw-answer columns.
+- [x] Run the schema contract verification in GitHub Actions.
+- [x] Add the migration with strict types, checks, indexes, RLS, ownership policies, and least-privilege table grants.
+- [x] Run the schema verification and verify it passes.
+- [x] Commit the migrations and regression test.
 
 ### Task 2: Build the browser persistence adapter
 
@@ -104,6 +104,6 @@
 
 - [ ] Add CI coverage for schema contract, persistence adapter, Phase 3D integration, public guard, and community flow.
 - [ ] Run all Phase 6 tests and the existing regression suite.
-- [ ] Run Supabase security and performance advisors once the target project is active.
+- [x] Run Supabase security and performance advisors after the target project became active.
 - [ ] Generate Supabase TypeScript types after the schema is live and verify client contracts.
 - [ ] Create the Phase 6 pull request and do not deploy until all checks pass.
