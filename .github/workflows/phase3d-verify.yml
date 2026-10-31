@@ -48,8 +48,8 @@ jobs:
       - name: Compile Python patch scripts
         run: python -m py_compile scripts/*.py
 
-      - name: Verify Phase 3C and 3D patch composition
-        run: python scripts/test_phase3d_patch_pipeline.py
+      - name: Verify community composition with Phase 3C and 3D
+        run: python scripts/test_community_flow_pipeline.py
 
       - name: Reproduce the exact Netlify build command
         run: python3 scripts/build_netlify.py
