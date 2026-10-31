@@ -16,7 +16,7 @@ script=r'''
     document.head.appendChild(style);
     var Access=window.PlacursoCommunityAccess;
     var legacyText=['Aprender com o ANNAN','A tua evolução fica visível','ANNAN · FASE 3A','ANNAN · FASE 3B','ANNAN · FASE 3D','Laboratório de decisão','Reflexo rápido','Decisão financeira','Mini negócio'];
-    var adText=['Anuncie neste espaço publicitário','Advertise here','Web3-Native Marketing Hub','aads.com','maads.com','slise.xyz'];
+    var adText=['Anuncie neste espaço publicitário','Advertise here','Web3-Native Marketing Hub','aads.com','maads.com','slise.xyz','Obtenha uma conta Visa','Obtain a Visa account'];
     function inShell(el){return !!(el&&el.closest&&el.closest('.plc-community-shell'));}
     function isMember(){try{return !!(Access&&Access.canEnterStudent(Access.read()));}catch(e){return false;}}
     function hideLegacy(){
