@@ -1,0 +1,24 @@
+name: Phase 8 Integration Gateway Verification
+
+on:
+  push:
+    branches: [feature/phase8-integration-gateway]
+  pull_request:
+    branches: [main]
+
+jobs:
+  gateway:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Gateway behavior
+        run: node scripts/test_annan_integration_gateway.js
+      - name: Gateway contract
+        run: python3 scripts/test_phase8_integration_gateway.py
+      - name: Build integration contract
+        run: python3 scripts/test_phase8_build_integration.py
+      - name: Gateway syntax
+        run: node --check scripts/annan_integration_gateway.js
