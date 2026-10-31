@@ -16,7 +16,10 @@ PATCH_PHASE3B = ROOT / 'scripts' / 'patch_phase3b_experience.py'
 PATCH_PHASE3B_TRADE = ROOT / 'scripts' / 'patch_phase3b_trade.py'
 PATCH_PHASE3C_CRYPTO = ROOT / 'scripts' / 'patch_phase3c_crypto_games.py'
 PATCH_PHASE3D = ROOT / 'scripts' / 'patch_phase3d_annan_profile.py'
-PATCH_SIMPLE_HOME = ROOT / 'scripts' / 'patch_simple_home.py'
+PATCH_COMMUNITY = ROOT / 'scripts' / 'patch_community_flow.py'
+CORE_ACCESS = ROOT / 'scripts' / 'community_access_core.js'
+CORE_PSYCH = ROOT / 'scripts' / 'psychotechnical_core.js'
+CORE_BIBLE = ROOT / 'scripts' / 'bible_learning_core.js'
 
 if not ARCHIVE.exists():
     raise SystemExit('ERRO: placurso-site-root.zip não encontrado.')
@@ -34,31 +37,24 @@ with ZipFile(ARCHIVE) as archive:
     archive.extractall(WORK)
 
 engine = WORK / 'psico-engine.js'
-if PATCH.exists() and engine.exists():
-    subprocess.run(['python3', str(PATCH), str(engine)], cwd=ROOT, check=True)
-if PATCH_PHASE2.exists() and engine.exists():
-    subprocess.run(['python3', str(PATCH_PHASE2), str(engine)], cwd=ROOT, check=True)
-if PATCH_PHASE3A.exists() and engine.exists():
-    subprocess.run(['python3', str(PATCH_PHASE3A), str(engine)], cwd=ROOT, check=True)
-if PATCH_PHASE3A_VIS.exists() and engine.exists():
-    subprocess.run(['python3', str(PATCH_PHASE3A_VIS), str(engine)], cwd=ROOT, check=True)
-if PATCH_PHASE3B.exists() and engine.exists():
-    subprocess.run(['python3', str(PATCH_PHASE3B), str(engine)], cwd=ROOT, check=True)
-if PATCH_PHASE3B_TRADE.exists() and engine.exists():
-    subprocess.run(['python3', str(PATCH_PHASE3B_TRADE), str(engine)], cwd=ROOT, check=True)
-if PATCH_PHASE3C_CRYPTO.exists() and engine.exists():
-    subprocess.run(['python3', str(PATCH_PHASE3C_CRYPTO), str(engine)], cwd=ROOT, check=True)
-if PATCH_PHASE3D.exists() and engine.exists():
-    subprocess.run(['python3', str(PATCH_PHASE3D), str(engine)], cwd=ROOT, check=True)
-if PATCH_SIMPLE_HOME.exists() and engine.exists():
-    subprocess.run(['python3', str(PATCH_SIMPLE_HOME), str(engine)], cwd=ROOT, check=True)
+if not engine.exists():
+    raise SystemExit('ERRO: psico-engine.js não encontrado.')
 
-if engine.exists():
-    subprocess.run(['node', '--check', str(engine)], cwd=ROOT, check=True)
+for patch in [PATCH, PATCH_PHASE2, PATCH_PHASE3A, PATCH_PHASE3A_VIS, PATCH_PHASE3B, PATCH_PHASE3B_TRADE, PATCH_PHASE3C_CRYPTO, PATCH_PHASE3D]:
+    if patch.exists():
+        subprocess.run(['python3', str(patch), str(engine)], cwd=ROOT, check=True)
+
+for core in [CORE_ACCESS, CORE_PSYCH, CORE_BIBLE]:
+    if not core.exists():
+        raise SystemExit(f'ERRO: core obrigatório não encontrado: {core.name}')
+    engine.write_text(engine.read_text(encoding='utf-8') + '\n' + core.read_text(encoding='utf-8'), encoding='utf-8')
+
+subprocess.run(['python3', str(PATCH_COMMUNITY), str(engine)], cwd=ROOT, check=True)
+subprocess.run(['node', '--check', str(engine)], cwd=ROOT, check=True)
 
 public_engine = WORK / 'public' / 'psico-engine.js'
-if public_engine.parent.exists() and engine.exists():
-    shutil.copy2(engine, public_engine)
+public_engine.parent.mkdir(parents=True, exist_ok=True)
+shutil.copy2(engine, public_engine)
 
 source_seo = WORK / 'netlify' / 'functions' / 'seo.mjs'
 if not source_seo.is_file():
@@ -97,14 +93,9 @@ if not (FUNCTIONS / 'seo.mjs').is_file():
     raise SystemExit('ERRO: a função SEO não foi preparada.')
 
 print(f'OK: {sum(1 for x in PUBLIC.rglob("*") if x.is_file())} recursos estáticos preparados.')
-print('OK: Fase 1 + Fase 2 + Fase 3A + Fase 3B preparadas no motor de jogos.')
-print('OK: fallback visual da Fase 3A preparado.')
-print('OK: progressão persistente: nível, XP, partidas, acertos e tempo.')
-print('OK: 4 experiências novas: memória, reflexo, dinheiro e negócio.')
-print('OK: experiência profissional Fase 3B: perfil, maestria e desafio diário.')
-print('OK: formação cripto/trade: básico, intermédio e avançado em formato de experiência.')
-print('OK: Fase 3C: missões cripto jogáveis com desbloqueio progressivo.')
-print('OK: Fase 3D: perfil ANNAN, histórico de evolução e próximo desafio recomendado.')
-print('OK: interface simples: continuar, desafio diário, evolução e habilidades.')
+print('OK: motores Phase 1 + 2 + 3A + 3B + 3C + 3D preservados.')
+print('OK: core de acesso, psicotécnico de 7 perguntas e aprendizagem bíblica integrado.')
+print('OK: fluxo público → convite → inscrição → Área de Aluno integrado.')
+print('OK: Centro de Desafios horizontal no público e no topo do aluno.')
 print('OK: / no domínio Placurso serve index.html.')
 print(f'OK: função Netlify pronta: {FUNCTIONS / "seo.mjs"}')

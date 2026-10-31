@@ -1,0 +1,11 @@
+const assert=require('assert');
+const core=require('./community_access_core.js');
+const mem={data:{},getItem(k){return this.data[k]??null;},setItem(k,v){this.data[k]=v;}};
+let s=core.read(mem);assert.strictEqual(s.status,'visitor');assert.strictEqual(core.canEnterStudent(s),false);
+for(let i=1;i<=4;i++)s=core.addReferral('person-'+i,mem).state;
+assert.strictEqual(s.referrals,4);assert.strictEqual(core.hasReferralThreshold(s),false);
+s=core.addReferral('person-5',mem).state;assert.strictEqual(s.referrals,5);assert.strictEqual(core.hasReferralThreshold(s),true);
+s=core.addReferral('person-5',mem).state;assert.strictEqual(s.referrals,5);
+s=core.register({name:'Aluno'},mem);assert.strictEqual(s.status,'member');assert.strictEqual(core.canEnterStudent(s),true);
+assert.strictEqual(core.markVerifiedReferral('x',mem).added,true);
+console.log('community access: 6/6 PASS');
