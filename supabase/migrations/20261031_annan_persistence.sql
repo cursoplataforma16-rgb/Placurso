@@ -28,6 +28,12 @@ create table if not exists public.annan_student_profiles (
 alter table public.annan_learning_events enable row level security;
 alter table public.annan_student_profiles enable row level security;
 
+-- The Oct 30, 2026 Supabase Data API change requires explicit table grants.
+-- Only signed-in students receive the minimum read/write permissions; RLS
+-- below restricts every operation to rows owned by auth.uid().
+grant select, insert, update on table public.annan_learning_events to authenticated;
+grant select, insert, update on table public.annan_student_profiles to authenticated;
+
 create policy "students read own ANNAN learning events"
   on public.annan_learning_events
   for select
