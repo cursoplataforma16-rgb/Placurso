@@ -29,96 +29,84 @@
       document.head.appendChild(script);
     });
   }
-
-  function getClient(){
-    if(!ready) ready=loadClient();
-    return ready;
-  }
+  function getClient(){if(!ready) ready=loadClient();return ready;}
 
   function normalizeEvent(detail){
     if(!detail||typeof detail!=='object'||typeof detail.id!=='string'||!detail.id) return null;
     var score=Number(detail.score);
     if(!Number.isFinite(score)) score=null;
+    var correct=Number(detail.correct);
+    if(!Number.isFinite(correct)) correct=null;
+    var total=Number(detail.total);
+    if(!Number.isFinite(total)) total=null;
     return {
       event_id:detail.id,
       source:typeof detail.source==='string'?detail.source:null,
       game:typeof detail.game==='string'?detail.game:null,
+      level:typeof detail.level==='string'?detail.level:null,
+      correct:correct,
+      total:total,
       score:score,
       passed:typeof detail.passed==='boolean'?detail.passed:null,
-      occurred_at:typeof detail.occurredAt==='string'?detail.occurredAt:(typeof detail.occurred_at==='string'?detail.occurred_at:new Date().toISOString()),
-      metadata:detail.metadata&&typeof detail.metadata==='object'?detail.metadata:{}
+      occurred_at:typeof detail.occurredAt==='string'?detail.occurredAt:(typeof detail.occurred_at==='string'?detail.occurred_at:new Date().toISOString())
     };
   }
 
   function syncEvent(detail){
     var event=normalizeEvent(detail);
-    if(!event) return Promise.resolve({ok:false,reason:'invalid_event'});
-    queue=queue.then(function(){
-      return getClient().then(function(sb){
-        return sb.auth.getUser().then(function(result){
-          if(result.error||!result.data||!result.data.user) return {ok:false,reason:'unauthenticated'};
-          event.user_id=result.data.user.id;
-          return sb.from(TABLE).upsert(event,{onConflict:'user_id,event_id'}).then(function(result){
-            if(result.error) return {ok:false,reason:result.error.message};
-            return {ok:true,event_id:event.event_id};
-          });
+    if(!event||!event.source||!event.game) return Promise.resolve({ok:false,reason:'invalid_event'});
+    queue=queue.then(function(){return getClient().then(function(sb){
+      return sb.auth.getUser().then(function(result){
+        if(result.error||!result.data||!result.data.user) return {ok:false,reason:'unauthenticated'};
+        event.user_id=result.data.user.id;
+        return sb.from(TABLE).upsert(event,{onConflict:'user_id,event_id'}).then(function(result){
+          return result.error?{ok:false,reason:result.error.message}:{ok:true,event_id:event.event_id};
         });
       });
-    });
+    });});
     return queue;
   }
 
   function loadEvents(limit){
     var size=Math.min(Math.max(Number(limit)||120,1),240);
-    return getClient().then(function(sb){
-      return sb.auth.getUser().then(function(result){
-        if(result.error||!result.data||!result.data.user) return {ok:false,reason:'unauthenticated',events:[]};
-        return sb.from(TABLE).select('event_id,source,game,score,passed,occurred_at,metadata').eq('user_id',result.data.user.id).order('occurred_at',{ascending:false}).limit(size).then(function(result){
-          if(result.error) return {ok:false,reason:result.error.message,events:[]};
-          return {ok:true,events:Array.isArray(result.data)?result.data:[]};
-        });
+    return getClient().then(function(sb){return sb.auth.getUser().then(function(result){
+      if(result.error||!result.data||!result.data.user) return {ok:false,reason:'unauthenticated',events:[]};
+      return sb.from(TABLE).select('event_id,source,game,level,correct,total,score,passed,occurred_at').eq('user_id',result.data.user.id).order('occurred_at',{ascending:false}).limit(size).then(function(result){
+        return result.error?{ok:false,reason:result.error.message,events:[]}:{ok:true,events:Array.isArray(result.data)?result.data:[]};
       });
-    });
+    });});
   }
 
   function upsertProfile(profile){
     if(!profile||typeof profile!=='object') return Promise.resolve({ok:false,reason:'invalid_profile'});
-    return getClient().then(function(sb){
-      return sb.auth.getUser().then(function(result){
-        if(result.error||!result.data||!result.data.user) return {ok:false,reason:'unauthenticated'};
-        var row={user_id:result.data.user.id,profile:profile,updated_at:new Date().toISOString()};
-        return sb.from(PROFILE_TABLE).upsert(row,{onConflict:'user_id'}).then(function(result){
-          return result.error?{ok:false,reason:result.error.message}:{ok:true};
-        });
-      });
-    });
+    return getClient().then(function(sb){return sb.auth.getUser().then(function(result){
+      if(result.error||!result.data||!result.data.user) return {ok:false,reason:'unauthenticated'};
+      var row={user_id:result.data.user.id,profile:profile,updated_at:new Date().toISOString()};
+      return sb.from(PROFILE_TABLE).upsert(row,{onConflict:'user_id'}).then(function(result){return result.error?{ok:false,reason:result.error.message}:{ok:true};});
+    });});
   }
 
   function loadProfile(){
-    return getClient().then(function(sb){
-      return sb.auth.getUser().then(function(result){
-        if(result.error||!result.data||!result.data.user) return {ok:false,reason:'unauthenticated',profile:null};
-        return sb.from(PROFILE_TABLE).select('profile,updated_at').eq('user_id',result.data.user.id).maybeSingle().then(function(result){
-          if(result.error) return {ok:false,reason:result.error.message,profile:null};
-          return {ok:true,profile:result.data?result.data.profile:null,updated_at:result.data?result.data.updated_at:null};
-        });
+    return getClient().then(function(sb){return sb.auth.getUser().then(function(result){
+      if(result.error||!result.data||!result.data.user) return {ok:false,reason:'unauthenticated',profile:null};
+      return sb.from(PROFILE_TABLE).select('profile,updated_at').eq('user_id',result.data.user.id).maybeSingle().then(function(result){
+        if(result.error) return {ok:false,reason:result.error.message,profile:null};
+        return {ok:true,profile:result.data?result.data.profile:null,updated_at:result.data?result.data.updated_at:null};
       });
-    });
+    });});
   }
 
-  function mergePersistedIntoLearning(Learning, state, events){
+  function mergePersistedIntoLearning(Learning,state,events){
     if(!Learning||!Learning.sanitizeLearningState) return state;
     var next=Learning.sanitizeLearningState(state||{});
     (events||[]).slice().reverse().forEach(function(event){
-      var recorded=Learning.recordLearningEvent(next,{
-        id:event.event_id,source:event.source,game:event.game,score:event.score,passed:event.passed,occurredAt:event.occurred_at,metadata:event.metadata
-      },event.occurred_at||new Date().toISOString());
+      var recorded=Learning.recordLearningEvent(next,{id:event.event_id,source:event.source,game:event.game,level:event.level,correct:event.correct,total:event.total,score:event.score,passed:event.passed,occurredAt:event.occurred_at},event.occurred_at||new Date().toISOString());
       if(recorded&&recorded.added) next=recorded.state;
     });
     return next;
   }
 
-  function bootstrap(Learning, currentState){
+  function bootstrap(Learning,currentState){
     return loadEvents(240).then(function(result){
       if(!result.ok) return result;
       var merged=mergePersistedIntoLearning(Learning,currentState,result.events);
@@ -128,21 +116,6 @@
     });
   }
 
-  window.PlacursoAnnanPersistence={
-    version:1,
-    key:CLIENT_KEY,
-    projectUrl:PROJECT_URL,
-    getClient:getClient,
-    normalizeEvent:normalizeEvent,
-    syncEvent:syncEvent,
-    loadEvents:loadEvents,
-    upsertProfile:upsertProfile,
-    loadProfile:loadProfile,
-    bootstrap:bootstrap,
-    isConfigured:function(){return !!PROJECT_URL&&!!PUBLISHABLE_KEY;}
-  };
-
-  window.addEventListener('placurso:progress',function(event){
-    syncEvent(event&&event.detail?event.detail:null);
-  });
+  window.PlacursoAnnanPersistence={version:1,key:CLIENT_KEY,projectUrl:PROJECT_URL,getClient:getClient,normalizeEvent:normalizeEvent,syncEvent:syncEvent,loadEvents:loadEvents,upsertProfile:upsertProfile,loadProfile:loadProfile,bootstrap:bootstrap,isConfigured:function(){return !!PROJECT_URL&&!!PUBLISHABLE_KEY;}};
+  window.addEventListener('placurso:progress',function(event){syncEvent(event&&event.detail?event.detail:null);});
 })();
