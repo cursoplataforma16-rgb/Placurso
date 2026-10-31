@@ -11,8 +11,6 @@ FUNCTIONS = ROOT / 'netlify' / 'functions'
 PATCH = ROOT / 'scripts' / 'patch_games_ui.py'
 PATCH_PHASE2 = ROOT / 'scripts' / 'patch_phase2_progression.py'
 PATCH_PHASE3A = ROOT / 'scripts' / 'patch_phase3a_games.py'
-PATCH_PHASE3A_VIS = ROOT / 'scripts' / 'patch_phase3a_visibility.py'
-PATCH_PHASE3B = ROOT / 'scripts' / 'patch_phase3b_experience.py'
 PATCH_PHASE3B_TRADE = ROOT / 'scripts' / 'patch_phase3b_trade.py'
 PATCH_PHASE3C_CRYPTO = ROOT / 'scripts' / 'patch_phase3c_crypto_games.py'
 PATCH_PHASE3D = ROOT / 'scripts' / 'patch_phase3d_annan_profile.py'
@@ -41,7 +39,10 @@ engine = WORK / 'psico-engine.js'
 if not engine.exists():
     raise SystemExit('ERRO: psico-engine.js não encontrado.')
 
-for patch in [PATCH, PATCH_PHASE2, PATCH_PHASE3A, PATCH_PHASE3A_VIS, PATCH_PHASE3B, PATCH_PHASE3B_TRADE, PATCH_PHASE3C_CRYPTO, PATCH_PHASE3D]:
+# Keep the proven game engines and learning cores, but do not rebuild the
+# legacy Phase 3B experience dashboard or Phase 3A visibility layer. The
+# current Community Flow owns the public/student presentation now.
+for patch in [PATCH, PATCH_PHASE2, PATCH_PHASE3A, PATCH_PHASE3B_TRADE, PATCH_PHASE3C_CRYPTO, PATCH_PHASE3D]:
     if patch.exists():
         subprocess.run(['python3', str(patch), str(engine)], cwd=ROOT, check=True)
 
@@ -95,10 +96,12 @@ if not (FUNCTIONS / 'seo.mjs').is_file():
     raise SystemExit('ERRO: a função SEO não foi preparada.')
 
 print(f'OK: {sum(1 for x in PUBLIC.rglob("*") if x.is_file())} recursos estáticos preparados.')
-print('OK: motores Phase 1 + 2 + 3A + 3B + 3C + 3D preservados.')
+print('OK: motores de jogos + progressão + Phase 3A + formação Trade + Phase 3C preservados.')
+print('OK: painel legado Phase 3B e camada de visibilidade Phase 3A removidos do build.')
+print('OK: perfil ANNAN/evolução preservado como núcleo necessário à experiência atual.')
 print('OK: core de acesso, psicotécnico de 7 perguntas e aprendizagem bíblica integrado.')
 print('OK: fluxo público → convite → inscrição → Área de Aluno integrado.')
-print('OK: guardião público da Fase 4 integrado para esconder superfícies legadas e anúncios externos.')
+print('OK: guardião público da Fase 4 integrado para impedir superfícies legadas e anúncios externos.')
 print('OK: Centro de Desafios horizontal no público e no topo do aluno.')
 print('OK: / no domínio Placurso serve index.html.')
 print(f'OK: função Netlify pronta: {FUNCTIONS / "seo.mjs"}')
