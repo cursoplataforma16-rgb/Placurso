@@ -1,0 +1,1 @@
+ANNAN Product Factory first slice is deterministic and side-effect free. It validates opportunities, normalizes product briefs, and emits the fixed production-readiness stages. It is intentionally not a publishing or payment engine.
