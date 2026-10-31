@@ -19,13 +19,19 @@ with tempfile.TemporaryDirectory(prefix="placurso-phase3d-") as temp:
     )
 
     for patch in PATCHES:
-        subprocess.run(
+        result = subprocess.run(
             [sys.executable, str(patch), str(engine)],
             cwd=ROOT,
-            check=True,
+            check=False,
             capture_output=True,
             text=True,
         )
+        if result.returncode != 0:
+            raise SystemExit(
+                f"Patch failed: {patch.name}\n"
+                f"stdout:\n{result.stdout}\n"
+                f"stderr:\n{result.stderr}"
+            )
 
     generated = engine.read_text(encoding="utf-8")
     required = [
