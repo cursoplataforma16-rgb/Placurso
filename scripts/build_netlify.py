@@ -22,6 +22,7 @@ CORE_PSYCH = ROOT / 'scripts' / 'psychotechnical_core.js'
 CORE_BIBLE = ROOT / 'scripts' / 'bible_learning_core.js'
 CORE_PRODUCT_FACTORY = ROOT / 'scripts' / 'annan_product_factory.js'
 CORE_INTEGRATION_GATEWAY = ROOT / 'scripts' / 'annan_integration_gateway.js'
+CORE_EXECUTION_ENGINE = ROOT / 'scripts' / 'annan_execution_engine.js'
 
 if not ARCHIVE.exists():
     raise SystemExit('ERRO: placurso-site-root.zip não encontrado.')
@@ -42,9 +43,6 @@ engine = WORK / 'psico-engine.js'
 if not engine.exists():
     raise SystemExit('ERRO: psico-engine.js não encontrado.')
 
-# Keep the proven game engines and learning cores, but do not rebuild the
-# legacy Phase 3B experience dashboard or Phase 3A visibility layer. The
-# current Community Flow owns the public/student presentation now.
 for patch in [PATCH, PATCH_PHASE2, PATCH_PHASE3A, PATCH_PHASE3B_TRADE, PATCH_PHASE3C_CRYPTO, PATCH_PHASE3D, PATCH_ANNAN_SUPABASE]:
     if patch.exists():
         subprocess.run(['python3', str(patch), str(engine)], cwd=ROOT, check=True)
@@ -61,15 +59,8 @@ if 'PlacursoAnnanProductFactory' not in product_factory_source:
     raise SystemExit('ERRO: API PlacursoAnnanProductFactory não encontrada.')
 if 'PLACURSO_ANNAN_PRODUCT_FACTORY' in engine.read_text(encoding='utf-8'):
     raise SystemExit('ERRO: Product Factory já foi integrado ao motor.')
-engine.write_text(
-    engine.read_text(encoding='utf-8')
-    + '\n/* PLACURSO_ANNAN_PRODUCT_FACTORY */\n'
-    + product_factory_source,
-    encoding='utf-8',
-)
+engine.write_text(engine.read_text(encoding='utf-8') + '\n/* PLACURSO_ANNAN_PRODUCT_FACTORY */\n' + product_factory_source, encoding='utf-8')
 
-# Phase 8: add a bounded integration boundary to the same ANNAN runtime.
-# It does not create a second agent, call external services, or carry secrets.
 if not CORE_INTEGRATION_GATEWAY.is_file():
     raise SystemExit('ERRO: annan_integration_gateway.js não encontrado.')
 integration_source = CORE_INTEGRATION_GATEWAY.read_text(encoding='utf-8')
@@ -77,12 +68,18 @@ if 'PlacursoAnnanIntegrationGateway' not in integration_source:
     raise SystemExit('ERRO: API PlacursoAnnanIntegrationGateway não encontrada.')
 if 'PLACURSO_ANNAN_INTEGRATION_GATEWAY' in engine.read_text(encoding='utf-8'):
     raise SystemExit('ERRO: Integration Gateway já foi integrado ao motor.')
-engine.write_text(
-    engine.read_text(encoding='utf-8')
-    + '\n/* PLACURSO_ANNAN_INTEGRATION_GATEWAY */\n'
-    + integration_source,
-    encoding='utf-8',
-)
+engine.write_text(engine.read_text(encoding='utf-8') + '\n/* PLACURSO_ANNAN_INTEGRATION_GATEWAY */\n' + integration_source, encoding='utf-8')
+
+# Phase 9: bounded execution capability in the same ANNAN runtime.
+# It records and gates work but intentionally performs no external calls.
+if not CORE_EXECUTION_ENGINE.is_file():
+    raise SystemExit('ERRO: annan_execution_engine.js não encontrado.')
+execution_source = CORE_EXECUTION_ENGINE.read_text(encoding='utf-8')
+if 'PlacursoAnnanExecutionEngine' not in execution_source:
+    raise SystemExit('ERRO: API PlacursoAnnanExecutionEngine não encontrada.')
+if 'PLACURSO_ANNAN_EXECUTION_ENGINE' in engine.read_text(encoding='utf-8'):
+    raise SystemExit('ERRO: Execution Engine já foi integrado ao motor.')
+engine.write_text(engine.read_text(encoding='utf-8') + '\n/* PLACURSO_ANNAN_EXECUTION_ENGINE */\n' + execution_source, encoding='utf-8')
 
 subprocess.run(['python3', str(PATCH_COMMUNITY), str(engine)], cwd=ROOT, check=True)
 subprocess.run(['python3', str(PATCH_PHASE4_GUARD), str(engine)], cwd=ROOT, check=True)
@@ -130,12 +127,12 @@ if not (FUNCTIONS / 'seo.mjs').is_file():
 
 print(f'OK: {sum(1 for x in PUBLIC.rglob("*") if x.is_file())} recursos estáticos preparados.')
 print('OK: motores de jogos + progressão + Phase 3A + formação Trade + Phase 3C preservados.')
-print('OK: painel legado Phase 3B e camada de visibilidade Phase 3A removidos do build.')
 print('OK: perfil ANNAN/evolução preservado como núcleo necessário à experiência atual.')
 print('OK: adaptador ANNAN → Supabase integrado com fallback local.')
 print('OK: core de acesso, psicotécnico de 7 perguntas e aprendizagem bíblica integrado.')
 print('OK: Product Factory integrado no mesmo motor ANNAN do Placurso.')
 print('OK: Integration Gateway integrado no mesmo motor ANNAN do Placurso.')
+print('OK: Execution Engine integrado no mesmo motor ANNAN do Placurso.')
 print('OK: fluxo público → convite → inscrição → Área de Aluno integrado.')
 print('OK: guardião público da Fase 4 integrado; A-Ads preservado.')
 print('OK: Centro de Desafios horizontal no público e no topo do aluno.')
