@@ -1,0 +1,27 @@
+name: Phase 9 Execution Engine Verification
+
+on:
+  push:
+    branches: [feature/phase9-execution-engine]
+  pull_request:
+    branches: [main]
+
+jobs:
+  execution:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-python@v5
+      - name: Execution engine behavior
+        run: node scripts/test_annan_execution_engine.js
+      - name: Build integration contract
+        run: python3 scripts/test_phase9_build_integration.py
+      - name: Execution engine syntax
+        run: node --check scripts/annan_execution_engine.js
+      - name: Compile build scripts
+        run: python3 -m py_compile scripts/build_netlify.py scripts/test_phase9_build_integration.py
+      - name: Preserve A-Ads regression
+        run: python3 scripts/test_aads_ad_preserved.py
