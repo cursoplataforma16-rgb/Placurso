@@ -1,0 +1,1 @@
+CI should verify Product Factory contract, side-effect boundary, and A-Ads boundary.
