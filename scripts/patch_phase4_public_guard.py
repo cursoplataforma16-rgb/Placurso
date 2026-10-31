@@ -12,26 +12,28 @@ script=r'''
     if(document.querySelector('.plc-phase4-guard')) return;
     var style=document.createElement('style');
     style.className='plc-phase4-guard';
-    style.textContent='.plc-legacy-student-hidden{display:none!important}.plc-external-ad-hidden{display:none!important}';
+    style.textContent='.plc-legacy-student-hidden{display:none!important}.plc-external-ad-hidden{display:none!important}a[href*="aads.com"],a[href*="maads.com"],a[href*="slise.xyz"]{display:none!important}';
     document.head.appendChild(style);
     var Access=window.PlacursoCommunityAccess;
     var legacyText=['Aprender com o ANNAN','A tua evolução fica visível','ANNAN · FASE 3A','ANNAN · FASE 3B','ANNAN · FASE 3D','Laboratório de decisão','Reflexo rápido','Decisão financeira','Mini negócio'];
-    var adText=['Anuncie neste espaço publicitário','Advertise here','Web3-Native Marketing Hub','aads.com'];
+    var adText=['Anuncie neste espaço publicitário','Advertise here','Web3-Native Marketing Hub','aads.com','maads.com','slise.xyz'];
     function inShell(el){return !!(el&&el.closest&&el.closest('.plc-community-shell'));}
     function isMember(){try{return !!(Access&&Access.canEnterStudent(Access.read()));}catch(e){return false;}}
     function hideLegacy(){
       if(isMember()) return;
-      document.querySelectorAll('section,article,[role="region"],div').forEach(function(el){
+      var hub=document.querySelector('.pch-games-hub');
+      if(hub && !inShell(hub)) hub.classList.add('plc-legacy-student-hidden');
+      document.querySelectorAll('section,article,[role="region"]').forEach(function(el){
         if(inShell(el)) return;
         var t=(el.innerText||'').replace(/\s+/g,' ').trim();
-        if(!t || t.length>1800) return;
+        if(!t || t.length>1400) return;
         if(legacyText.some(function(k){return t.indexOf(k)>=0;})) el.classList.add('plc-legacy-student-hidden');
       });
     }
     function hideAds(){
       document.querySelectorAll('iframe').forEach(function(el){
         var src=(el.getAttribute('src')||'').toLowerCase();
-        if(src.indexOf('maads.com')>=0||src.indexOf('aads.com')>=0||src.indexOf('advert')>=0||src.indexOf('ads.')>=0) el.classList.add('plc-external-ad-hidden');
+        if(src.indexOf('maads.com')>=0||src.indexOf('aads.com')>=0||src.indexOf('slise.xyz')>=0||src.indexOf('advert')>=0||src.indexOf('ads.')>=0) el.classList.add('plc-external-ad-hidden');
       });
       document.querySelectorAll('body *').forEach(function(el){
         var t=(el.innerText||'').replace(/\s+/g,' ').trim();
