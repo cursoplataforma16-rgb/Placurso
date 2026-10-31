@@ -14,6 +14,7 @@ PATCH_PHASE3A = ROOT / 'scripts' / 'patch_phase3a_games.py'
 PATCH_PHASE3B_TRADE = ROOT / 'scripts' / 'patch_phase3b_trade.py'
 PATCH_PHASE3C_CRYPTO = ROOT / 'scripts' / 'patch_phase3c_crypto_games.py'
 PATCH_PHASE3D = ROOT / 'scripts' / 'patch_phase3d_annan_profile.py'
+PATCH_ANNAN_SUPABASE = ROOT / 'scripts' / 'patch_annan_supabase_adapter.py'
 PATCH_COMMUNITY = ROOT / 'scripts' / 'patch_community_flow.py'
 PATCH_PHASE4_GUARD = ROOT / 'scripts' / 'patch_phase4_public_guard.py'
 CORE_ACCESS = ROOT / 'scripts' / 'community_access_core.js'
@@ -42,7 +43,7 @@ if not engine.exists():
 # Keep the proven game engines and learning cores, but do not rebuild the
 # legacy Phase 3B experience dashboard or Phase 3A visibility layer. The
 # current Community Flow owns the public/student presentation now.
-for patch in [PATCH, PATCH_PHASE2, PATCH_PHASE3A, PATCH_PHASE3B_TRADE, PATCH_PHASE3C_CRYPTO, PATCH_PHASE3D]:
+for patch in [PATCH, PATCH_PHASE2, PATCH_PHASE3A, PATCH_PHASE3B_TRADE, PATCH_PHASE3C_CRYPTO, PATCH_PHASE3D, PATCH_ANNAN_SUPABASE]:
     if patch.exists():
         subprocess.run(['python3', str(patch), str(engine)], cwd=ROOT, check=True)
 
@@ -99,9 +100,10 @@ print(f'OK: {sum(1 for x in PUBLIC.rglob("*") if x.is_file())} recursos estátic
 print('OK: motores de jogos + progressão + Phase 3A + formação Trade + Phase 3C preservados.')
 print('OK: painel legado Phase 3B e camada de visibilidade Phase 3A removidos do build.')
 print('OK: perfil ANNAN/evolução preservado como núcleo necessário à experiência atual.')
+print('OK: adaptador ANNAN → Supabase integrado com fallback local.')
 print('OK: core de acesso, psicotécnico de 7 perguntas e aprendizagem bíblica integrado.')
 print('OK: fluxo público → convite → inscrição → Área de Aluno integrado.')
-print('OK: guardião público da Fase 4 integrado para impedir superfícies legadas e anúncios externos.')
+print('OK: guardião público da Fase 4 integrado; A-Ads preservado.')
 print('OK: Centro de Desafios horizontal no público e no topo do aluno.')
 print('OK: / no domínio Placurso serve index.html.')
 print(f'OK: função Netlify pronta: {FUNCTIONS / "seo.mjs"}')
