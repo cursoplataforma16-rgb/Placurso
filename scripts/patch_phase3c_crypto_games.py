@@ -119,3 +119,5 @@ script = r'''
 })();
 '''
 s += "\n/* " + core_marker + " */\n" + core_source + marker + script
+p.write_text(s, encoding='utf-8')
+print('OK: Fase 3C: missões cripto e progressão adicionadas.')
