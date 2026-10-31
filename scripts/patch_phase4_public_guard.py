@@ -14,26 +14,28 @@ script=r'''
     style.className='plc-phase4-guard';
     style.textContent='.plc-legacy-student-hidden{display:none!important}.plc-external-ad-hidden{display:none!important}';
     document.head.appendChild(style);
-    var legacyText=['Aprender com o ANNAN','A tua evolução fica visível','ANNAN · FASE 3A','ANNAN · FASE 3B','ANNAN · FASE 3D'];
-    var adText=['Anuncie neste espaço publicitário','Web3-Native Marketing Hub'];
+    var Access=window.PlacursoCommunityAccess;
+    var legacyText=['Aprender com o ANNAN','A tua evolução fica visível','ANNAN · FASE 3A','ANNAN · FASE 3B','ANNAN · FASE 3D','Laboratório de decisão','Reflexo rápido','Decisão financeira','Mini negócio'];
+    var adText=['Anuncie neste espaço publicitário','Advertise here','Web3-Native Marketing Hub','aads.com'];
     function inShell(el){return !!(el&&el.closest&&el.closest('.plc-community-shell'));}
+    function isMember(){try{return !!(Access&&Access.canEnterStudent(Access.read()));}catch(e){return false;}}
     function hideLegacy(){
-      document.querySelectorAll('section,article,[role="region"]').forEach(function(el){
+      if(isMember()) return;
+      document.querySelectorAll('section,article,[role="region"],div').forEach(function(el){
         if(inShell(el)) return;
         var t=(el.innerText||'').replace(/\s+/g,' ').trim();
-        if(!t || t.length>1400) return;
+        if(!t || t.length>1800) return;
         if(legacyText.some(function(k){return t.indexOf(k)>=0;})) el.classList.add('plc-legacy-student-hidden');
       });
     }
     function hideAds(){
       document.querySelectorAll('iframe').forEach(function(el){
         var src=(el.getAttribute('src')||'').toLowerCase();
-        if(src.indexOf('maads.com')>=0||src.indexOf('advert')>=0||src.indexOf('ads.')>=0) el.classList.add('plc-external-ad-hidden');
+        if(src.indexOf('maads.com')>=0||src.indexOf('aads.com')>=0||src.indexOf('advert')>=0||src.indexOf('ads.')>=0) el.classList.add('plc-external-ad-hidden');
       });
       document.querySelectorAll('body *').forEach(function(el){
-        if(inShell(el)) return;
         var t=(el.innerText||'').replace(/\s+/g,' ').trim();
-        if(adText.some(function(k){return t.indexOf(k)>=0;}) && t.length<500){
+        if(adText.some(function(k){return t.toLowerCase().indexOf(k.toLowerCase())>=0;}) && t.length<500){
           var target=el.closest('[style*="position: fixed"], [style*="position:fixed"], aside, [role="dialog"]')||el;
           target.classList.add('plc-external-ad-hidden');
         }
