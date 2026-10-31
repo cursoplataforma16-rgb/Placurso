@@ -33,3 +33,24 @@ Execution mode: inline; no isolated local checkout is available, so files are ed
 - Local Node core suites were run against the committed test source: crypto 6/6 PASS; ANNAN 10/10 PASS.
 - The patch-composition smoke test, Python compilation of all patch scripts, browser/mobile interaction and production smoke test have not yet been verified in this session. GitHub combined commit status returned no status records; do not infer that remote CI passed.
 - Production `main` remains unchanged. No Netlify build or production deployment was triggered.
+
+## Task 3: Progress events and UI
+- Added the identified Phase 3A `placurso:progress` event after the Phase 3A state save.
+- Added a unique Phase 3C event ID after v2 crypto state persistence.
+- Implemented the Phase 3D seven-pillar profile, initial-sample labels, deterministic ANNAN interpretation, next-action buttons, bounded history and local-storage handling.
+- Corrected the legacy Phase 3B skill-strip hiding so it hides the actual legacy title and grid, not a brittle CSS `:first-of-type` selector.
+- Task status: implementation present; full browser interaction, event refresh and mobile-width behavior still need verification.
+
+## Task 4: Build integration and tests
+- Added Phase 3D after Phase 3C in `scripts/build_netlify.py`.
+- Added `scripts/test_phase3d_patch_pipeline.py` and `.github/workflows/phase3d-verify.yml` (verification only; no deploy steps).
+- Local Node composition smoke check passed using locally reconstructed copies of the two patch scripts; this is not a substitute for running the committed repository scripts.
+- The committed GitHub Actions run could not be inspected from available status responses; the commit status response returned no status records and the public Actions page was not accessible. Do not claim remote CI passed.
+- Python syntax was checked on the locally reconstructed patch copies and the committed pipeline test source; exact committed patcher compilation remains pending.
+- Task status: integration files present; committed patch-pipeline test and full build verification remain pending.
+
+## Final branch review
+- Compared `phase-3b-experience` with `main`: branch is ahead by 30 commits, behind by 0; merge base remains production commit `03259284f7a8b45ab27334c3190b18e901a2e3fc`.
+- The changed-file list contains only Placurso phase plans/specs/ledgers, game/profile scripts, tests and the no-deploy verification workflow. No DIONUEL/Kunica file or project was changed.
+- No merge, Netlify build or production deployment was performed.
+- Review outcome: core logic verified by unit tests; full patch pipeline/browser/mobile verification remains a release gate for this phase. Do not merge or deploy until that gate passes.
