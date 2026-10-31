@@ -1,0 +1,1 @@
+Phase 7 checkpoint: Product Factory contract, deterministic normalization, validation, and CI verification are the first implementation slice. External publishing and integrations remain out of scope for this phase slice.
