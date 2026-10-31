@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - feature/community-functional-flow
+      - feature/phase5-annan-engine
   pull_request:
     branches:
       - main
@@ -35,6 +36,9 @@ jobs:
 
       - name: Test ANNAN profile calculations
         run: node scripts/test_annan_profile_core.js
+
+      - name: Test ANNAN learning memory and recommendations
+        run: node scripts/test_annan_learning_core.js
 
       - name: Test community access
         run: node scripts/test_community_access_core.js
