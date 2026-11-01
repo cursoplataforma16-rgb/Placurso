@@ -149,7 +149,7 @@ export function createGrowthHandler({ env, fetchImpl = fetch }: GrowthDependenci
     return value;
   }
 
-  async function dbRequest(path, { method = "GET", body, prefer = "" } = {}) {
+  async function dbRequest(path: string, { method = "GET", body, prefer = "" }: { method?: string; body?: unknown; prefer?: string } = {}) {
     const key = privilegedKey();
     const headers = new Headers({
       apikey: key,
@@ -177,7 +177,7 @@ export function createGrowthHandler({ env, fetchImpl = fetch }: GrowthDependenci
   }
 
   // The CEO check is anchored to the existing public.perfis authorization model.
-  async function authorize(request) {
+  async function authorize(request: Request) {
     const authorization = request.headers.get("authorization") || "";
     if (!/^Bearer\s+\S+$/i.test(authorization)) {
       throw new GrowthRequestError(401, "missing_session");
@@ -446,7 +446,7 @@ export function createGrowthHandler({ env, fetchImpl = fetch }: GrowthDependenci
     throw new GrowthRequestError(400, "unknown_operation");
   }
 
-  return async function handle(request) {
+  return async function handle(request: Request): Promise<Response> {
     const origin = request.headers.get("origin") || "";
     if (request.method === "OPTIONS") return jsonResponse(204, {}, origin);
     if (request.method !== "POST") return failure(405, "method_not_allowed", origin);
