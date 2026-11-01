@@ -10,7 +10,7 @@ const ALLOWED_OBJECTIVES = ["awareness", "traffic", "leads", "enrollments", "sal
 const CURRENCY_PATTERN = /^[A-Z]{3}$/;
 const REQUEST_ID_PATTERN = /^[A-Za-z0-9._:-]{8,128}$/;
 
-function jsonResponse(status, body, origin = "") {
+function jsonResponse(status: number, body: unknown, origin = "") {
   const headers = new Headers({
     "content-type": "application/json; charset=utf-8",
     "cache-control": "no-store",
@@ -25,7 +25,7 @@ function jsonResponse(status, body, origin = "") {
   return new Response(status === 204 ? null : JSON.stringify(body), { status, headers });
 }
 
-function isAllowedOrigin(origin) {
+function isAllowedOrigin(origin: string): boolean {
   if (!origin) return false;
   try {
     const url = new URL(origin);
@@ -38,7 +38,7 @@ function isAllowedOrigin(origin) {
   }
 }
 
-function readKey(env, jsonName, legacyName) {
+function readKey(env: GrowthEnvironment, jsonName: string, legacyName: string): string {
   const raw = env.get(jsonName);
   if (raw) {
     try {
@@ -51,7 +51,7 @@ function readKey(env, jsonName, legacyName) {
   return env.get(legacyName) || "";
 }
 
-function safeErrorMessage(status) {
+function safeErrorMessage(status: number): string {
   if (status === 401) return "A sessão não é válida. Entre novamente no Placurso.";
   if (status === 403) return "Esta operação está reservada à conta de gestão autorizada.";
   if (status === 404) return "O registo solicitado não foi encontrado.";
@@ -60,38 +60,38 @@ function safeErrorMessage(status) {
   return "Não foi possível concluir a operação. Verifique os dados e tente novamente.";
 }
 
-function failure(status, code, origin = "") {
+function failure(status: number, code: string, origin = "") {
   return jsonResponse(status, {
     ok: false,
     error: { code, message: safeErrorMessage(status) },
   }, origin);
 }
 
-async function readRequestBody(request) {
+async function readRequestBody(request: Request): Promise<{ ok: true; value: Record<string, unknown> } | { ok: false; status: number; code: string }> {
   const raw = await request.text();
   if (new TextEncoder().encode(raw).byteLength > MAX_BODY_BYTES) {
     return { ok: false, status: 413, code: "payload_too_large" };
   }
   try {
-    const value = JSON.parse(raw);
+    const value: unknown = JSON.parse(raw);
     if (!value || typeof value !== "object" || Array.isArray(value)) {
       return { ok: false, status: 400, code: "invalid_body" };
     }
-    return { ok: true, value };
+    return { ok: true, value: value as Record<string, unknown> };
   } catch {
     return { ok: false, status: 400, code: "invalid_json" };
   }
 }
 
-function normalizeText(value, maxLength = MAX_TEXT_LENGTH) {
+function normalizeText(value: unknown, maxLength: number = MAX_TEXT_LENGTH): string {
   return typeof value === "string" ? value.trim().slice(0, maxLength) : "";
 }
 
-function validateRequestId(value) {
+function validateRequestId(value: unknown): value is string {
   return typeof value === "string" && REQUEST_ID_PATTERN.test(value);
 }
 
-function parseDbResponse(text) {
+function parseDbResponse(text: string): unknown {
   if (!text) return null;
   try {
     return JSON.parse(text);
@@ -123,7 +123,7 @@ export function createGrowthHandler({ env, fetchImpl = fetch }: GrowthDependenci
   const supabaseUrl = (env.get("SUPABASE_URL") || "").replace(/\/+$/, "");
   const publishableKey = readKey(env, "SUPABASE_PUBLISHABLE_KEYS", "SUPABASE_ANON_KEY");
 
-  async function callAuth(userJwt) {
+  async function callAuth(userJwt: string): Promise<Record<string, unknown> & { id: string }> {
     if (!supabaseUrl || !publishableKey) {
       throw new GrowthRequestError(503, "server_configuration_missing");
     }
@@ -136,11 +136,11 @@ export function createGrowthHandler({ env, fetchImpl = fetch }: GrowthDependenci
       },
     });
     if (!response.ok) throw new GrowthRequestError(401, "invalid_session");
-    const user = await response.json();
+    const user = await response.json() as Record<string, unknown>;
     if (!user || typeof user.id !== "string" || !user.id) {
       throw new GrowthRequestError(401, "invalid_session");
     }
-    return user;
+    return user as Record<string, unknown> & { id: string };
   }
 
   function privilegedKey() {
@@ -177,7 +177,7 @@ export function createGrowthHandler({ env, fetchImpl = fetch }: GrowthDependenci
   }
 
   // The CEO check is anchored to the existing public.perfis authorization model.
-  async function authorize(request: Request) {
+  async function authorize(request: Request): Promise<{ user: Record<string, unknown> & { id: string }; id: string }> {
     const authorization = request.headers.get("authorization") || "";
     if (!/^Bearer\s+\S+$/i.test(authorization)) {
       throw new GrowthRequestError(401, "missing_session");
@@ -198,7 +198,7 @@ export function createGrowthHandler({ env, fetchImpl = fetch }: GrowthDependenci
     return { user, id: user.id };
   }
 
-  async function auditStart(actorId, requestId, action, objectType) {
+  async function auditStart(actorId: string, requestId: string, action: string, objectType: string): Promise<string> {
     const rows = await dbRequest("growth_audit_log", {
       method: "POST",
       prefer: "return=representation",
@@ -216,7 +216,7 @@ export function createGrowthHandler({ env, fetchImpl = fetch }: GrowthDependenci
     return row.id;
   }
 
-  async function auditFinish(auditId, outcome, objectId = null) {
+  async function auditFinish(auditId: string, outcome: string, objectId: string | null = null): Promise<void> {
     await dbRequest(
       "growth_audit_log?id=eq." + encodeURIComponent(auditId),
       {
@@ -231,11 +231,11 @@ export function createGrowthHandler({ env, fetchImpl = fetch }: GrowthDependenci
     );
   }
 
-  async function auditedMutation(actorId, requestId, action, objectType, operation) {
+  async function auditedMutation(actorId: string, requestId: string, action: string, objectType: string, operation: () => Promise<unknown>): Promise<unknown> {
     const auditId = await auditStart(actorId, requestId, action, objectType);
     try {
       const data = await operation();
-      const objectId = data && typeof data.id === "string" ? data.id : null;
+      const objectId = data && typeof data === "object" && "id" in data && typeof data.id === "string" ? data.id : null;
       await auditFinish(auditId, "success", objectId);
       return data;
     } catch (error) {
@@ -248,7 +248,7 @@ export function createGrowthHandler({ env, fetchImpl = fetch }: GrowthDependenci
     }
   }
 
-  async function listRows(table, actorId, select) {
+  async function listRows(table: string, actorId: string, select: string): Promise<unknown[]> {
     const query = table + "?select=" + encodeURIComponent(select)
       + "&created_by=eq." + encodeURIComponent(actorId)
       + "&order=created_at.desc&limit=100";
@@ -256,10 +256,10 @@ export function createGrowthHandler({ env, fetchImpl = fetch }: GrowthDependenci
     return Array.isArray(rows) ? rows : [];
   }
 
-  async function handleOperation(actor, body) {
+  async function handleOperation(actor: { id: string }, body: Record<string, unknown>): Promise<{ status: number; data: unknown }> {
     const operation = normalizeText(body.operation, 80);
-    const payload = body.payload && typeof body.payload === "object" && !Array.isArray(body.payload)
-      ? body.payload : {};
+    const payload: Record<string, unknown> = body.payload && typeof body.payload === "object" && !Array.isArray(body.payload)
+      ? body.payload as Record<string, unknown> : {};
 
     if (operation === "account.list") {
       const rows = await dbRequest(
