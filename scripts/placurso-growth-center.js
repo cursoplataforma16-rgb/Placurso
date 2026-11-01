@@ -37,8 +37,121 @@
     const accounts = el('section'); accounts.className='pg-section'; accounts.appendChild(el('h4','Contas e canais para ligar')); const grid = el('div'); grid.className='pg-grid'; channels.forEach(channel => { const card=el('article');card.className='pg-card';card.appendChild(el('h4',channel.name));card.appendChild(el('p',channel.detail,'pg-muted'));card.appendChild(el('span','● Ainda não ligado','pg-state'));card.appendChild(el('p','Necessário: '+channel.needs,'pg-muted'));const link=el('a','Abrir portal de programadores ↗','pg-btn');link.href=channel.url;link.target='_blank';link.rel='noopener noreferrer';card.appendChild(link);grid.appendChild(card);});accounts.appendChild(grid);rootPanel.appendChild(accounts);
     const campaign=el('section');campaign.className='pg-section pg-card';campaign.appendChild(el('h4','Preparar campanha'));campaign.appendChild(el('p','Gera um briefing que o ANNAN pode usar para organizar a estratégia. Este planeador não publica anúncios nem consome orçamento.','pg-muted'));
     const form=el('form');form.className='pg-form';const fields=[['product','Curso ou infoproduto','text','Ex.: Curso de contabilidade prática'],['audience','Público-alvo','text','Jovens à procura do primeiro emprego em Angola'],['budget','Limite diário (AOA)','number','3000'],['channels','Canais pretendidos','text','Facebook, Instagram, TikTok, YouTube'],['cta','Chamada para acção','text','Conhecer o curso no Placurso'],['offer','Resultado / oferta concreta','textarea','Que problema resolve e o que a pessoa recebe?']];const inputs={};fields.forEach(([id,label,type,placeholder])=>{const wrap=el('div');if(id==='offer')wrap.className='pg-full';const lab=el('label',label);lab.htmlFor='pg-'+id;wrap.appendChild(lab);const input=type==='textarea'?el('textarea'):el('input');input.id='pg-'+id;input.placeholder=placeholder;if(type!=='textarea')input.type=type;if(id==='budget')input.min='0';inputs[id]=input;wrap.appendChild(input);form.appendChild(wrap);});const objectiveWrap=el('div');objectiveWrap.className='pg-full';objectiveWrap.appendChild(el('label','Objectivo principal'));const objective=el('select');['Reconhecimento da marca','Tráfego para o Placurso','Gerar contactos / leads','Inscrições e vendas'].forEach(v=>{const op=el('option',v);op.value=v;objective.appendChild(op);});objectiveWrap.appendChild(objective);form.appendChild(objectiveWrap);const submit=el('button','Gerar briefing da campanha','pg-btn pg-primary');submit.type='submit';const submitWrap=el('div');submitWrap.className='pg-full';submitWrap.appendChild(submit);form.appendChild(submitWrap);campaign.appendChild(form);const output=el('pre');output.id='pg-brief';output.hidden=true;campaign.appendChild(output);const actions=el('div');actions.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin-top:8px';const copy=el('button','Copiar briefing','pg-btn');copy.type='button';const download=el('button','Guardar briefing .txt','pg-btn');download.type='button';actions.append(copy,download);actions.hidden=true;campaign.appendChild(actions);let last='';form.addEventListener('submit',event=>{event.preventDefault();last=brief({product:inputs.product.value,objective:objective.value,audience:inputs.audience.value,budget:inputs.budget.value,channels:inputs.channels.value,cta:inputs.cta.value,offer:inputs.offer.value});output.textContent=last;output.hidden=false;actions.hidden=false;});copy.addEventListener('click',async()=>{if(!last)return;try{await navigator.clipboard.writeText(last);if(typeof root.showToast==='function')root.showToast('Briefing copiado.');}catch(_){root.prompt('Copie o briefing:',last);}});download.addEventListener('click',()=>{if(!last)return;const url=URL.createObjectURL(new Blob([last],{type:'text/plain;charset=utf-8'}));const a=el('a');a.href=url;a.download='placurso-briefing-campanha.txt';a.click();URL.revokeObjectURL(url);});rootPanel.appendChild(campaign);
+
+    const management=el('section');management.className='pg-section pg-card';
+    management.appendChild(el('h4','Gestão ANNAN — campanhas e conteúdos'));
+    management.appendChild(el('p','Cria campanhas e rascunhos, envia conteúdos para aprovação e acompanha decisões. Esta fase ainda não publica nas redes nem executa anúncios.','pg-muted'));
+    const accessStatus=el('p','A validar a sessão e a autorização de gestão...','pg-muted');management.appendChild(accessStatus);
+    const campaignForm=el('form');campaignForm.className='pg-form';
+    const campaignFields={};
+    function addControl(form,label,id,type,placeholder,full){
+      const wrap=el('div');if(full)wrap.className='pg-full';
+      const lab=el('label',label);lab.htmlFor='pgm-'+id;wrap.appendChild(lab);
+      let control;
+      if(type==='select'){control=el('select');}
+      else if(type==='textarea'){control=el('textarea');}
+      else{control=el('input');control.type=type;}
+      control.id='pgm-'+id;control.name=id;if(placeholder)control.placeholder=placeholder;
+      if(type==='number'){control.min='0';control.value='0';}
+      wrap.appendChild(control);form.appendChild(wrap);campaignFields[id]=control;return control;
+    }
+    addControl(campaignForm,'Nome da campanha','name','text','Ex.: Matrículas de contabilidade',true).required=true;
+    const objectiveField=addControl(campaignForm,'Objectivo','objective','select','',false);
+    [['awareness','Reconhecimento'],['traffic','Tráfego'],['leads','Contactos / leads'],['enrollments','Inscrições'],['sales','Vendas']].forEach(([value,label])=>{const op=el('option',label);op.value=value;objectiveField.appendChild(op);});
+    addControl(campaignForm,'Público-alvo','audience','text','Quem queremos alcançar?',true);
+    addControl(campaignForm,'Oferta / problema resolvido','offer','textarea','O que o curso resolve e o que entrega?',true);
+    addControl(campaignForm,'Limite diário (AOA)','budgetLimit','number','0',false);
+    const campaignSubmit=el('button','Criar campanha em rascunho','pg-btn pg-primary');campaignSubmit.type='submit';const campaignSubmitWrap=el('div');campaignSubmitWrap.className='pg-full';campaignSubmitWrap.appendChild(campaignSubmit);campaignForm.appendChild(campaignSubmitWrap);
+    management.appendChild(el('h4','Nova campanha'));management.appendChild(campaignForm);
+
+    const contentForm=el('form');contentForm.className='pg-form';
+    const contentCampaign=addControl(contentForm,'Associar campanha','campaignId','select','',false);
+    const platformField=addControl(contentForm,'Plataforma','platform','select','',false);
+    channels.forEach(channel=>{const op=el('option',channel.name);op.value=channel.id;platformField.appendChild(op);});
+    const formatField=addControl(contentForm,'Formato','format','select','',false);
+    [['text','Texto'],['image','Imagem'],['video','Vídeo'],['reel','Reel'],['carousel','Carrossel'],['story','Story'],['short','Short']].forEach(([value,label])=>{const op=el('option',label);op.value=value;formatField.appendChild(op);});
+    addControl(contentForm,'Texto / legenda','body','textarea','Escreve o conteúdo original para esta plataforma...',true).required=true;
+    const contentSubmit=el('button','Guardar rascunho de conteúdo','pg-btn pg-primary');contentSubmit.type='submit';const contentSubmitWrap=el('div');contentSubmitWrap.className='pg-full';contentSubmitWrap.appendChild(contentSubmit);contentForm.appendChild(contentSubmitWrap);
+    management.appendChild(el('h4','Novo conteúdo'));management.appendChild(contentForm);
+
+    const dataBoard=el('div');dataBoard.className='pg-section';
+    const campaignBoard=el('div');campaignBoard.className='pg-grid';
+    const contentBoard=el('div');contentBoard.className='pg-grid';
+    dataBoard.appendChild(el('h4','Campanhas registadas'));dataBoard.appendChild(campaignBoard);
+    dataBoard.appendChild(el('h4','Conteúdos e aprovações'));dataBoard.appendChild(contentBoard);
+    management.appendChild(dataBoard);
+    let canManage=false;
+    function setManagementEnabled(enabled){
+      canManage=!!enabled;
+      [campaignForm,contentForm].forEach(form=>Array.from(form.elements).forEach(control=>{control.disabled=!canManage;}));
+    }
+    function setAccessMessage(code){
+      const messages={
+        ceo_not_configured:'Configuração pendente: a identidade do CEO ainda não foi provisionada no Supabase. As operações permanecem bloqueadas.',
+        forbidden:'A sessão não tem o perfil administrativo autorizado para gerir o Crescimento.',
+        unauthenticated:'Inicia sessão no Placurso com a conta de gestão para continuar.',
+        session_adapter_missing:'O adaptador de sessão do ANNAN não está disponível nesta versão.',
+      };
+      accessStatus.textContent=messages[code]||'A gestão segura do ANNAN está temporariamente indisponível.';
+    }
+    function renderCampaignRows(rows){
+      campaignBoard.textContent='';
+      if(!rows.length){campaignBoard.appendChild(el('p','Ainda não existem campanhas.','pg-muted'));return;}
+      rows.forEach(item=>{const card=el('article');card.className='pg-card';card.appendChild(el('h4',item.name));card.appendChild(el('p',item.objective+' · '+item.status,'pg-muted'));card.appendChild(el('p',item.audience||'Público por definir','pg-muted'));const option=el('option',item.name);option.value=item.id;contentCampaign.appendChild(option);campaignBoard.appendChild(card);});
+    }
+    function renderContentRows(rows){
+      contentBoard.textContent='';
+      if(!rows.length){contentBoard.appendChild(el('p','Ainda não existem rascunhos.','pg-muted'));return;}
+      rows.forEach(item=>{
+        const card=el('article');card.className='pg-card';
+        card.appendChild(el('h4',item.platform+' · '+item.format));
+        card.appendChild(el('p',item.status+' · versão '+item.version,'pg-muted'));
+        card.appendChild(el('p',(item.body||'').slice(0,180),'pg-muted'));
+        if(item.status==='draft'){
+          const submit=el('button','Enviar para aprovação','pg-btn pg-primary');submit.type='button';
+          submit.addEventListener('click',async()=>{submit.disabled=true;const result=await root.PlacursoGrowthClient.submitContent(item.id);if(!result.ok){setAccessMessage(result.error&&result.error.code);submit.disabled=false;return;}await refreshManagement();});
+          card.appendChild(submit);
+        }
+        if(item.status==='pending_approval'){
+          const approve=el('button','Aprovar','pg-btn pg-primary');approve.type='button';
+          const reject=el('button','Rejeitar','pg-btn');reject.type='button';
+          const decide=async decision=>{approve.disabled=true;reject.disabled=true;const result=await root.PlacursoGrowthClient.decideApproval({contentId:item.id,version:item.version,contentHash:item.content_hash,decision:decision,reason:''});if(!result.ok){setAccessMessage(result.error&&result.error.code);approve.disabled=false;reject.disabled=false;return;}await refreshManagement();};
+          approve.addEventListener('click',()=>decide('approved'));reject.addEventListener('click',()=>decide('rejected'));card.append(approve,reject);
+        }
+        contentBoard.appendChild(card);
+      });
+    }
+    async function refreshManagement(){
+      if(!root.PlacursoGrowthClient){setManagementEnabled(false);setAccessMessage('session_adapter_missing');return;}
+      const campaigns=await root.PlacursoGrowthClient.listCampaigns();
+      if(!campaigns.ok){setManagementEnabled(false);setAccessMessage(campaigns.error&&campaigns.error.code);return;}
+      const contents=await root.PlacursoGrowthClient.listContents();
+      const accounts=await root.PlacursoGrowthClient.listAccounts();
+      if(!contents.ok||!accounts.ok){setManagementEnabled(false);setAccessMessage((contents.error||accounts.error||{}).code);return;}
+      setManagementEnabled(true);
+      accessStatus.textContent='Gestão autorizada. Contas ligadas: '+accounts.data.length+'. Nenhuma publicação externa é executada nesta fase.';
+      contentCampaign.textContent='';const none=el('option','Sem campanha associada');none.value='';contentCampaign.appendChild(none);
+      renderCampaignRows(campaigns.data);renderContentRows(contents.data);
+    }
+    campaignForm.addEventListener('submit',async event=>{
+      event.preventDefault();if(!canManage)return;campaignSubmit.disabled=true;
+      const result=await root.PlacursoGrowthClient.createCampaign({name:campaignFields.name.value,objective:objectiveField.value,audience:campaignFields.audience.value,offer:campaignFields.offer.value,budgetLimit:Number(campaignFields.budgetLimit.value||0),currency:'AOA'});
+      campaignSubmit.disabled=false;
+      if(!result.ok){setAccessMessage(result.error&&result.error.code);return;}
+      campaignForm.reset();campaignFields.budgetLimit.value='0';await refreshManagement();
+    });
+    contentForm.addEventListener('submit',async event=>{
+      event.preventDefault();if(!canManage)return;contentSubmit.disabled=true;
+      const result=await root.PlacursoGrowthClient.createContent({campaignId:contentCampaign.value,platform:platformField.value,format:formatField.value,body:campaignFields.body.value,assetRefs:[]});
+      contentSubmit.disabled=false;
+      if(!result.ok){setAccessMessage(result.error&&result.error.code);return;}
+      campaignFields.body.value='';await refreshManagement();
+    });
+    setManagementEnabled(false);rootPanel.appendChild(management);
+
     const integrations=el('section');integrations.className='pg-section pg-note';integrations.appendChild(el('b','APIs, conectores e MCP'));integrations.appendChild(el('p','O gateway será o ponto único para APIs, webhooks e MCP. Chaves privadas ficam no servidor, nunca no navegador.'));integrations.appendChild(el('p','Estado actual: painel e planeador preparados. OAuth, publicações reais e métricas aguardam credenciais e autorização das aplicações oficiais.'));integrations.appendChild(el('p','Controlo do CEO: ligar contas, publicar conteúdos e gastar orçamento só ocorre com autorização válida. Nenhuma conta aparece como ligada antes da confirmação da plataforma.'));rootPanel.appendChild(integrations);
     container.replaceChildren(rootPanel);
+    refreshManagement();
   }
   root.renderPlacursoGrowthCenter = render;
   root.PlacursoGrowthCenter = Object.freeze({ buildCampaignBrief: brief, platforms: channels.map(p=>({id:p.id,name:p.name})) });

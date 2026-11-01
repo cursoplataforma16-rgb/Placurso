@@ -18,4 +18,20 @@ if (result.ok || result.reason !== 'secret_like_value_rejected') throw new Error
 result = gateway.dispatch('missing', { type: 'x' });
 if (result.ok || result.reason !== 'integration_unavailable') throw new Error('unknown integration accepted');
 
+
+const growth = gateway.list().find((item) => item.name === 'placurso-growth');
+if (!growth || growth.kind !== 'channel' || growth.version !== '10.2' || !growth.enabled) {
+  throw new Error('ANNAN growth capability is not registered in the existing gateway');
+}
+
+result = gateway.dispatch('placurso-growth', { type: 'campaign.draft', source: 'growth-center' });
+if (!result.ok || result.queued !== false || result.event !== 'campaign.draft') {
+  throw new Error('safe growth capability event rejected or falsely marked as queued');
+}
+
+result = gateway.dispatch('placurso-growth', { type: 'publish', access_token: 'not-allowed' });
+if (result.ok || result.reason !== 'unsafe_event') {
+  throw new Error('growth gateway accepted a credential-bearing payload');
+}
+
 console.log('OK: Phase 8 gateway behavior');
