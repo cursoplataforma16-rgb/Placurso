@@ -37,6 +37,8 @@ jobs:
         run: python scripts/test_annan_growth_schema.py
       - name: Verify server authentication and approval workflow
         run: deno test --allow-net supabase/functions/annan-growth/index_test.ts
+      - name: Verify Growth Center build integration
+        run: python scripts/test_phase10_2_build_integration.py
       - name: Verify existing ANNAN gateway
         run: node scripts/test_annan_integration_gateway.js
       - name: Verify Phase 8 and Phase 9 integration contracts
