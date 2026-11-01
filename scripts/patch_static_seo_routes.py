@@ -3,11 +3,10 @@ from urllib.parse import urlsplit
 import sys
 
 STATIC_SEO_ROUTES = {"/robots.txt", "/sitemap.xml"}
-COURSE_ROUTES = {"/cursos", "/cursos/", "/cursos/*"}
+COURSE_ROUTES = {"/cursos", "/cursos/"}
 COURSE_FALLBACKS = [
     "/cursos /cursos/index.html 200!",
     "/cursos/ /cursos/index.html 200!",
-    "/cursos/* /cursos/index.html 200!",
 ]
 
 
@@ -30,15 +29,15 @@ def patch(path: Path) -> None:
         if source_path(line) not in STATIC_SEO_ROUTES | COURSE_ROUTES
     ]
 
-    # Garante uma única entrada estática para a área de cursos, antes das regras amplas.
+    # O exacto /cursos usa o app shell já servido pela rota dinâmica /cursos/*.
     result = COURSE_FALLBACKS + kept
     if result != lines:
         path.write_text("\n".join(result) + ("\n" if original.endswith("\n") or result else ""), encoding="utf-8")
 
     removed = len(lines) - len(kept)
     print(f"OK: {removed} redireccionamento(s) antigo(s) de robots/sitemap/cursos removido(s).")
-    print("OK: robots/sitemap servidos como ficheiros estáticos.")
-    print("OK: /cursos e subrotas encaminhados para /cursos/index.html.")
+    print("OK: robots.txt e sitemap.xml servidos como ficheiros estáticos.")
+    print("OK: /cursos e /cursos/ encaminhados para /cursos/index.html.")
 
 
 if __name__ == "__main__":
