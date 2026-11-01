@@ -59,7 +59,7 @@ def test_traffic_builder_creates_pages_sitemap_and_robots():
             'rel="canonical"',
             "<h1>Como calcular a margem de lucro e definir o preço de venda</h1>",
             "margem de lucro",
-            "Markup",
+            "markup",
             "5.500",
             "/ferramentas/calculadora-margem/",
             "/cursos",
