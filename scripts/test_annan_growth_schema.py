@@ -23,7 +23,7 @@ def migration_text():
 def test_all_growth_tables_are_rls_protected_and_service_only():
     sql = migration_text()
     for table in TABLES:
-        assert re.search(rf"create table public\.{table}\b", sql), f"missing table {table}"
+        assert re.search(rf"create table(?: if not exists)? public\.{table}\b", sql), f"missing table {table}"
         assert f"alter table public.{table} enable row level security" in sql
         assert f"revoke all privileges on table public.{table}" in sql
         assert f"grant all privileges on table public.{table}" in sql
