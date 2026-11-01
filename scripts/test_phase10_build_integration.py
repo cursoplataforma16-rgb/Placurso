@@ -1,4 +1,5 @@
 from pathlib import Path
+import re
 import subprocess
 import sys
 
@@ -32,6 +33,17 @@ def test_full_netlify_build_publishes_traffic_assets_and_keeps_annan():
     # Guard the generated public homepage body, not only its SEO head.
     homepage_body = homepage.split("</head>", 1)[1] if "</head>" in homepage else homepage
     print("GENERATED HOMEPAGE BODY DIAGNOSTIC:", homepage_body[:8000])
+    from zipfile import ZipFile
+    with ZipFile(ROOT / "placurso-site-root.zip") as archive:
+        names = archive.namelist()
+        roots = sorted({name.split("/", 1)[0] for name in names if name and not name.startswith("/")})
+        course_indexes = [name for name in names if name.lower().endswith("cursos/index.html")]
+        print("ARCHIVE TOP-LEVEL ROOTS:", roots[:80])
+        print("ARCHIVE COURSE INDEX PATHS:", course_indexes[:20])
+        for entry in course_indexes[:2]:
+            source_html = archive.read(entry).decode("utf-8", errors="replace")
+            refs = re.findall(r'(?:src|href)=["\\']([^"\\']+)["\\']', source_html, flags=re.I)
+            print("COURSE INDEX STRUCTURE:", {"path": entry, "bytes": len(source_html), "asset_refs": refs[:60]})
     assert "Aprenda algo útil." in homepage_body, "generated homepage is missing Placurso platform content"
     assert "Dionuel" not in homepage_body, "generated homepage contains unrelated project content"
     assert "Alfaiataria" not in homepage_body, "generated homepage contains unrelated atelier content"
