@@ -17,7 +17,10 @@ def test_generated_site_contains_server_verified_ceo_google_flow():
         "A conta Google autenticada não é a identidade CEO",
     ):
         assert marker in source, f"generated site is missing CEO login behavior: {marker}"
-    assert "johnjunior.tchek@gmail.com" not in source, "former CEO identity leaked into generated login asset"
+    if "johnjunior.tchek@gmail.com" in source:
+        position = source.index("johnjunior.tchek@gmail.com")
+        excerpt = source[max(0, position - 180):position + 180]
+        raise AssertionError(f"former CEO identity leaked into generated login asset: {excerpt!r}")
     assert "belcianycosmedionisio@gmail.com" not in source, "CEO allowlist must remain server-side"
 
 
