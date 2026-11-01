@@ -41,7 +41,7 @@
 - The Edge Function continues to expose `createGrowthHandler({ env, fetchImpl })` and operation `ceo.bootstrap`.
 - Browser login behavior remains implemented through `_patch_ceo_google_auth(source)` in `scripts/patch_annan_growth_assets.py`.
 
-- [ ] **Step 1: Write failing browser contract tests.** Require that the browser patch invokes `ceo.bootstrap` for a signed-in Google user without comparing against `johnjunior.tchek@gmail.com`, treats CEO `403` as the normal non-CEO path, and only renders CEO success after a positive server response.
+- [x] **Step 1: Write failing browser contract tests.** Require that the browser patch invokes `ceo.bootstrap` for a signed-in Google user without comparing against `johnjunior.tchek@gmail.com`, treats CEO `403` as the normal non-CEO path, and only renders CEO success after a positive server response.
 - [x] **Step 2: Write failing Edge Function tests.** Use a singleton whose email is `belcianycosmedionisio@gmail.com`; assert that this confirmed Google user can claim the empty UUID slot, that `johnjunior.tchek@gmail.com` is rejected, and that non-Google or unconfirmed users are rejected without privileged writes.
 - [x] **Step 3: Update the old-account takeover test.** Assert that a different UUID cannot replace a singleton already claimed by the main account.
 - [x] **Step 4: Run the focused tests and capture the expected failure.** Run `python scripts/test_annan_ceo_auth_contract.py` and `deno test --allow-net supabase/functions/annan-growth/index_test.ts` in CI or an equivalent local runtime. Expected: failure because current source hardcodes the former CEO email and current test fixtures use that identity.
@@ -77,6 +77,7 @@
 - [x] **Step 3: Apply an additive transactional migration.** First demote the profile joined through the singleton's current `auth_user_id`; then update row `id = 1` to the new email and clear the old UUID/claim timestamp. Do not delete Auth users or records.
 - [x] **Step 4: Record the exact applied migration in the repository.** Reconcile the Supabase migration version with the repository's existing migration filenames before adding the SQL file; the current applied versions and two existing filename timestamps do not match exactly.
 - [x] **Step 5: Verify the live database state.** Confirm one singleton row with the new email and null claim fields, and confirm the old UUID's profile is no longer `admin`.
+- [x] **Step 6: Replace the Auth signup trigger's fixed CEO email check.** Add a migration that reads the singleton and creates an admin profile only for its confirmed Google identity; preserve `aluno` for every other new user and use `ON CONFLICT DO NOTHING` so existing profiles are not silently changed. Add a contract test and verify the live trigger definition.
 
 ### Task 4: Make the browser delegate CEO classification to the server
 
@@ -95,6 +96,7 @@
 - [x] **Step 3: Remove the hardcoded CEO email condition from the patch.** Always ask the server to classify an authenticated Google session; branch only on the verified server response/status.
 - [x] **Step 4: Run the browser contract test and build integration test.** Expected: `python scripts/test_annan_ceo_auth_contract.py` and `python scripts/test_phase10_2_build_integration.py` pass.
 - [x] **Step 5: Build the generated static site and verify the old email is absent from the generated login assets.** Run the repository's Netlify build script and its existing static checks; retain all current ANNAN and student assets.
+- [x] **Step 6: Remove the legacy browser-side `CEO_EMAILS` promotion list.** Replace it in the build generator with an empty list, fail closed if the expected source block changes, and test that neither CEO email is embedded in the generated HTML.
 
 ### Task 5: Deploy, verify and close the login repair
 
