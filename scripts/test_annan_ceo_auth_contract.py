@@ -5,6 +5,7 @@ PATCH = ROOT / "scripts" / "patch_annan_growth_assets.py"
 FUNCTION = ROOT / "supabase" / "functions" / "annan-growth" / "index.ts"
 CLIENT = ROOT / "scripts" / "annan_growth_client.js"
 MIGRATIONS = sorted((ROOT / "supabase" / "migrations").glob("*_ceo_google_login_repair.sql"))
+SIGNUP_MIGRATIONS = sorted((ROOT / "supabase" / "migrations").glob("*_ceo_signup_profile_from_identity.sql"))
 
 
 def test_browser_login_handles_disabled_google_provider_clearly():
@@ -58,6 +59,20 @@ def test_new_migration_releases_old_ceo_and_demotes_old_admin():
     assert "where id = 1" in sql or "where id=1" in sql
 
 
+def test_auth_signup_trigger_uses_the_database_ceo_identity_for_google_only():
+    assert len(SIGNUP_MIGRATIONS) == 1, (
+        f"expected one CEO signup identity migration, found {len(SIGNUP_MIGRATIONS)}"
+    )
+    sql = SIGNUP_MIGRATIONS[0].read_text(encoding="utf-8").lower()
+    assert "create or replace function public.handle_new_user()" in sql
+    assert "from public.growth_ceo_identity" in sql
+    assert "new.email_confirmed_at is not null" in sql
+    assert "raw_app_meta_data" in sql
+    assert "provider" in sql and "google" in sql
+    assert "case when v_is_ceo then 'admin' else 'aluno' end" in sql
+    assert "johnjunior.tchek@gmail.com" not in sql
+
+
 def test_browser_code_does_not_contain_server_secrets():
     client = CLIENT.read_text(encoding="utf-8").lower()
     assert "service_role" not in client
@@ -72,6 +87,7 @@ if __name__ == "__main__":
         test_browser_only_shows_ceo_success_after_server_confirmation,
         test_edge_function_uses_database_singleton_as_only_email_allowlist,
         test_new_migration_releases_old_ceo_and_demotes_old_admin,
+        test_auth_signup_trigger_uses_the_database_ceo_identity_for_google_only,
         test_browser_code_does_not_contain_server_secrets,
     ):
         test_function()
