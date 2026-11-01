@@ -155,7 +155,7 @@ def _patch_service_worker(public: Path) -> None:
         source,
         count=1,
     )
-    if "const CACHE_VERSAO = 'placurso-v161-annan-growth';" not in source:
+    if "const CACHE_VERSAO = 'placurso-v162-ceo-google-auth';" not in source:
         raise SystemExit("ERRO: versão da cache PWA não foi actualizada.")
     old_assets = "'./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './logo-dionuel.webp',"
     new_assets = "'./', './index.html', './manifest.json', './curso-icon-192.png', './curso-icon-512.png', './annan-voice.js', './annan_growth_client.js', './placurso-growth-center.js',"
