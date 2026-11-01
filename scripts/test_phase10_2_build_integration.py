@@ -11,7 +11,7 @@ def test_growth_client_is_copied_and_loaded_before_the_growth_panel():
     patch = PATCH.read_text(encoding="utf-8")
     assert "annan_growth_client.js" in patch
     assert "growth_client_tag" in patch
-    assert 'window.PlacursoGrowthClient' in CLIENT.read_text(encoding="utf-8")
+    assert 'root.PlacursoGrowthClient' in CLIENT.read_text(encoding="utf-8")
     assert "placurso-growth-center.js" in patch
     assert "PATCH_ANNAN_GROWTH_ASSETS" in BUILD.read_text(encoding="utf-8")
 
