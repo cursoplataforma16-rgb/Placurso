@@ -22,7 +22,7 @@ function jsonResponse(status, body, origin = "") {
     headers.set("access-control-allow-headers", "authorization, apikey, content-type, x-client-info");
     headers.set("access-control-max-age", "600");
   }
-  return new Response(JSON.stringify(body), { status, headers });
+  return new Response(status === 204 ? null : JSON.stringify(body), { status, headers });
 }
 
 function isAllowedOrigin(origin) {
@@ -169,7 +169,7 @@ export function createGrowthHandler({ env, fetchImpl = fetch } = {}) {
     return data;
   }
 
-  async function authorize(request) {
+  // The CEO check is anchored to the existing public.perfis authorization model.\n  async function authorize(request) {
     const authorization = request.headers.get("authorization") || "";
     if (!/^Bearer\s+\S+$/i.test(authorization)) {
       throw new GrowthRequestError(401, "missing_session");
@@ -377,9 +377,9 @@ export function createGrowthHandler({ env, fetchImpl = fetch } = {}) {
         );
         const row = Array.isArray(current) ? current[0] : null;
         if (!row || row.created_by !== actor.id) throw new GrowthRequestError(404, "record_not_found");
-        if (!["draft", "rejected"].includes(row.status)) throw new GrowthRequestError(409, "invalid_content_state");
+        if (row.status !== "draft") throw new GrowthRequestError(409, "invalid_content_state");
         const updated = await dbRequest(
-          "growth_contents?id=eq." + encodeURIComponent(contentId) + "&created_by=eq." + encodeURIComponent(actor.id),
+          "growth_contents?id=eq." + encodeURIComponent(contentId) + "&created_by=eq." + encodeURIComponent(actor.id) + "&status=eq.draft",
           {
             method: "PATCH",
             prefer: "return=representation",
@@ -415,33 +415,22 @@ export function createGrowthHandler({ env, fetchImpl = fetch } = {}) {
         if (row.status !== "pending_approval" || row.version !== version || row.content_hash !== suppliedHash) {
           throw new GrowthRequestError(409, "stale_content_version");
         }
-        const approvals = await dbRequest("growth_approvals", {
+        const result = await dbRequest("rpc/growth_decide_approval", {
           method: "POST",
           prefer: "return=representation",
-          body: [{
-            content_id: contentId,
-            content_version: version,
-            content_hash: suppliedHash,
-            decision,
-            decided_by: actor.id,
-            reason,
-          }],
-        });
-        const updated = await dbRequest(
-          "growth_contents?id=eq." + encodeURIComponent(contentId)
-            + "&version=eq." + encodeURIComponent(String(version))
-            + "&content_hash=eq." + encodeURIComponent(suppliedHash),
-          {
-            method: "PATCH",
-            prefer: "return=representation",
-            body: { status: decision, updated_at: new Date().toISOString() },
+          body: {
+            p_content_id: contentId,
+            p_content_version: version,
+            p_content_hash: suppliedHash,
+            p_decision: decision,
+            p_actor_id: actor.id,
+            p_reason: reason,
           },
-        );
-        const next = Array.isArray(updated) ? updated[0] : null;
-        if (!next || !Array.isArray(approvals) || !approvals[0]) {
+        });
+        if (!result || !result.content || !result.approval_id) {
           throw new GrowthRequestError(409, "approval_conflict");
         }
-        return next;
+        return result.content;
       });
       return { status: 200, data };
     }
