@@ -17,6 +17,46 @@ def _replace_once(source: str, old: str, new: str, label: str) -> str:
     return source.replace(old, new, 1)
 
 
+def _patch_ceo_google_auth(source: str) -> str:
+    old_google_handler = (
+        "document.getElementById('apGoogle').addEventListener('click', async () => { "
+        "const { error } = await sb.auth.signInWithOAuth({ provider: 'google', "
+        "options: { redirectTo: location.origin + '/cursos?aprender=1' } }); "
+        "if(error){ erro = 'Não foi possível abrir o Google.'; entrar(); } });"
+    )
+    new_google_handler = (
+        "document.getElementById('apGoogle').addEventListener('click', async () => { "
+        "const { error } = await sb.auth.signInWithOAuth({ provider: 'google', "
+        "options: { redirectTo: location.origin + '/cursos?aprender=1' } }); "
+        "if(error){ const detalhe = String(error.message || error); "
+        "erro = /unsupported provider|provider is not enabled/i.test(detalhe) "
+        "? 'O acesso com Google ainda não foi activado no serviço de autenticação. A configuração do Google Cloud é necessária.' "
+        ": 'Não foi possível abrir o Google. Verifique a ligação e tente novamente.'; entrar(); } });"
+    )
+    source = _replace_once(source, old_google_handler, new_google_handler, "mensagem clara para Google OAuth")
+
+    anchor = "  casca('<div class=\"loading-screen\">A preparar…</div>');\n  if(comGoogle){ let cv = '';"
+    replacement = """  casca('<div class="loading-screen">A preparar…</div>');
+  if(comGoogle){
+    let authUser = null;
+    try { const authResult = await sb.auth.getUser(); authUser = authResult && authResult.data && authResult.data.user; } catch(_e) {}
+    if(String((authUser && authUser.email) || '').trim().toLowerCase() === 'johnjunior.tchek@gmail.com'){
+      const bootstrap = await sb.functions.invoke('annan-growth', { body: { operation: 'ceo.bootstrap' } });
+      const result = bootstrap && bootstrap.data;
+      if(bootstrap.error || !result || result.ok !== true || !result.data || result.data.role !== 'admin'){
+        erro = 'A sessão Google foi iniciada, mas a validação segura da conta CEO não terminou. Confirme a configuração Google no Supabase e tente novamente.';
+        entrar();
+        return;
+      }
+      app.innerHTML = '<div class="vitrine dv"><div class="vitrine-header">' + marcaLogoMark(true) + '</div><div class="vitrine-secao" style="max-width:600px;"><h2>Conta CEO verificada</h2><p class="dv-compra-p">A identidade foi confirmada e o perfil de administração foi associado com segurança ao seu utilizador Google.</p><a class="dv-btn dv-btn-principal" style="display:block;text-align:center;text-decoration:none;" href="/">Entrar no Placurso</a></div></div>';
+      return;
+    }
+  }
+  if(comGoogle){ let cv = '';"""
+    source = _replace_once(source, anchor, replacement, "bootstrap protegido da conta CEO após login Google")
+    return source
+
+
 def _patch_index(index_path: Path) -> None:
     source = index_path.read_text(encoding="utf-8")
     voice_tag = '<script src="/annan-voice.js"></script>'
@@ -85,6 +125,7 @@ def _patch_index(index_path: Path) -> None:
     if 'href="curso-icon-192.png"' not in head:
         raise SystemExit("ERRO: não foi possível alinhar o ícone Placurso no cabeçalho.")
     source = source[:head_match.start()] + head + source[head_match.end():]
+    source = _patch_ceo_google_auth(source)
     index_path.write_text(source, encoding="utf-8")
 
 
@@ -110,7 +151,7 @@ def _patch_service_worker(public: Path) -> None:
     source = path.read_text(encoding="utf-8")
     source = re.sub(
         r"const CACHE_VERSAO = '[^']+';",
-        "const CACHE_VERSAO = 'placurso-v161-annan-growth';",
+        "const CACHE_VERSAO = 'placurso-v162-ceo-google-auth';",
         source,
         count=1,
     )
