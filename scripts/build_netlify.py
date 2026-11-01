@@ -17,6 +17,7 @@ PATCH_PHASE3D = ROOT / 'scripts' / 'patch_phase3d_annan_profile.py'
 PATCH_ANNAN_SUPABASE = ROOT / 'scripts' / 'patch_annan_supabase_adapter.py'
 PATCH_AADS = ROOT / 'scripts' / 'patch_aads_unit.py'
 PATCH_SEO = ROOT / 'scripts' / 'patch_placurso_seo.py'
+PATCH_PREVIEW_ROUTING = ROOT / 'scripts' / 'patch_placurso_netlify_preview_routing.py'
 PATCH_SEO_FUNCTION = ROOT / 'scripts' / 'patch_seo_function_static_routes.py'
 BUILD_TRAFFIC_ASSETS = ROOT / 'scripts' / 'build_traffic_assets.py'
 PATCH_COMMUNITY = ROOT / 'scripts' / 'patch_community_flow.py'
@@ -62,6 +63,9 @@ subprocess.run(['python3', str(PATCH_AADS), str(site_html)], cwd=ROOT, check=Tru
 if not PATCH_SEO.is_file():
     raise SystemExit('ERRO: patch SEO Placurso não encontrado.')
 subprocess.run(['python3', str(PATCH_SEO), str(site_html)], cwd=ROOT, check=True)
+if not PATCH_PREVIEW_ROUTING.is_file():
+    raise SystemExit('ERRO: patch de deteção dos Deploy Previews Placurso não encontrado.')
+subprocess.run(['python3', str(PATCH_PREVIEW_ROUTING), str(site_html)], cwd=ROOT, check=True)
 
 for core in [CORE_ACCESS, CORE_PSYCH, CORE_BIBLE]:
     if not core.is_file():
