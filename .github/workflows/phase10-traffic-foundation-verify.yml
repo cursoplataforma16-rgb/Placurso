@@ -12,8 +12,11 @@ on:
       - 'scripts/test_phase10_traffic_assets.py'
       - 'scripts/test_phase10_build_integration.py'
       - 'scripts/build_netlify.py'
-      - 'scripts/patch_seo_function_static_preference.py'
-      - 'scripts/test_phase10_seo_function_static_preference.py'
+      - 'scripts/patch_seo_function_static_routes.py'
+      - 'scripts/test_phase10_seo_function_static_routes.py'
+      - 'scripts/patch_static_seo_routes.py'
+      - 'scripts/test_phase10_static_seo_routes.py'
+      - 'netlify.toml'
       - 'placurso-site-root.zip'
       - '.github/workflows/phase10-traffic-foundation-verify.yml'
 
@@ -26,8 +29,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Verify SEO static file routing
-        run: python scripts/test_phase10_seo_function_static_preference.py
+      - name: Verify exact SEO function route exclusion
+        run: python scripts/test_phase10_seo_function_static_routes.py
+      - name: Verify static redirect cleanup
+        run: python scripts/test_phase10_static_seo_routes.py
       - name: Verify homepage SEO metadata patch
         run: python scripts/test_phase10_seo_metadata.py
       - name: Verify margin calculator arithmetic
