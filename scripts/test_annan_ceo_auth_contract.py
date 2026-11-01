@@ -4,7 +4,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PATCH = ROOT / "scripts" / "patch_annan_growth_assets.py"
 FUNCTION = ROOT / "supabase" / "functions" / "annan-growth" / "index.ts"
 CLIENT = ROOT / "scripts" / "annan_growth_client.js"
-MIGRATION = ROOT / "supabase" / "migrations" / "20261101214500_phase10_3_ceo_google_identity.sql"
+MIGRATIONS = sorted((ROOT / "supabase" / "migrations").glob("*_ceo_google_login_repair.sql"))
 
 
 def test_browser_login_handles_disabled_google_provider_clearly():
@@ -14,16 +14,25 @@ def test_browser_login_handles_disabled_google_provider_clearly():
     assert "configuração do Google Cloud" in patch
 
 
-def test_signed_in_ceo_runs_server_bootstrap_before_student_creation():
+def test_browser_delegates_ceo_classification_to_server_not_a_hardcoded_email():
     patch = PATCH.read_text(encoding="utf-8")
     assert "sb.auth.getUser()" in patch
-    assert "johnjunior.tchek@gmail.com" in patch
     assert "operation: 'ceo.bootstrap'" in patch
-    assert "result.data.role !== 'admin'" in patch
-    assert patch.index("operation: 'ceo.bootstrap'") < patch.rindex("if(comGoogle){ let cv = '';")
+    assert "johnjunior.tchek@gmail.com" not in patch
+    assert "belcianycosmedionisio@gmail.com" not in patch
+    assert "result.data.role === 'admin'" in patch
+    assert "bootstrapStatus === 403" in patch
+    assert "bootstrapCode === 'forbidden'" in patch
 
 
-def test_edge_function_uses_server_verified_google_auth_identity():
+def test_browser_only_shows_ceo_success_after_server_confirmation():
+    patch = PATCH.read_text(encoding="utf-8")
+    assert "Conta CEO verificada" in patch
+    assert patch.index("operation: 'ceo.bootstrap'") < patch.index("Conta CEO verificada")
+    assert "bootstrapStatus === 403" in patch
+
+
+def test_edge_function_uses_database_singleton_as_only_email_allowlist():
     function = FUNCTION.read_text(encoding="utf-8")
     assert '=== "ceo.bootstrap"' in function
     assert "app_metadata" in function
@@ -31,19 +40,21 @@ def test_edge_function_uses_server_verified_google_auth_identity():
     assert "growth_ceo_identity" in function
     assert 'auth_user_id=is.null' in function
     assert 'on_conflict=id' in function
+    assert "johnjunior.tchek@gmail.com" not in function
+    assert "belcianycosmedionisio@gmail.com" not in function
     assert "PLACURSO_GROWTH_CEO_USER_ID" not in function
-    assert "verify_jwt = true" in function
 
 
-def test_ceo_identity_mapping_is_service_only_and_not_email_as_user_id():
-    sql = MIGRATION.read_text(encoding="utf-8").lower()
-    assert "references auth.users(id)" in sql
-    assert "auth_user_id uuid unique" in sql
-    assert "enable row level security" in sql
-    assert "revoke all privileges on table public.growth_ceo_identity from authenticated" in sql
-    assert "revoke all privileges on table public.growth_ceo_identity from anon" in sql
-    assert "grant select, update on table public.growth_ceo_identity to service_role" in sql
+def test_new_migration_releases_old_ceo_and_demotes_old_admin():
+    assert len(MIGRATIONS) == 1, f"expected one CEO login repair migration, found {len(MIGRATIONS)}"
+    sql = MIGRATIONS[0].read_text(encoding="utf-8").lower()
+    assert "belcianycosmedionisio@gmail.com" in sql
     assert "johnjunior.tchek@gmail.com" in sql
+    assert "update public.perfis" in sql
+    assert "papel = 'aluno'" in sql or "papel='aluno'" in sql
+    assert "auth_user_id = null" in sql or "auth_user_id=null" in sql
+    assert "claimed_at = null" in sql or "claimed_at=null" in sql
+    assert "where id = 1" in sql or "where id=1" in sql
 
 
 def test_browser_code_does_not_contain_server_secrets():
@@ -54,12 +65,13 @@ def test_browser_code_does_not_contain_server_secrets():
 
 
 if __name__ == "__main__":
-    for test in (
+    for test_function in (
         test_browser_login_handles_disabled_google_provider_clearly,
-        test_signed_in_ceo_runs_server_bootstrap_before_student_creation,
-        test_edge_function_uses_server_verified_google_auth_identity,
-        test_ceo_identity_mapping_is_service_only_and_not_email_as_user_id,
+        test_browser_delegates_ceo_classification_to_server_not_a_hardcoded_email,
+        test_browser_only_shows_ceo_success_after_server_confirmation,
+        test_edge_function_uses_database_singleton_as_only_email_allowlist,
+        test_new_migration_releases_old_ceo_and_demotes_old_admin,
         test_browser_code_does_not_contain_server_secrets,
     ):
-        test()
-    print("Phase 10.3 CEO Google Auth contract: PASS")
+        test_function()
+    print("Phase 10.3 CEO Google Auth repair contract: PASS")
