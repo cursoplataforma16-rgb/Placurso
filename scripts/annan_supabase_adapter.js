@@ -46,12 +46,14 @@
   }
 
   function normalizeEvent(detail){
-    if(!detail||typeof detail!=='object'||Array.isArray(detail)||typeof detail.id!=='string'||!detail.id.trim()) return null;
+    if(!detail||typeof detail!=='object'||Array.isArray(detail)) return null;
+    var rawId=typeof detail.id==='string'?detail.id:(typeof detail.event_id==='string'?detail.event_id:'');
+    if(!rawId.trim()) return null;
     var score=Number(detail.score); if(!Number.isFinite(score)) score=null;
     var correct=Number(detail.correct); if(!Number.isFinite(correct)) correct=null;
     var total=Number(detail.total); if(!Number.isFinite(total)) total=null;
     var occurred=typeof detail.occurredAt==='string'?detail.occurredAt:(typeof detail.occurred_at==='string'?detail.occurred_at:(typeof detail.at==='string'?detail.at:new Date().toISOString()));
-    return {event_id:detail.id.trim(),source:typeof detail.source==='string'?detail.source:null,game:typeof detail.game==='string'?detail.game:null,level:typeof detail.level==='string'?detail.level:null,correct:correct,total:total,score:score,passed:typeof detail.passed==='boolean'?detail.passed:null,occurred_at:occurred};
+    return {event_id:rawId.trim(),source:typeof detail.source==='string'?detail.source:null,game:typeof detail.game==='string'?detail.game:null,level:typeof detail.level==='string'?detail.level:null,correct:correct,total:total,score:score,passed:typeof detail.passed==='boolean'?detail.passed:null,occurred_at:occurred};
   }
 
   function validEvent(event){
