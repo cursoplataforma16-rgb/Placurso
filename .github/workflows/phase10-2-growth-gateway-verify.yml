@@ -1,0 +1,44 @@
+name: Phase 10.2 Growth Gateway Verification
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'supabase/functions/annan-growth/**'
+      - 'supabase/migrations/*growth_foundation*.sql'
+      - 'scripts/annan_growth_client.js'
+      - 'scripts/placurso-growth-center.js'
+      - 'scripts/test_annan_growth_contract.py'
+      - 'scripts/test_annan_growth_schema.py'
+      - 'scripts/test_phase10_2_build_integration.py'
+      - 'scripts/test_phase10_2_build_integration.py'
+      - 'scripts/build_netlify.py'
+      - 'scripts/patch_annan_growth_assets.py'
+      - '.github/workflows/phase10-2-growth-gateway-verify.yml'
+
+jobs:
+  growth-gateway:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verify CEO authorization and secret boundary
+        run: python scripts/test_annan_growth_contract.py
+      - name: Verify server authentication and approval workflow
+        run: deno test --allow-net supabase/functions/annan-growth/index_test.ts
+      - name: Verify existing ANNAN gateway
+        run: node scripts/test_annan_integration_gateway.js
+      - name: Verify Phase 8 and Phase 9 integration contracts
+        run: |
+          python scripts/test_phase8_integration_gateway.py
+          node scripts/test_annan_execution_gateway_adapter.js
+          python scripts/test_phase9_2_build_integration.py
+          python scripts/test_phase9_3_build_integration.py
