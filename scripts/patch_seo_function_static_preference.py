@@ -4,7 +4,7 @@ import sys
 
 
 CONFIG_PATTERN = re.compile(
-    r"(export\\s+const\\s+config\\s*=\\s*\\{)([\\s\\S]*?)(\\}\\s*;)",
+    r"(export\s+const\s+config\s*=\s*\{)([\s\S]*?)(\}\s*;)",
 )
 
 
@@ -21,12 +21,12 @@ def patch(path: Path) -> None:
     if "robots.txt" not in body or "sitemap.xml" not in body:
         raise SystemExit("ERRO: rotas robots.txt e sitemap.xml não encontradas na função SEO.")
 
-    preference = re.compile(r"\\bpreferStatic\\s*:\\s*(?:true|false)\\b")
+    preference = re.compile(r"\bpreferStatic\s*:\s*(?:true|false)\b")
     if preference.search(body):
         body = preference.sub("preferStatic: true", body, count=1)
         body = preference.sub("preferStatic: true", body)
     else:
-        body = "\\n  preferStatic: true," + body
+        body = "\n  preferStatic: true," + body
 
     patched = source[:match.start(2)] + body + source[match.end(2):]
     path.write_text(patched, encoding="utf-8")
