@@ -17,6 +17,7 @@ on:
       - 'scripts/test_annan_growth_schema.py'
       - 'scripts/test_phase10_2_build_integration.py'
       - 'scripts/test_ceo_login_build_output.py'
+      - 'scripts/audit_placurso_source_bundle.py'
       - 'scripts/build_netlify.py'
       - 'scripts/patch_annan_growth_assets.py'
       - '.github/workflows/phase10-2-growth-gateway-verify.yml'
@@ -45,6 +46,8 @@ jobs:
         run: deno test --allow-net supabase/functions/annan-growth/index_test.ts
       - name: Verify Growth Center build integration
         run: python scripts/test_phase10_2_build_integration.py
+      - name: Audit original site bundle for DIONUEL and obsolete data schema
+        run: python scripts/audit_placurso_source_bundle.py
       - name: Build the production Netlify site and verify CEO login assets
         run: |
           python scripts/build_netlify.py
