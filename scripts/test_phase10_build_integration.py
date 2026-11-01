@@ -5,7 +5,7 @@ import sys
 ROOT = Path(__file__).resolve().parent.parent
 BUILD = ROOT / "scripts" / "build_netlify.py"
 PATCH_STATIC_SEO = ROOT / "scripts" / "patch_static_seo_routes.py"
-PATCH_SEO_FUNCTION = ROOT / "scripts" / "patch_seo_function_static_preference.py"
+PATCH_SEO_FUNCTION = ROOT / "scripts" / "patch_seo_function_static_routes.py"
 
 
 def test_full_netlify_build_publishes_traffic_assets_and_keeps_annan():
@@ -54,7 +54,10 @@ def test_full_netlify_build_publishes_traffic_assets_and_keeps_annan():
     assert (public / "robots.txt").is_file()
     assert "/robots.txt " not in redirects
     assert "/sitemap.xml " not in redirects
-    assert "preferStatic: true" in seo_function
+    assert '"/robots.txt"' not in seo_function
+    assert '"/sitemap.xml"' not in seo_function
+    for route in ['"/p/*"', '"/cursos"', '"/ver"', '"/bio"', '"/links"']:
+        assert route in seo_function
 
 
 if __name__ == "__main__":
