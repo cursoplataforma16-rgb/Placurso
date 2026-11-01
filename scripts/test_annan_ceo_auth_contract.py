@@ -54,6 +54,7 @@ def test_new_migration_releases_old_ceo_and_demotes_old_admin():
     assert "papel = 'aluno'" in sql or "papel='aluno'" in sql
     assert "auth_user_id = null" in sql or "auth_user_id=null" in sql
     assert "claimed_at = null" in sql or "claimed_at=null" in sql
+    assert "perform set_config('request.jwt.claim.sub'" in sql
     assert "where id = 1" in sql or "where id=1" in sql
 
 
