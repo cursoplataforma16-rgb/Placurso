@@ -101,6 +101,22 @@ def _string_tokens(source: str, start: int, end: int):
         index += 1
 
 
+def configured_routes(source: str) -> set[str]:
+    """Return only literal routes registered in export const config.path."""
+    config_open, config_close = _config_bounds(source)
+    body = source[config_open + 1:config_close]
+    path_match = re.search(r"\bpath\s*:\s*\[", body)
+    if not path_match:
+        raise ValueError("config.path não encontrado na função SEO")
+
+    array_open = body.find("[", path_match.start())
+    array_close = _matching_delimiter(body, array_open, "[", "]")
+    return {
+        value
+        for _, _, value in _string_tokens(body, array_open + 1, array_close)
+    }
+
+
 def _remove_array_route_entries(array_body: str) -> str:
     tokens = [
         (start, finish, value)
