@@ -40,4 +40,12 @@ const impossibleTarget = calculateMargin({
 });
 assert.equal(impossibleTarget.valid, false);
 
+const emptyField = calculateMargin({
+  unitCost: "", unitExpenses: 0, feePercent: 5, salePrice: 200, targetMarginPercent: 20
+});
+assert.equal(emptyField.valid, false);
+
+assert.equal(calculateMargin(null).valid, false);
+assert.equal(calculateMargin(undefined).valid, false);
+
 console.log("Margin calculator contract: PASS");
