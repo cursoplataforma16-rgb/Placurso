@@ -100,15 +100,22 @@ function parseDbResponse(text) {
   }
 }
 
+type GrowthEnvironment = { get(name: string): string | undefined };
+type GrowthFetch = (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
+type GrowthDependencies = { env: GrowthEnvironment; fetchImpl?: GrowthFetch };
+
 class GrowthRequestError extends Error {
-  constructor(status, code) {
+  status: number;
+  code: string;
+  constructor(status: number, code: string) {
     super(code);
+    this.name = "GrowthRequestError";
     this.status = status;
     this.code = code;
   }
 }
 
-export function createGrowthHandler({ env, fetchImpl = fetch } = {}) {
+export function createGrowthHandler({ env, fetchImpl = fetch }: GrowthDependencies) {
   if (!env || typeof env.get !== "function") {
     throw new Error("Growth handler requires an environment reader");
   }
