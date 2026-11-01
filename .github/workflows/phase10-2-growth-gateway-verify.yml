@@ -42,6 +42,13 @@ jobs:
         run: deno test --allow-net supabase/functions/annan-growth/index_test.ts
       - name: Verify Growth Center build integration
         run: python scripts/test_phase10_2_build_integration.py
+      - name: Build the production Netlify site and verify CEO login assets
+        run: |
+          python scripts/build_netlify.py
+          python scripts/strategic_games_patch.py
+          python scripts/strategic_decision_game.py
+          python scripts/patch_static_seo_routes.py
+          python scripts/test_ceo_login_build_output.py
       - name: Verify existing ANNAN gateway
         run: node scripts/test_annan_integration_gateway.js
       - name: Verify Phase 8 and Phase 9 integration contracts
