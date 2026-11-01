@@ -50,9 +50,12 @@ for patch in [PATCH, PATCH_PHASE2, PATCH_PHASE3A, PATCH_PHASE3B_TRADE, PATCH_PHA
     if patch.exists():
         subprocess.run(['python3', str(patch), str(engine)], cwd=ROOT, check=True)
 
+site_html = WORK / 'index.html'
+if not site_html.is_file():
+    raise SystemExit('ERRO: index.html não encontrado para aplicação da unidade A-Ads.')
 if not PATCH_AADS.is_file():
     raise SystemExit('ERRO: patch A-Ads 2459988 não encontrado.')
-subprocess.run(['python3', str(PATCH_AADS), str(engine)], cwd=ROOT, check=True)
+subprocess.run(['python3', str(PATCH_AADS), str(site_html)], cwd=ROOT, check=True)
 
 for core in [CORE_ACCESS, CORE_PSYCH, CORE_BIBLE]:
     if not core.is_file():
@@ -153,7 +156,7 @@ print('OK: motores de jogos + progressão + Phase 3A + formação Trade + Phase 
 print('OK: perfil ANNAN/evolução preservado como núcleo necessário à experiência atual.')
 print('OK: adaptador ANNAN → Supabase integrado com fallback local.')
 print('OK: core de acesso, psicotécnico de 7 perguntas e aprendizagem bíblica integrado.')
-print('OK: A-Ads unit 2459988 aplicado antes do guardião público.')
+print('OK: A-Ads unit 2459988 aplicado ao index.html antes do guardião público.')
 print('OK: Product Factory integrado no mesmo motor ANNAN do Placurso.')
 print('OK: Integration Gateway integrado no mesmo motor ANNAN do Placurso.')
 print('OK: Execution Engine integrado no mesmo motor ANNAN do Placurso.')
