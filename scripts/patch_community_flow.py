@@ -132,6 +132,7 @@ script=r'''
           if(!result.ok){
             button.disabled=false;button.textContent='Criar conta e entrar';
             if(result.reason==='email_confirmation_required')authMessage('Conta criada. Confirma o email que enviámos e depois regressa para entrar na tua Área de Aluno.');
+            else if(result.reason==='account_already_exists')authMessage('Este email já tem uma conta. Usa a opção “Já tenho conta — entrar”.');
             else authMessage(result.reason||'Não foi possível criar a conta. Verifica os dados e tenta novamente.');
             return;
           }
