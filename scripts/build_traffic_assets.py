@@ -142,6 +142,8 @@ def calculator_page() -> str:
 <p>Depois de calcular o preço, aprofunde gestão, finanças, marketing e organização do negócio através de percursos práticos com o ANNAN.</p>
 <a class="button" href="{BASE}/cursos">Explorar formação gratuita</a>
 </section>
+<script src="/js/placurso-margin-calculator-core.js" defer></script>
+<script src="/js/placurso-margin-calculator.js" defer></script>
 </main>
 '''
     schema = {
