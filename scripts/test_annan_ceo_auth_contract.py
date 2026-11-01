@@ -25,7 +25,7 @@ def test_signed_in_ceo_runs_server_bootstrap_before_student_creation():
 
 def test_edge_function_uses_server_verified_google_auth_identity():
     function = FUNCTION.read_text(encoding="utf-8")
-    assert 'operation") === "ceo.bootstrap"' in function
+    assert '=== "ceo.bootstrap"' in function
     assert "app_metadata" in function
     assert "email_confirmed_at" in function
     assert "growth_ceo_identity" in function
