@@ -3,8 +3,8 @@ import re
 import sys
 
 
-STATIC_ROUTES = {"/robots.txt", "/sitemap.xml"}
-REQUIRED_DYNAMIC_ROUTES = {"/p/*", "/cursos", "/ver", "/bio", "/links"}
+EXCLUDED_ROUTES = {"/robots.txt", "/sitemap.xml", "/cursos", "/cursos/*"}
+REQUIRED_DYNAMIC_ROUTES = {"/p/*", "/ver", "/bio", "/links"}
 
 
 def _skip_string(source: str, index: int) -> int:
@@ -105,7 +105,7 @@ def _remove_array_route_entries(array_body: str) -> str:
     tokens = [
         (start, finish, value)
         for start, finish, value in _string_tokens(array_body, 0, len(array_body))
-        if value in STATIC_ROUTES
+        if value in EXCLUDED_ROUTES
     ]
 
     for start, finish, _ in reversed(tokens):
@@ -155,9 +155,9 @@ def patch(source: str) -> str:
         updated_body,
     )
 
-    for route in STATIC_ROUTES:
+    for route in EXCLUDED_ROUTES:
         if any(value == route for _, _, value in _string_tokens(updated_array, 0, len(updated_array))):
-            raise ValueError(f"A rota estática ainda ficou registada na função SEO: {route}")
+            raise ValueError(f"A rota ainda ficou registada na função SEO: {route}")
 
     for route in REQUIRED_DYNAMIC_ROUTES:
         if not any(value == route for _, _, value in _string_tokens(updated_array, 0, len(updated_array))):
@@ -176,8 +176,8 @@ def main() -> None:
     except ValueError as error:
         raise SystemExit(f"ERRO: {error}")
     path.write_text(updated, encoding="utf-8")
-    print("OK: robots.txt e sitemap.xml removidos apenas das rotas da função SEO.")
-    print("OK: /p/*, /cursos, /ver, /bio e /links preservadas; sem preferStatic global.")
+    print("OK: robots.txt, sitemap.xml e rotas /cursos removidos da função SEO.")
+    print("OK: /p/*, /ver, /bio e /links preservadas; /cursos passa pela página estática.")
 
 
 if __name__ == "__main__":
