@@ -40,8 +40,10 @@ def test_edge_function_uses_database_singleton_as_only_email_allowlist():
     assert "app_metadata" in function
     assert "email_confirmed_at" in function
     assert "growth_ceo_identity" in function
-    assert 'auth_user_id=is.null' in function
-    assert 'on_conflict=id' in function
+    assert "rpc/placurso_ceo_bootstrap_profile" in function
+    assert "p_auth_user_id" in function
+    assert 'growth_ceo_identity?id=eq.1&auth_user_id=is.null' not in function
+    assert "perfis?on_conflict=id" not in function
     assert "johnjunior.tchek@gmail.com" not in function
     assert "belcianycosmedionisio@gmail.com" not in function
     assert "PLACURSO_GROWTH_CEO_USER_ID" not in function
