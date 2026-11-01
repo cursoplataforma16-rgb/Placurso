@@ -16,6 +16,10 @@
     return String(value || '').trim().replace(/[^a-zA-Z0-9_-]/g, '-').slice(0, 80);
   }
 
+  function cleanIntegration(value) {
+    return String(value || '').trim().toLowerCase().replace(/[^a-z0-9_-]/g, '-').slice(0, 80);
+  }
+
   function hasUnsafeText(value) {
     return typeof value === 'string' && /(secret|api[_-]?key|access[_-]?token|private[_-]?key|service[_-]?role)/i.test(value);
   }
@@ -33,6 +37,7 @@
     if (!String(input.objective || '').trim()) return { ok: false, reason: 'invalid_objective' };
     if (!safeValue(input, 0)) return { ok: false, reason: 'unsafe_task' };
     if (input.priority && !priorities.includes(input.priority)) return { ok: false, reason: 'invalid_priority' };
+    if (input.integration && !cleanIntegration(input.integration)) return { ok: false, reason: 'invalid_integration' };
     return { ok: true, id };
   }
 
@@ -51,6 +56,9 @@
       id: check.id,
       objective: String(input.objective).trim().slice(0, 240),
       priority: input.priority || 'normal',
+      integration: input.integration ? cleanIntegration(input.integration) : null,
+      eventType: input.eventType ? String(input.eventType).trim().slice(0, 80) : null,
+      event: input.event && typeof input.event === 'object' ? { ...input.event } : null,
       sensitive: input.sensitive === true,
       approved: input.sensitive !== true,
       status: 'pending',
