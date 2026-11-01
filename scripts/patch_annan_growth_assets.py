@@ -17,6 +17,26 @@ def _replace_once(source: str, old: str, new: str, label: str) -> str:
     return source.replace(old, new, 1)
 
 
+def _disable_legacy_browser_ceo_allowlist(source: str) -> str:
+    legacy = re.compile(
+        r"(?m)^[ \t]*// O e-mail abaixo é promovido automaticamente a CEO no primeiro login,\r?\n"
+        r"[ \t]*// sem precisar de aprovação\. Pode ter mais de um, separados por vírgula\.\r?\n"
+        r"[ \t]*const CEO_EMAILS\s*=\s*\[[^\]]*\];"
+    )
+    replacement = (
+        "// A autorização CEO é validada exclusivamente no servidor pelo ANNAN.\n"
+        "const CEO_EMAILS = [];"
+    )
+    source, count = legacy.subn(replacement, source)
+    if count == 1:
+        return source
+    if count == 0 and "const CEO_EMAILS = [];" in source:
+        return source
+    raise SystemExit(
+        f"ERRO: não foi possível desactivar a lista CEO no browser; blocos antigos encontrados: {count}."
+    )
+
+
 def _patch_ceo_google_auth(source: str) -> str:
     old_google_handler = (
         "document.getElementById('apGoogle').addEventListener('click', async () => { "
@@ -40,25 +60,40 @@ def _patch_ceo_google_auth(source: str) -> str:
   if(comGoogle){
     let authUser = null;
     try { const authResult = await sb.auth.getUser(); authUser = authResult && authResult.data && authResult.data.user; } catch(_e) {}
-    if(String((authUser && authUser.email) || '').trim().toLowerCase() === 'johnjunior.tchek@gmail.com'){
-      const bootstrap = await sb.functions.invoke('annan-growth', { body: { operation: 'ceo.bootstrap' } });
-      const result = bootstrap && bootstrap.data;
-      if(bootstrap.error || !result || result.ok !== true || !result.data || result.data.role !== 'admin'){
-        erro = 'A sessão Google foi iniciada, mas a validação segura da conta CEO não terminou. Confirme a configuração Google no Supabase e tente novamente.';
-        entrar();
-        return;
-      }
+    if(!authUser){
+      erro = 'A sessão Google não pôde ser confirmada. Entre novamente e tente outra vez.';
+      entrar();
+      return;
+    }
+    const bootstrap = await sb.functions.invoke('annan-growth', { body: { operation: 'ceo.bootstrap' } });
+    const result = bootstrap && bootstrap.data;
+    let bootstrapDetails = result;
+    const context = bootstrap && bootstrap.error && bootstrap.error.context;
+    if(context && typeof context.clone === 'function'){
+      try { bootstrapDetails = await context.clone().json(); } catch(_e) {}
+    }
+    const bootstrapCode = (bootstrapDetails && bootstrapDetails.error && bootstrapDetails.error.code)
+      || (result && result.error && result.error.code) || '';
+    const bootstrapStatus = Number((context && context.status) || (bootstrapDetails && bootstrapDetails.status) || 0);
+    if(!bootstrap.error && result && result.ok === true && result.data && result.data.role === 'admin'){
       app.innerHTML = '<div class="vitrine dv"><div class="vitrine-header">' + marcaLogoMark(true) + '</div><div class="vitrine-secao" style="max-width:600px;"><h2>Conta CEO verificada</h2><p class="dv-compra-p">A identidade foi confirmada e o perfil de administração foi associado com segurança ao seu utilizador Google.</p><a class="dv-btn dv-btn-principal" style="display:block;text-align:center;text-decoration:none;" href="/">Entrar no Placurso</a></div></div>';
+      return;
+    }
+    if(bootstrapStatus === 403 || bootstrapCode === 'forbidden'){
+      // A conta Google autenticada não é a identidade CEO; segue para o fluxo normal de aluno.
+    } else {
+      erro = 'A autenticação Google foi concluída, mas o serviço seguro não conseguiu validar a sessão. Tente novamente.';
+      entrar();
       return;
     }
   }
   if(comGoogle){ let cv = '';"""
-    source = _replace_once(source, anchor, replacement, "bootstrap protegido da conta CEO após login Google")
+    source = _replace_once(source, anchor, replacement, "bootstrap CEO validado no servidor sem lista de email no browser")
     return source
-
 
 def _patch_index(index_path: Path) -> None:
     source = index_path.read_text(encoding="utf-8")
+    source = _disable_legacy_browser_ceo_allowlist(source)
     voice_tag = '<script src="/annan-voice.js"></script>'
     growth_client_tag = '<script src="/annan_growth_client.js"></script>'
     growth_tag = '<script src="/placurso-growth-center.js"></script>'

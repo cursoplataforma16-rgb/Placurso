@@ -191,7 +191,7 @@ export function createGrowthHandler({ env, fetchImpl = fetch }: GrowthDependenci
     const provider = normalizeText(appMetadata.provider, 40).toLowerCase();
     const providers = Array.isArray(appMetadata.providers)
       ? appMetadata.providers.map((item) => normalizeText(item, 40).toLowerCase()) : [];
-    return email === "johnjunior.tchek@gmail.com"
+    return Boolean(email)
       && confirmed
       && (provider === "google" || providers.includes("google"));
   }
