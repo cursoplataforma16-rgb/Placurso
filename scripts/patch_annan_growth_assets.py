@@ -19,12 +19,12 @@ def _replace_once(source: str, old: str, new: str, label: str) -> str:
 
 def _disable_legacy_browser_ceo_allowlist(source: str) -> str:
     legacy = re.compile(
-        r"(?m)^[ \\t]*// O e-mail abaixo é promovido automaticamente a CEO no primeiro login,\\r?\\n"
-        r"[ \\t]*// sem precisar de aprovação\\. Pode ter mais de um, separados por vírgula\\.\\r?\\n"
-        r"[ \\t]*const CEO_EMAILS\\s*=\\s*\\[[^\\]]*\\];"
+        r"(?m)^[ \t]*// O e-mail abaixo é promovido automaticamente a CEO no primeiro login,\r?\n"
+        r"[ \t]*// sem precisar de aprovação\. Pode ter mais de um, separados por vírgula\.\r?\n"
+        r"[ \t]*const CEO_EMAILS\s*=\s*\[[^\]]*\];"
     )
     replacement = (
-        "// A autorização CEO é validada exclusivamente no servidor pelo ANNAN.\\n"
+        "// A autorização CEO é validada exclusivamente no servidor pelo ANNAN.\n"
         "const CEO_EMAILS = [];"
     )
     source, count = legacy.subn(replacement, source)
