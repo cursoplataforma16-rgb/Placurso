@@ -3,6 +3,12 @@ from urllib.parse import urlsplit
 import sys
 
 STATIC_SEO_ROUTES = {"/robots.txt", "/sitemap.xml"}
+COURSE_ROUTES = {"/cursos", "/cursos/", "/cursos/*"}
+COURSE_FALLBACKS = [
+    "/cursos /cursos/index.html 200!",
+    "/cursos/ /cursos/index.html 200!",
+    "/cursos/* /cursos/index.html 200!",
+]
 
 
 def source_path(line: str) -> str | None:
@@ -21,15 +27,18 @@ def patch(path: Path) -> None:
     kept = [
         line
         for line in lines
-        if source_path(line) not in STATIC_SEO_ROUTES
+        if source_path(line) not in STATIC_SEO_ROUTES | COURSE_ROUTES
     ]
 
-    if kept != lines:
-        path.write_text("\n".join(kept) + ("\n" if original.endswith("\n") else ""), encoding="utf-8")
+    # Garante uma única entrada estática para a área de cursos, antes das regras amplas.
+    result = COURSE_FALLBACKS + kept
+    if result != lines:
+        path.write_text("\n".join(result) + ("\n" if original.endswith("\n") or result else ""), encoding="utf-8")
 
     removed = len(lines) - len(kept)
-    print(f"OK: {removed} encaminhamento(s) directo(s) de robots/sitemap removido(s).")
-    print("OK: robots.txt e sitemap.xml são servidos pelos ficheiros estáticos.")
+    print(f"OK: {removed} redireccionamento(s) antigo(s) de robots/sitemap/cursos removido(s).")
+    print("OK: robots/sitemap servidos como ficheiros estáticos.")
+    print("OK: /cursos e subrotas encaminhados para /cursos/index.html.")
 
 
 if __name__ == "__main__":
