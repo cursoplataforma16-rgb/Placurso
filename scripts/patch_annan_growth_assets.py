@@ -20,12 +20,14 @@ def _replace_once(source: str, old: str, new: str, label: str) -> str:
 def _patch_index(index_path: Path) -> None:
     source = index_path.read_text(encoding="utf-8")
     voice_tag = '<script src="/annan-voice.js"></script>'
+    growth_client_tag = '<script src="/annan_growth_client.js"></script>'
     growth_tag = '<script src="/placurso-growth-center.js"></script>'
     anchor = '<script src="/vendor/supabase-js.js"></script>'
-    if voice_tag not in source or growth_tag not in source:
+    tags = (voice_tag, growth_client_tag, growth_tag)
+    if any(tag not in source for tag in tags):
         if anchor not in source:
             raise SystemExit("ERRO: ponto de carregamento dos módulos Placurso não encontrado.")
-        missing = [tag for tag in (voice_tag, growth_tag) if tag not in source]
+        missing = [tag for tag in tags if tag not in source]
         source = source.replace(anchor, anchor + "\n" + "\n".join(missing), 1)
 
     source = _replace_once(
@@ -115,7 +117,7 @@ def _patch_service_worker(public: Path) -> None:
     if "const CACHE_VERSAO = 'placurso-v161-annan-growth';" not in source:
         raise SystemExit("ERRO: versão da cache PWA não foi actualizada.")
     old_assets = "'./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './logo-dionuel.webp',"
-    new_assets = "'./', './index.html', './manifest.json', './curso-icon-192.png', './curso-icon-512.png', './annan-voice.js', './placurso-growth-center.js',"
+    new_assets = "'./', './index.html', './manifest.json', './curso-icon-192.png', './curso-icon-512.png', './annan-voice.js', './annan_growth_client.js', './placurso-growth-center.js',"
     if new_assets not in source:
         source = _replace_once(source, old_assets, new_assets, "recursos PWA Placurso")
     marker_start = source.find("// Avisos da Dionuel")
@@ -140,7 +142,7 @@ def patch_public(public: Path, scripts: Path) -> None:
     public = Path(public)
     scripts = Path(scripts)
     public.mkdir(parents=True, exist_ok=True)
-    for filename in ("annan-voice.js", "placurso-growth-center.js"):
+    for filename in ("annan-voice.js", "annan_growth_client.js", "placurso-growth-center.js"):
         source = scripts / filename
         if not source.is_file():
             raise SystemExit(f"ERRO: módulo obrigatório em falta: {source}")
