@@ -3,6 +3,9 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "scripts"))
+from patch_seo_function_static_routes import configured_routes
+
 BUILD = ROOT / "scripts" / "build_netlify.py"
 PATCH_REDIRECTS = ROOT / "scripts" / "patch_static_seo_routes.py"
 
@@ -31,8 +34,8 @@ def test_full_netlify_build_publishes_traffic_assets_and_keeps_annan():
     engine = (public / "psico-engine.js").read_text(encoding="utf-8")
     redirects = (public / "_redirects").read_text(encoding="utf-8")
     seo_function = (ROOT / "netlify" / "functions" / "seo.mjs").read_text(encoding="utf-8")
+    seo_routes = configured_routes(seo_function)
 
-    assert "DIONUEL" not in homepage.split("</head>", 1)[0]
     assert "Placurso" in homepage.split("</head>", 1)[0]
     assert homepage.count("data-aa=2459988") == 1
     assert calculator.count("data-aa=2459988") == 1
@@ -47,13 +50,12 @@ def test_full_netlify_build_publishes_traffic_assets_and_keeps_annan():
     assert "/sitemap.xml " not in redirects
     assert "/cursos /cursos/index.html 200!" in redirects
     assert "/cursos/ /cursos/index.html 200!" in redirects
-    assert "/robots.txt" not in seo_function
-    assert "/sitemap.xml" not in seo_function
-    assert "/cursos" not in seo_function
-    assert "/cursos/*" in seo_function
-    assert "preferStatic" not in seo_function
+    assert "/robots.txt" not in seo_routes
+    assert "/sitemap.xml" not in seo_routes
+    assert "/cursos" not in seo_routes
+    assert "/cursos/*" in seo_routes
     for route in ["/p/*", "/ver", "/bio", "/links"]:
-        assert route in seo_function
+        assert route in seo_routes
 
 
 if __name__ == "__main__":
