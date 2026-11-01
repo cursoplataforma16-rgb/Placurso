@@ -77,3 +77,43 @@ Estes achados devem ser revistos separadamente, identificando primeiro os fluxos
 3. Ligar Meta/Facebook Pages e Instagram profissional pelo OAuth e APIs oficiais.
 4. Seguir com TikTok e YouTube; tratar WhatsApp Business como canal de conversão e atendimento, não como feed.
 5. Só depois activar distribuição, métricas reais, atribuição de leads/inscrições/vendas e aprendizagem contínua do ANNAN.
+
+
+## Adenda — Fase 10.3: autenticação Google da conta CEO
+
+**Actualização:** 1 de Novembro de 2026  
+**Commit validado:** a0f2155988102c89ce24a5ee9da98c725b40b6be
+
+### Já aplicado
+
+- Migração `20261101214500_phase10_3_ceo_google_identity.sql` aplicada no Supabase activo.
+- Tabela singleton `public.growth_ceo_identity` criada com o email `johnjunior.tchek@gmail.com`, sem UUID inventado.
+- RLS activo; `anon` e `authenticated` sem SELECT directo; `service_role` com SELECT/UPDATE.
+- A função `annan-growth` foi actualizada para versão 2 e continua com `verify_jwt=true`.
+- Nova operação `ceo.bootstrap`: exige JWT válido, email confirmado, provider Google em `app_metadata`, email exacto da conta CEO e associação atómica do UUID real Auth.
+- Depois da associação, o serviço cria/actualiza `public.perfis` usando o UUID real e define `papel='admin'`; regista auditoria.
+- As operações normais continuam a exigir correspondência do UUID, email, provider Google e perfil admin.
+- O fluxo web agora mostra uma mensagem clara quando Google OAuth está desactivado e executa o bootstrap antes de iniciar qualquer perfil de aluno.
+- O bootstrap não confia em `user_metadata`, não aceita UUID do navegador e não põe segredos no código cliente.
+
+### Verificação
+
+- Phase 10.2 + Phase 10.3 Growth Gateway Verification: sucesso.
+- 9 testes Deno do serviço: sucesso.
+- Contratos de autenticação CEO, esquema/RLS, painel/build e Gateway: sucesso.
+- Verificação funcional e build Netlify: sucesso.
+- Commit `a0f2155988102c89ce24a5ee9da98c725b40b6be`: Deploy Preview Netlify marcado como ready em `https://deploy-preview-18--placurso.netlify.app`.
+- `annan-ensino` continua na versão 1, sem alterações.
+- A linha singleton está presente, mas `auth_user_id` e `claimed_at` continuam NULL até ao primeiro login Google válido.
+
+### Bloqueio externo que permanece
+
+O provider Google do Supabase continua desactivado porque ainda não existem as credenciais OAuth do Google Cloud (Client ID e Client Secret). O código está implementado e validado, mas **o primeiro login ainda não pode completar** até essas credenciais serem configuradas no Supabase.
+
+Configuração necessária:
+- Google Cloud: origem JavaScript `https://placurso.netlify.app` (e a origem preview, se for testar no preview).
+- Google Cloud: URI de retorno do Supabase `https://ebdrrsrvjsdjthatfbcd.supabase.co/auth/v1/callback`.
+- Supabase Auth → URL Configuration: permitir `https://placurso.netlify.app/cursos?aprender=1` e `https://deploy-preview-18--placurso.netlify.app/cursos?aprender=1`.
+- Supabase Auth → Providers → Google: activar e guardar o Client ID/Secret.
+
+A produção `main` não foi alterada: PR #18 mantém-se em rascunho e a produção continua no commit `5152c9aebdb3450621ae10f1c15e031799507ad1`.
