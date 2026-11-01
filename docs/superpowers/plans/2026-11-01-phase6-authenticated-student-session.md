@@ -19,9 +19,9 @@ A Área de Aluno exige uma sessão Supabase confirmada; o registo e o login deix
 - [x] Acrescentar testes de comportamento do adaptador e contrato do fluxo de aluno.
 - [x] Integrar os testes no workflow de Fase 6.
 - [ ] Confirmar que o Site URL e Redirect URLs de Supabase Auth incluem `https://placurso.netlify.app/`.
-- [ ] Executar CI completa e rever o diff final.
+- [x] Executar CI completa e rever o diff final.
 - [ ] Integrar na `main` apenas depois de checks verdes e configuração de redirect confirmada.
-- [ ] Não efectuar deployment de produção nesta fase.
+- [x] Não efectuar deployment de produção nesta fase.
 
 ## Testes
 
