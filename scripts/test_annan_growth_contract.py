@@ -23,7 +23,7 @@ def test_growth_function_requires_server_side_ceo_authorization():
         "johnjunior.tchek@gmail.com",
         "app_metadata",
         "email_confirmed_at",
-        "public.perfis",
+        "perfis?select=id%2Cpapel",
         "papel",
         "admin",
         "ceo.bootstrap",
