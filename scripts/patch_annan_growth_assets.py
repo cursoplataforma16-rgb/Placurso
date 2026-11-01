@@ -17,6 +17,26 @@ def _replace_once(source: str, old: str, new: str, label: str) -> str:
     return source.replace(old, new, 1)
 
 
+def _disable_legacy_browser_ceo_allowlist(source: str) -> str:
+    legacy = re.compile(
+        r"(?m)^[ \\t]*// O e-mail abaixo é promovido automaticamente a CEO no primeiro login,\\r?\\n"
+        r"[ \\t]*// sem precisar de aprovação\\. Pode ter mais de um, separados por vírgula\\.\\r?\\n"
+        r"[ \\t]*const CEO_EMAILS\\s*=\\s*\\[[^\\]]*\\];"
+    )
+    replacement = (
+        "// A autorização CEO é validada exclusivamente no servidor pelo ANNAN.\\n"
+        "const CEO_EMAILS = [];"
+    )
+    source, count = legacy.subn(replacement, source)
+    if count == 1:
+        return source
+    if count == 0 and "const CEO_EMAILS = [];" in source:
+        return source
+    raise SystemExit(
+        f"ERRO: não foi possível desactivar a lista CEO no browser; blocos antigos encontrados: {count}."
+    )
+
+
 def _patch_ceo_google_auth(source: str) -> str:
     old_google_handler = (
         "document.getElementById('apGoogle').addEventListener('click', async () => { "
@@ -73,6 +93,7 @@ def _patch_ceo_google_auth(source: str) -> str:
 
 def _patch_index(index_path: Path) -> None:
     source = index_path.read_text(encoding="utf-8")
+    source = _disable_legacy_browser_ceo_allowlist(source)
     voice_tag = '<script src="/annan-voice.js"></script>'
     growth_client_tag = '<script src="/annan_growth_client.js"></script>'
     growth_tag = '<script src="/placurso-growth-center.js"></script>'
