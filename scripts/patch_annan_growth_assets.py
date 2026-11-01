@@ -35,27 +35,41 @@ def _patch_ceo_google_auth(source: str) -> str:
     )
     source = _replace_once(source, old_google_handler, new_google_handler, "mensagem clara para Google OAuth")
 
-    anchor = "  casca('<div class=\"loading-screen\">A preparar…</div>');\n  if(comGoogle){ let cv = '';"
+    anchor = "  casca('<div class=\\"loading-screen\\">A preparar…</div>');\\n  if(comGoogle){ let cv = '';"
     replacement = """  casca('<div class="loading-screen">A preparar…</div>');
   if(comGoogle){
     let authUser = null;
     try { const authResult = await sb.auth.getUser(); authUser = authResult && authResult.data && authResult.data.user; } catch(_e) {}
-    if(String((authUser && authUser.email) || '').trim().toLowerCase() === 'johnjunior.tchek@gmail.com'){
-      const bootstrap = await sb.functions.invoke('annan-growth', { body: { operation: 'ceo.bootstrap' } });
-      const result = bootstrap && bootstrap.data;
-      if(bootstrap.error || !result || result.ok !== true || !result.data || result.data.role !== 'admin'){
-        erro = 'A sessão Google foi iniciada, mas a validação segura da conta CEO não terminou. Confirme a configuração Google no Supabase e tente novamente.';
-        entrar();
-        return;
-      }
+    if(!authUser){
+      erro = 'A sessão Google não pôde ser confirmada. Entre novamente e tente outra vez.';
+      entrar();
+      return;
+    }
+    const bootstrap = await sb.functions.invoke('annan-growth', { body: { operation: 'ceo.bootstrap' } });
+    const result = bootstrap && bootstrap.data;
+    let bootstrapDetails = result;
+    const context = bootstrap && bootstrap.error && bootstrap.error.context;
+    if(context && typeof context.clone === 'function'){
+      try { bootstrapDetails = await context.clone().json(); } catch(_e) {}
+    }
+    const bootstrapCode = (bootstrapDetails && bootstrapDetails.error && bootstrapDetails.error.code)
+      || (result && result.error && result.error.code) || '';
+    const bootstrapStatus = Number((context && context.status) || (bootstrapDetails && bootstrapDetails.status) || 0);
+    if(!bootstrap.error && result && result.ok === true && result.data && result.data.role === 'admin'){
       app.innerHTML = '<div class="vitrine dv"><div class="vitrine-header">' + marcaLogoMark(true) + '</div><div class="vitrine-secao" style="max-width:600px;"><h2>Conta CEO verificada</h2><p class="dv-compra-p">A identidade foi confirmada e o perfil de administração foi associado com segurança ao seu utilizador Google.</p><a class="dv-btn dv-btn-principal" style="display:block;text-align:center;text-decoration:none;" href="/">Entrar no Placurso</a></div></div>';
+      return;
+    }
+    if(bootstrapStatus === 403 || bootstrapCode === 'forbidden'){
+      // A conta Google autenticada não é a identidade CEO; segue para o fluxo normal de aluno.
+    } else {
+      erro = 'A autenticação Google foi concluída, mas o serviço seguro não conseguiu validar a sessão. Tente novamente.';
+      entrar();
       return;
     }
   }
   if(comGoogle){ let cv = '';"""
-    source = _replace_once(source, anchor, replacement, "bootstrap protegido da conta CEO após login Google")
+    source = _replace_once(source, anchor, replacement, "bootstrap CEO validado no servidor sem lista de email no browser")
     return source
-
 
 def _patch_index(index_path: Path) -> None:
     source = index_path.read_text(encoding="utf-8")
