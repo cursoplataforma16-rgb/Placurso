@@ -4,7 +4,7 @@ import sys
 
 
 def _config_bounds(source: str) -> tuple[int, int]:
-    match = re.search(r"\\bexport\\s+const\\s+config\\s*=\\s*\\{", source)
+    match = re.search(r"\bexport\s+const\s+config\s*=\s*\{", source)
     if not match:
         raise ValueError("export const config = { não encontrado em seo.mjs")
 
@@ -21,7 +21,7 @@ def _config_bounds(source: str) -> tuple[int, int]:
         next_char = source[i + 1] if i + 1 < len(source) else ""
 
         if line_comment:
-            if char == "\\n":
+            if char == "\n":
                 line_comment = False
             i += 1
             continue
@@ -35,7 +35,7 @@ def _config_bounds(source: str) -> tuple[int, int]:
         if quote:
             if escaped:
                 escaped = False
-            elif char == "\\\\":
+            elif char == "\\":
                 escaped = True
             elif char == quote:
                 quote = None
@@ -50,7 +50,7 @@ def _config_bounds(source: str) -> tuple[int, int]:
             block_comment = True
             i += 2
             continue
-        if char in ("'", '"', "`"):
+        if char in ("'", '"', "\`"):
             quote = char
         elif char == "{":
             depth += 1
@@ -72,16 +72,16 @@ def patch(source: str) -> str:
             "A configuração SEO não contém simultaneamente as rotas robots.txt e sitemap.xml"
         )
 
-    existing = re.search(r"\\bpreferStatic\\s*:\\s*(true|false)\\b", body)
+    existing = re.search(r"\bpreferStatic\s*:\s*(true|false)\b", body)
     if existing:
         body = body[:existing.start(1)] + "true" + body[existing.end(1):]
-    elif re.search(r"\\bpreferStatic\\s*:", body):
+    elif re.search(r"\bpreferStatic\s*:", body):
         raise ValueError("preferStatic já existe com um valor não literal; revisão manual necessária")
     else:
-        body = "\\n  preferStatic: true," + body
+        body = "\n  preferStatic: true," + body
 
     updated = source[:opening + 1] + body + source[closing:]
-    if len(re.findall(r"\\bpreferStatic\\s*:\\s*true\\b", updated)) != 1:
+    if len(re.findall(r"\bpreferStatic\s*:\s*true\b", updated)) != 1:
         raise ValueError("Não foi possível garantir um único preferStatic: true")
     return updated
 
