@@ -70,6 +70,9 @@
     };
   }
 
+  // Register Growth as a capability of this ANNAN runtime; the browser gateway remains side-effect free.
+  register({ name: 'placurso-growth', kind: 'channel', version: '10.2', enabled: true });
+
   const gateway = Object.freeze({
     version: '1.0',
     register,
