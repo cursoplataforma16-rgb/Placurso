@@ -169,7 +169,8 @@ export function createGrowthHandler({ env, fetchImpl = fetch } = {}) {
     return data;
   }
 
-  // The CEO check is anchored to the existing public.perfis authorization model.\n  async function authorize(request) {
+  // The CEO check is anchored to the existing public.perfis authorization model.
+  async function authorize(request) {
     const authorization = request.headers.get("authorization") || "";
     if (!/^Bearer\s+\S+$/i.test(authorization)) {
       throw new GrowthRequestError(401, "missing_session");
