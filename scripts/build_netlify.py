@@ -17,7 +17,7 @@ PATCH_PHASE3D = ROOT / 'scripts' / 'patch_phase3d_annan_profile.py'
 PATCH_ANNAN_SUPABASE = ROOT / 'scripts' / 'patch_annan_supabase_adapter.py'
 PATCH_AADS = ROOT / 'scripts' / 'patch_aads_unit.py'
 PATCH_SEO = ROOT / 'scripts' / 'patch_placurso_seo.py'
-PATCH_SEO_FUNCTION = ROOT / 'scripts' / 'patch_seo_function_static_preference.py'
+PATCH_SEO_FUNCTION = ROOT / 'scripts' / 'patch_seo_function_static_routes.py'
 BUILD_TRAFFIC_ASSETS = ROOT / 'scripts' / 'build_traffic_assets.py'
 PATCH_COMMUNITY = ROOT / 'scripts' / 'patch_community_flow.py'
 PATCH_PHASE4_GUARD = ROOT / 'scripts' / 'patch_phase4_public_guard.py'
@@ -129,7 +129,7 @@ if FUNCTIONS.exists():
 FUNCTIONS.mkdir(parents=True, exist_ok=True)
 shutil.copy2(source_seo, FUNCTIONS / 'seo.mjs')
 if not PATCH_SEO_FUNCTION.is_file():
-    raise SystemExit('ERRO: patch de prioridade dos ficheiros SEO não encontrado.')
+    raise SystemExit('ERRO: patch de exclusão das rotas estáticas SEO não encontrado.')
 subprocess.run(['python3', str(PATCH_SEO_FUNCTION), str(FUNCTIONS / 'seo.mjs')], cwd=ROOT, check=True)
 
 for item in WORK.iterdir():
