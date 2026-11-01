@@ -116,14 +116,14 @@ Deno.test("creates a campaign only after user and CEO checks succeed", async () 
   const mock = makeFetch([
     { body: { id: "ceo-user-1" } },
     { body: [{ id: "ceo-user-1", papel: "admin" }] },
-    { body: [{ id: "audit-1", request_id: "req-1" }] },
+    { body: [{ id: "audit-1", request_id: "request-1-0001" }] },
     { body: [{ id: "campaign-1", name: "Contabilidade prática", status: "draft" }] },
     { body: [{ id: "audit-1", outcome: "success" }] },
   ]);
   const handler = createGrowthHandler({ env: createEnv(baseEnv), fetchImpl: mock.fetchImpl });
   const response = await handler(request({
     operation: "campaign.create",
-    requestId: "req-1",
+    requestId: "request-1-0001",
     payload: {
       name: "Contabilidade prática",
       objective: "leads",
