@@ -31,10 +31,13 @@ def test_growth_function_requires_server_side_ceo_authorization():
         "readCeoIdentity",
         "identity.email",
         "isConfirmedGoogleIdentity",
+        "rpc/placurso_ceo_bootstrap_profile",
     ):
         assert marker in source, f"missing CEO authorization contract: {marker}"
     assert "johnjunior.tchek@gmail.com" not in source
     assert "belcianycosmedionisio@gmail.com" not in source
+    assert "perfis?on_conflict=id" not in source
+    assert "growth_ceo_identity?id=eq.1&auth_user_id=is.null" not in source
 
 
 def test_growth_function_has_no_publication_or_ads_side_effect():
