@@ -78,6 +78,7 @@ async function main() {
     constructor(type, options) { this.type = type; this.detail = options && options.detail; }
   }
   const window = {
+    location: { origin: 'https://placurso.netlify.app', pathname: '/' },
     supabase: { createClient(url, key, options) { assert.match(url, /^https:\/\//); assert.match(key, /^sb_publishable_/); return client; } },
     addEventListener(type, callback) { listeners[type] = callback; },
     dispatchEvent(event) { (listeners['dispatch:' + event.type] || function(){ })(event); return true; }
@@ -112,6 +113,7 @@ async function main() {
   assert.equal(pending.ok, false);
   assert.equal(pending.reason, 'email_confirmation_required');
   assert.equal(signupPayload.options.data.full_name, 'Aluno Teste');
+  assert.equal(signupPayload.options.emailRedirectTo, 'https://placurso.netlify.app/');
   assert.equal(currentUser, null);
 
   requireEmailConfirmation = false;
