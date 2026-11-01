@@ -21,25 +21,25 @@ def _set_single(pattern: re.Pattern, replacement: str, source: str) -> str:
     if matches:
         match = matches[0]
         return source[:match.start()] + replacement + source[match.end():]
-    return source.replace("</head>", replacement + "\\n</head>", 1)
+    return source.replace("</head>", replacement + "\n</head>", 1)
 
 
 def patch(path: Path) -> None:
     if not path.is_file():
         raise SystemExit(f"ERRO: ficheiro HTML não encontrado: {path}")
     source = path.read_text(encoding="utf-8")
-    head_match = re.search(r"<head\\b[^>]*>[\\s\\S]*?</head>", source, re.IGNORECASE)
+    head_match = re.search(r"<head\b[^>]*>[\s\S]*?</head>", source, re.IGNORECASE)
     if not head_match:
         raise SystemExit("ERRO: <head> não encontrado na homepage.")
 
     head = head_match.group(0)
-    title_pattern = re.compile(r"<title\\b[^>]*>[\\s\\S]*?</title>", re.IGNORECASE)
+    title_pattern = re.compile(r"<title\b[^>]*>[\s\S]*?</title>", re.IGNORECASE)
     if len(list(title_pattern.finditer(head))) != 1:
         raise SystemExit("ERRO: a homepage deve ter exactamente um <title>.")
     head = title_pattern.sub(f"<title>{escape(TITLE)}</title>", head, count=1)
 
     description_pattern = re.compile(
-        r"<meta\\s+name=[\\\"']description[\\\"'][^>]*>",
+        r"<meta\s+name=[\"']description[\"'][^>]*>",
         re.IGNORECASE,
     )
     if len(list(description_pattern.finditer(head))) != 1:
@@ -51,19 +51,19 @@ def patch(path: Path) -> None:
 
     canonical_tag = f'<link rel="canonical" href="{escape(CANONICAL, quote=True)}">'
     canonical_pattern = re.compile(
-        r"""<link\\b(?=[^>]*\\brel=["']canonical["'])[^>]*>""",
+        r"""<link\b(?=[^>]*\brel=["']canonical["'])[^>]*>""",
         re.IGNORECASE,
     )
     head = _set_single(canonical_pattern, canonical_tag, head)
 
     social_tags = [
-        (r"""<meta\\s+property=["']og:site_name["'][^>]*>""", '<meta property="og:site_name" content="Plataforma Curso">'),
-        (r"""<meta\\s+property=["']og:type["'][^>]*>""", '<meta property="og:type" content="website">'),
-        (r"""<meta\\s+property=["']og:title["'][^>]*>""", f'<meta property="og:title" content="{escape(TITLE, quote=True)}">'),
-        (r"""<meta\\s+property=["']og:description["'][^>]*>""", f'<meta property="og:description" content="{escape(DESCRIPTION, quote=True)}">'),
-        (r"""<meta\\s+property=["']og:url["'][^>]*>""", f'<meta property="og:url" content="{escape(CANONICAL, quote=True)}">'),
-        (r"""<meta\\s+property=["']og:image["'][^>]*>""", f'<meta property="og:image" content="{escape(OG_IMAGE, quote=True)}">'),
-        (r"""<meta\\s+name=["']twitter:card["'][^>]*>""", '<meta name="twitter:card" content="summary_large_image">'),
+        (r"""<meta\s+property=["']og:site_name["'][^>]*>""", '<meta property="og:site_name" content="Plataforma Curso">'),
+        (r"""<meta\s+property=["']og:type["'][^>]*>""", '<meta property="og:type" content="website">'),
+        (r"""<meta\s+property=["']og:title["'][^>]*>""", f'<meta property="og:title" content="{escape(TITLE, quote=True)}">'),
+        (r"""<meta\s+property=["']og:description["'][^>]*>""", f'<meta property="og:description" content="{escape(DESCRIPTION, quote=True)}">'),
+        (r"""<meta\s+property=["']og:url["'][^>]*>""", f'<meta property="og:url" content="{escape(CANONICAL, quote=True)}">'),
+        (r"""<meta\s+property=["']og:image["'][^>]*>""", f'<meta property="og:image" content="{escape(OG_IMAGE, quote=True)}">'),
+        (r"""<meta\s+name=["']twitter:card["'][^>]*>""", '<meta name="twitter:card" content="summary_large_image">'),
     ]
     for pattern_text, tag in social_tags:
         head = _set_single(re.compile(pattern_text, re.IGNORECASE), tag, head)
