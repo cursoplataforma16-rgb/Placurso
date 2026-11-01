@@ -23,26 +23,26 @@ def test_removes_only_static_routes_and_preserves_dynamic_routes():
 };
 """
     result = patch(source)
-    assert '"/robots.txt"' not in result
-    assert '"/sitemap.xml"' not in result
+    for route in ["/robots.txt", "/sitemap.xml", "/cursos", "/cursos/*"]:
+        assert f'"{route}"' not in result
     assert "preferStatic" not in result
-    for route in ["/p/*", "/cursos", "/cursos/*", "/ver", "/bio", "/links"]:
+    for route in ["/p/*", "/ver", "/bio", "/links"]:
         assert f'"{route}"' in result
 
 
 def test_supports_inline_path_arrays_and_single_quote_strings():
-    source = """export const config = { path: ['/robots.txt', '/sitemap.xml', '/cursos', '/ver', '/bio', '/links', '/p/*'] };
+    source = """export const config = { path: ['/robots.txt', '/sitemap.xml', '/cursos', '/cursos/*', '/ver', '/bio', '/links', '/p/*'] };
 """
     result = patch(source)
-    assert "'/robots.txt'" not in result
-    assert "'/sitemap.xml'" not in result
-    for route in ["/cursos", "/ver", "/bio", "/links", "/p/*"]:
+    for route in ["/robots.txt", "/sitemap.xml", "/cursos", "/cursos/*"]:
+        assert f"'{route}'" not in result
+    for route in ["/ver", "/bio", "/links", "/p/*"]:
         assert f"'{route}'" in result
 
 
 def test_patch_is_idempotent():
     source = """export const config = {
-  path: ["/robots.txt", "/sitemap.xml", "/cursos", "/ver", "/bio", "/links", "/p/*"],
+  path: ["/robots.txt", "/sitemap.xml", "/cursos", "/cursos/*", "/ver", "/bio", "/links", "/p/*"],
   preferStatic: false,
 };
 """
