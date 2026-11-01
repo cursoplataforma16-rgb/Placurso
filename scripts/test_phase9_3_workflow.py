@@ -53,3 +53,18 @@ console.log('ok');
     result = run_node(script)
     assert result.returncode == 0, result.stderr
     assert 'ok' in result.stdout
+
+
+def test_approved_sensitive_workflow_can_execute_and_verify():
+    script = f"""
+const fs=require('fs'), vm=require('vm');
+vm.runInThisContext(fs.readFileSync({json.dumps(str(ENGINE))}, 'utf8'));
+vm.runInThisContext(fs.readFileSync({json.dumps(str(WORKFLOW))}, 'utf8'));
+const W=globalThis.PlacursoAnnanAutonomousWorkflow;
+const r=W.run({id:'wf-3', objective:'approved sensitive flow', sensitive:true, approved:true, tasks:[{{id:'step-1', objective:'protected'}}]}});
+if(!r.ok || r.status!=='completed' || r.completed!==1 || r.results[0].verified!==true) process.exit(1);
+console.log('ok');
+"""
+    result = run_node(script)
+    assert result.returncode == 0, result.stderr
+    assert 'ok' in result.stdout
