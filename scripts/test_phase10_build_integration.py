@@ -48,12 +48,12 @@ def test_full_netlify_build_publishes_traffic_assets_and_keeps_annan():
     assert "/cursos /cursos/index.html 200!" in redirects
     assert "/cursos/ /cursos/index.html 200!" in redirects
     assert "/cursos/* /cursos/index.html 200!" in redirects
-    assert '"/robots.txt"' not in seo_function
-    assert '"/sitemap.xml"' not in seo_function
-    assert '"/cursos"' not in seo_function
-    assert '"/cursos/*"' not in seo_function
+    assert "/robots.txt" not in seo_function
+    assert "/sitemap.xml" not in seo_function
+    assert "/cursos" not in seo_function
+    assert "/cursos/*" not in seo_function
     assert "preferStatic" not in seo_function
-    for route in ['"/p/*"', '"/ver"', '"/bio"', '"/links"']:
+    for route in ["/p/*", "/ver", "/bio", "/links"]:
         assert route in seo_function
 
 
