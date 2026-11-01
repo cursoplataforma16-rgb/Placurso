@@ -16,6 +16,8 @@ PATCH_PHASE3C_CRYPTO = ROOT / 'scripts' / 'patch_phase3c_crypto_games.py'
 PATCH_PHASE3D = ROOT / 'scripts' / 'patch_phase3d_annan_profile.py'
 PATCH_ANNAN_SUPABASE = ROOT / 'scripts' / 'patch_annan_supabase_adapter.py'
 PATCH_AADS = ROOT / 'scripts' / 'patch_aads_unit.py'
+PATCH_SEO = ROOT / 'scripts' / 'patch_placurso_seo.py'
+BUILD_TRAFFIC_ASSETS = ROOT / 'scripts' / 'build_traffic_assets.py'
 PATCH_COMMUNITY = ROOT / 'scripts' / 'patch_community_flow.py'
 PATCH_PHASE4_GUARD = ROOT / 'scripts' / 'patch_phase4_public_guard.py'
 CORE_ACCESS = ROOT / 'scripts' / 'community_access_core.js'
@@ -56,6 +58,9 @@ if not site_html.is_file():
 if not PATCH_AADS.is_file():
     raise SystemExit('ERRO: patch A-Ads 2459988 não encontrado.')
 subprocess.run(['python3', str(PATCH_AADS), str(site_html)], cwd=ROOT, check=True)
+if not PATCH_SEO.is_file():
+    raise SystemExit('ERRO: patch SEO Placurso não encontrado.')
+subprocess.run(['python3', str(PATCH_SEO), str(site_html)], cwd=ROOT, check=True)
 
 for core in [CORE_ACCESS, CORE_PSYCH, CORE_BIBLE]:
     if not core.is_file():
@@ -131,6 +136,10 @@ for item in WORK.iterdir():
         shutil.copytree(item, target)
     else:
         shutil.copy2(item, target)
+
+if not BUILD_TRAFFIC_ASSETS.is_file():
+    raise SystemExit('ERRO: gerador de recursos de tráfego não encontrado.')
+subprocess.run(['python3', str(BUILD_TRAFFIC_ASSETS), str(PUBLIC)], cwd=ROOT, check=True)
 
 redirects = PUBLIC / '_redirects'
 if not redirects.is_file():
