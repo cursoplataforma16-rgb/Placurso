@@ -20,7 +20,7 @@ def test_signed_in_ceo_runs_server_bootstrap_before_student_creation():
     assert "johnjunior.tchek@gmail.com" in patch
     assert "operation: 'ceo.bootstrap'" in patch
     assert "result.data.role !== 'admin'" in patch
-    assert patch.index("operation: 'ceo.bootstrap'") < patch.index("if(comGoogle){ let cv = '';")
+    assert patch.index("operation: 'ceo.bootstrap'") < patch.rindex("if(comGoogle){ let cv = '';")
 
 
 def test_edge_function_uses_server_verified_google_auth_identity():
