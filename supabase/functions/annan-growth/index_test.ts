@@ -46,10 +46,10 @@ const baseEnv = {
   SUPABASE_PUBLISHABLE_KEYS: JSON.stringify({ default: "sb_publishable_test" }),
   SUPABASE_SECRET_KEYS: JSON.stringify({ default: "sb_secret_server_only" }),
 };
-const identity = { id: 1, email: "johnjunior.tchek@gmail.com", auth_user_id: null };
+const identity = { id: 1, email: "belcianycosmedionisio@gmail.com", auth_user_id: null };
 const ceoUser = {
   id: "ceo-user-1",
-  email: "johnjunior.tchek@gmail.com",
+  email: "belcianycosmedionisio@gmail.com",
   email_confirmed_at: "2026-11-01T10:00:00Z",
   app_metadata: { provider: "google", providers: ["google"] },
   user_metadata: { full_name: "CEO account" },
@@ -91,7 +91,7 @@ Deno.test("fails closed when the CEO identity singleton is not provisioned", asy
 
 Deno.test("CEO bootstrap requires the exact email and Google provider from Auth metadata", async () => {
   const wrongEmail = makeFetch([
-    { body: { ...ceoUser, email: "other@example.test" } },
+    { body: { ...ceoUser, email: "johnjunior.tchek@gmail.com" } },
     { body: [identity] },
   ]);
   const handler = createGrowthHandler({ env: createEnv(baseEnv), fetchImpl: wrongEmail.fetchImpl });
@@ -110,6 +110,17 @@ Deno.test("CEO bootstrap requires the exact email and Google provider from Auth 
   if (nonGoogleResponse.status !== 403) throw new Error("non-Google provider was allowed to bootstrap");
   if (nonGoogle.requests.some((item) => item.method === "PATCH" || item.method === "POST")) {
     throw new Error("non-Google identity caused a privileged write");
+  }
+
+  const unconfirmed = makeFetch([
+    { body: { ...ceoUser, email_confirmed_at: null, confirmed_at: null } },
+    { body: [identity] },
+  ]);
+  const thirdHandler = createGrowthHandler({ env: createEnv(baseEnv), fetchImpl: unconfirmed.fetchImpl });
+  const unconfirmedResponse = await thirdHandler(request({ operation: "ceo.bootstrap" }));
+  if (unconfirmedResponse.status !== 403) throw new Error("unconfirmed email was allowed to bootstrap");
+  if (unconfirmed.requests.some((item) => item.method === "PATCH" || item.method === "POST")) {
+    throw new Error("unconfirmed identity caused a privileged write");
   }
 });
 
