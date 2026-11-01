@@ -1,6 +1,7 @@
 # SDD ledger — plan: docs/superpowers/plans/2026-11-02-google-ceo-login-repair.md
 
 **Base:** `537b27414c3358e167f83485343a961963506943`  
+**Reviewed code head:** `c16a1cd3f7a7abcb427b20cc795aed600d82d8e1`  
 **Branch:** `feature/2026-11-02-ceo-google-login-repair`  
 **Pull request:** #19  
 **Supabase project:** `plataforma-curso` (`ebdrrsrvjsdjthatfbcd`)  
@@ -32,21 +33,29 @@ Task 1 produces the identity and browser behavior assertions consumed by Task 2 
 - Applied migration `20261101231900_ceo_google_login_repair`.
 - Verified live state: singleton email is `belcianycosmedionisio@gmail.com`; `auth_user_id` and `claimed_at` are NULL pending first Google login; old Auth UUID profile is `aluno`; query for all `papel = 'admin'` profiles returned no rows. The old Auth user and its other data were not deleted.
 - Added the exact applied SQL as `supabase/migrations/20261101231900_ceo_google_login_repair.sql`.
+- Live inspection then found `public.handle_new_user()` still contained the former email and would create the new Google user as `aluno`, after which the anti-escalation trigger would block the service-side role change.
+- Added and applied `20261101232653_ceo_signup_profile_from_identity`: the Auth-user creation trigger now reads `public.growth_ceo_identity`, and assigns `admin` only when the new Auth record matches the singleton email, has a confirmed email and Google provider metadata. Every other new Auth user receives `aluno`; existing profile rows are not overwritten (`ON CONFLICT DO NOTHING`).
+- Verified the live function definition after applying the migration. The singleton still contains the new CEO email with null Auth UUID/claim fields pending the first interactive login; the former Auth profile is `aluno`.
 
-### Task 4: Browser login — implementation complete; generated-build check in progress
+### Task 4: Browser login — complete
 
 - Updated `scripts/patch_annan_growth_assets.py`: the browser no longer contains either email as an allowlist. After a Google callback it verifies the Supabase user and invokes `ceo.bootstrap`.
 - A positive server response displays CEO verification. HTTP 403 / `forbidden` continues to the standard student flow. Missing session and other service errors return to login with an error; they never grant CEO access.
-- Added `scripts/test_ceo_login_build_output.py` and a CI step to run the same four commands configured in `netlify.toml`, then verify generated `public/index.html` and `public/sw.js`. Awaiting the latest CI result before marking the generated-artifact check complete.
+- The first real production build exposed a second legacy browser-side `CEO_EMAILS` array that could promote email addresses without server authorization. Added `_disable_legacy_browser_ceo_allowlist()` to the generator; it removes the old promotional comment and empties `CEO_EMAILS`, failing closed if the expected source block cannot be found.
+- Added `scripts/test_ceo_login_build_output.py` and a CI step to run the exact production build commands, then verify generated `public/index.html` and `public/sw.js`. Latest build reports `Generated CEO login asset verification: PASS`; both old and new CEO email strings are absent from browser HTML.
 
 ### Task 5: Deployment — in progress
 
-- Complete: Growth Gateway CI, server Edge Function v3 active with JWT verification enabled.
-- Pending: merge PR #19 to trigger the existing Netlify deployment; inspect the resulting deploy and the published site.
-- Pending: first interactive Google login with `belcianycosmedionisio@gmail.com`. The new account does not yet exist in `auth.users`; the first successful OAuth login will create/confirm that Auth identity and atomically claim the CEO singleton.
+- Complete: latest Growth Gateway CI and all six other project workflows passed at code head `c16a1cd3f7a7abcb427b20cc795aed600d82d8e1`; Deno test output was `9 passed | 0 failed`; generated Netlify asset test passed.
+- Complete: `annan-growth` version 3 is ACTIVE with `verify_jwt = true`.
+- Complete: Netlify Deploy Preview for PR #19 is READY at `https://deploy-preview-19--placurso.netlify.app`, using code head `c16a1cd3f7a7abcb427b20cc795aed600d82d8e1`; deploy ID `6ae7cae59b3d71d940f94899`.
+- Pending: merge PR #19 to trigger the production Netlify deployment; inspect the resulting production deploy.
+- Pending: first interactive Google login with `belcianycosmedionisio@gmail.com`. The new account does not yet exist in `auth.users`; the first successful OAuth login will create/confirm that Auth identity and atomically claim the CEO singleton. This remains the only way to prove the full browser-to-Google-to-Auth login end to end.
 
 ## Rulings I made
 
 1. **Repository workflow:** Used a dedicated GitHub branch and pull-request CI rather than a local git worktree because the repository checkout and local toolchain were not available in this session. Cost if wrong: slower feedback than local execution; mitigated by running the full relevant GitHub Actions workflows before merge.
 2. **Existing anti-escalation trigger:** Used a transaction-local subject claim to allow the former CEO's own profile to be demoted by the migration, without disabling or replacing the protection. The migration has been applied and live state independently verified.
-3. **Build verification:** Added a production build step to the Growth Gateway workflow because the earlier build-integration test only inspected source contracts and did not execute the actual Netlify generation command. This adds CI time but catches a generated-site failure before merge.
+3. **Build verification:** Added a production build step to the Growth Gateway workflow because the earlier build-integration test only inspected source contracts and did not execute the actual Netlify generation command. This caught the old browser-side email promotion array; the generator now removes it and the production build test verifies its removal.
+4. **Auth-user signup provisioning:** Replaced the signup trigger's hardcoded email comparison with a check against the CEO singleton plus confirmed Google provider metadata. This is required because `on_auth_user_created` creates `public.perfis` before `ceo.bootstrap` runs; without it, the new CEO would first receive `aluno` and the protected role-change trigger would reject the later promotion.
+5. **Final review:** No independent review subagent was available through the connected tools. I reviewed the changed login generator, Edge Function authorization, both SQL migrations, regression tests and CI output directly. The seven project workflows are green.
