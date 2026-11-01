@@ -124,30 +124,55 @@ Deno.test("CEO bootstrap requires the exact email and Google provider from Auth 
   }
 });
 
-Deno.test("CEO bootstrap atomically binds the real Auth UUID and promotes only that profile", async () => {
+Deno.test("CEO bootstrap provisions the existing verified identity through the private SQL RPC", async () => {
   const mock = makeFetch([
     { body: ceoUser },
-    { body: [identity] },
-    { body: [{ id: 1, email: identity.email, auth_user_id: ceoUser.id }] },
-    { body: [{ id: ceoUser.id, papel: "admin" }] },
+    { body: [{ ...identity, auth_user_id: ceoUser.id }] },
+    { body: { id: ceoUser.id, email: identity.email, auth_user_id: ceoUser.id, papel: "admin" } },
     { body: [{ id: "audit-bootstrap-1" }] },
     { body: [{ id: "audit-bootstrap-1", outcome: "success" }] },
   ]);
   const handler = createGrowthHandler({ env: createEnv(baseEnv), fetchImpl: mock.fetchImpl });
   const response = await handler(request({ operation: "ceo.bootstrap" }));
   const body = await response.json();
-  if (!response.ok || body.ok !== true || body.data?.role !== "admin") {
-    throw new Error("verified CEO bootstrap did not return an admin result");
+  if (!response.ok || body.ok !== true || body.data?.role !== "admin"
+    || body.data?.authUserId !== ceoUser.id) {
+    throw new Error("verified CEO bootstrap did not return the expected admin identity");
   }
-  const claim = mock.requests.find((item) => item.method === "PATCH" && item.url.includes("growth_ceo_identity"));
-  if (!claim || !claim.url.includes("auth_user_id=is.null")) {
-    throw new Error("CEO UUID claim was not protected by an unclaimed-row condition");
+  const rpc = mock.requests.find((item) => item.method === "POST"
+    && item.url.endsWith("/rest/v1/rpc/placurso_ceo_bootstrap_profile"));
+  if (!rpc) throw new Error("CEO bootstrap did not use the private profile provisioning RPC");
+  const rpcBody = JSON.parse(rpc.body);
+  if (rpcBody.p_auth_user_id !== ceoUser.id) {
+    throw new Error("CEO RPC did not receive the Auth UUID");
   }
-  const profileWrite = mock.requests.find((item) => item.method === "POST" && item.url.includes("/rest/v1/perfis"));
-  if (!profileWrite || !profileWrite.url.includes("on_conflict=id") || !profileWrite.body.includes('"papel":"admin"')) {
-    throw new Error("admin profile was not upserted against the Auth UUID");
+  if (rpc.headers.get("authorization") !== "Bearer sb_secret_server_only") {
+    throw new Error("CEO provisioning RPC was not called with the server-only key");
   }
-  if (profileWrite.body.includes(ceoUser.email)) throw new Error("email was incorrectly used as profile ID");
+  if (mock.requests.some((item) => item.url.includes("/rest/v1/perfis") && item.method !== "GET")) {
+    throw new Error("CEO bootstrap tried to change the profile directly through PostgREST");
+  }
+  if (mock.requests.some((item) => item.method === "PATCH" && item.url.includes("growth_ceo_identity"))) {
+    throw new Error("CEO singleton was claimed outside the atomic database RPC");
+  }
+});
+
+Deno.test("CEO bootstrap supports the first claim through the atomic database RPC", async () => {
+  const mock = makeFetch([
+    { body: ceoUser },
+    { body: [identity] },
+    { body: { id: ceoUser.id, email: identity.email, auth_user_id: ceoUser.id, papel: "admin" } },
+    { body: [{ id: "audit-bootstrap-first-1" }] },
+    { body: [{ id: "audit-bootstrap-first-1", outcome: "success" }] },
+  ]);
+  const handler = createGrowthHandler({ env: createEnv(baseEnv), fetchImpl: mock.fetchImpl });
+  const response = await handler(request({ operation: "ceo.bootstrap" }));
+  const body = await response.json();
+  if (!response.ok || body.data?.role !== "admin") {
+    throw new Error("first CEO identity claim did not complete through the RPC");
+  }
+  const rpc = mock.requests.find((item) => item.url.endsWith("/rest/v1/rpc/placurso_ceo_bootstrap_profile"));
+  if (!rpc) throw new Error("first CEO claim did not use the atomic database RPC");
 });
 
 Deno.test("CEO bootstrap cannot take over an identity already claimed by another Auth UUID", async () => {
