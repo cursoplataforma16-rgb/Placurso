@@ -176,17 +176,91 @@ export function createGrowthHandler({ env, fetchImpl = fetch }: GrowthDependenci
     return data;
   }
 
-  // The CEO check is anchored to the existing public.perfis authorization model.
+  async function readCeoIdentity() {
+    const rows = await dbRequest(
+      "growth_ceo_identity?select=id%2Cemail%2Cauth_user_id&id=eq.1&limit=1",
+    );
+    return Array.isArray(rows) ? rows[0] ?? null : null;
+  }
+
+  function isConfirmedGoogleIdentity(user: Record<string, unknown>): boolean {
+    const email = normalizeText(user.email, 320).toLowerCase();
+    const confirmed = Boolean(user.email_confirmed_at || user.confirmed_at);
+    const appMetadata = user.app_metadata && typeof user.app_metadata === "object"
+      ? user.app_metadata as Record<string, unknown> : {};
+    const provider = normalizeText(appMetadata.provider, 40).toLowerCase();
+    const providers = Array.isArray(appMetadata.providers)
+      ? appMetadata.providers.map((item) => normalizeText(item, 40).toLowerCase()) : [];
+    return email === "johnjunior.tchek@gmail.com"
+      && confirmed
+      && (provider === "google" || providers.includes("google"));
+  }
+
+  async function bootstrapCeo(request: Request): Promise<{ status: number; data: unknown }> {
+    const authorization = request.headers.get("authorization") || "";
+    if (!/^Bearer\s+\S+$/i.test(authorization)) {
+      throw new GrowthRequestError(401, "missing_session");
+    }
+    const user = await callAuth(authorization);
+    const identity = await readCeoIdentity();
+    if (!identity) throw new GrowthRequestError(503, "ceo_not_configured");
+    if (!isConfirmedGoogleIdentity(user)
+      || normalizeText(identity.email, 320).toLowerCase() !== normalizeText(user.email, 320).toLowerCase()) {
+      throw new GrowthRequestError(403, "forbidden");
+    }
+
+    let claimed = identity;
+    if (!claimed.auth_user_id) {
+      const rows = await dbRequest(
+        "growth_ceo_identity?id=eq.1&auth_user_id=is.null",
+        {
+          method: "PATCH",
+          prefer: "return=representation",
+          body: {
+            auth_user_id: user.id,
+            claimed_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          },
+        },
+      );
+      claimed = Array.isArray(rows) && rows[0] ? rows[0] : await readCeoIdentity();
+    }
+    if (!claimed || claimed.auth_user_id !== user.id) {
+      throw new GrowthRequestError(403, "forbidden");
+    }
+
+    const profiles = await dbRequest("perfis?on_conflict=id", {
+      method: "POST",
+      prefer: "resolution=merge-duplicates,return=representation",
+      body: [{ id: user.id, papel: "admin" }],
+    });
+    const profile = Array.isArray(profiles) ? profiles[0] : null;
+    if (!profile || profile.id !== user.id || profile.papel !== "admin") {
+      throw new GrowthRequestError(502, "ceo_profile_provision_failed");
+    }
+
+    const auditRequestId = crypto.randomUUID();
+    const auditId = await auditStart(user.id, auditRequestId, "ceo.bootstrap", "ceo_identity");
+    await auditFinish(auditId, "success", user.id);
+    return {
+      status: 200,
+      data: { role: "admin", email: identity.email, authUserId: user.id, bootstrapped: true },
+    };
+  }
+
   async function authorize(request: Request): Promise<{ user: Record<string, unknown> & { id: string }; id: string }> {
     const authorization = request.headers.get("authorization") || "";
     if (!/^Bearer\s+\S+$/i.test(authorization)) {
       throw new GrowthRequestError(401, "missing_session");
     }
-
     const user = await callAuth(authorization);
-    const ceoId = env.get("PLACURSO_GROWTH_CEO_USER_ID") || "";
-    if (!ceoId) throw new GrowthRequestError(503, "ceo_not_configured");
-    if (user.id !== ceoId) throw new GrowthRequestError(403, "forbidden");
+    const identity = await readCeoIdentity();
+    if (!identity || !identity.auth_user_id) throw new GrowthRequestError(503, "ceo_not_configured");
+    if (identity.auth_user_id !== user.id
+      || normalizeText(identity.email, 320).toLowerCase() !== normalizeText(user.email, 320).toLowerCase()
+      || !isConfirmedGoogleIdentity(user)) {
+      throw new GrowthRequestError(403, "forbidden");
+    }
 
     const profile = await dbRequest(
       "perfis?select=id%2Cpapel&id=eq." + encodeURIComponent(user.id) + "&limit=1",
@@ -459,6 +533,10 @@ export function createGrowthHandler({ env, fetchImpl = fetch }: GrowthDependenci
     if (!parsed.ok) return failure(parsed.status, parsed.code, origin);
 
     try {
+      if (normalizeText(parsed.value.operation, 80) === "ceo.bootstrap") {
+        const result = await bootstrapCeo(request);
+        return jsonResponse(result.status, { ok: true, data: result.data }, origin);
+      }
       const actor = await authorize(request);
       const result = await handleOperation(actor, parsed.value);
       return jsonResponse(result.status, { ok: true, data: result.data }, origin);
