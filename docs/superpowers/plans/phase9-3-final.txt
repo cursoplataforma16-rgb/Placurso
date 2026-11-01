@@ -1,0 +1,1 @@
+Final verification will be performed by GitHub Actions before merge.
