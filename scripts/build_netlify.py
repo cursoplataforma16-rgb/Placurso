@@ -23,6 +23,7 @@ CORE_BIBLE = ROOT / 'scripts' / 'bible_learning_core.js'
 CORE_PRODUCT_FACTORY = ROOT / 'scripts' / 'annan_product_factory.js'
 CORE_INTEGRATION_GATEWAY = ROOT / 'scripts' / 'annan_integration_gateway.js'
 CORE_EXECUTION_ENGINE = ROOT / 'scripts' / 'annan_execution_engine.js'
+CORE_EXECUTION_GATEWAY_ADAPTER = ROOT / 'scripts' / 'annan_execution_gateway_adapter.js'
 
 if not ARCHIVE.exists():
     raise SystemExit('ERRO: placurso-site-root.zip não encontrado.')
@@ -70,8 +71,6 @@ if 'PLACURSO_ANNAN_INTEGRATION_GATEWAY' in engine.read_text(encoding='utf-8'):
     raise SystemExit('ERRO: Integration Gateway já foi integrado ao motor.')
 engine.write_text(engine.read_text(encoding='utf-8') + '\n/* PLACURSO_ANNAN_INTEGRATION_GATEWAY */\n' + integration_source, encoding='utf-8')
 
-# Phase 9: bounded execution capability in the same ANNAN runtime.
-# It records and gates work but intentionally performs no external calls.
 if not CORE_EXECUTION_ENGINE.is_file():
     raise SystemExit('ERRO: annan_execution_engine.js não encontrado.')
 execution_source = CORE_EXECUTION_ENGINE.read_text(encoding='utf-8')
@@ -80,6 +79,15 @@ if 'PlacursoAnnanExecutionEngine' not in execution_source:
 if 'PLACURSO_ANNAN_EXECUTION_ENGINE' in engine.read_text(encoding='utf-8'):
     raise SystemExit('ERRO: Execution Engine já foi integrado ao motor.')
 engine.write_text(engine.read_text(encoding='utf-8') + '\n/* PLACURSO_ANNAN_EXECUTION_ENGINE */\n' + execution_source, encoding='utf-8')
+
+if not CORE_EXECUTION_GATEWAY_ADAPTER.is_file():
+    raise SystemExit('ERRO: annan_execution_gateway_adapter.js não encontrado.')
+adapter_source = CORE_EXECUTION_GATEWAY_ADAPTER.read_text(encoding='utf-8')
+if 'PlacursoAnnanExecutionGatewayAdapter' not in adapter_source:
+    raise SystemExit('ERRO: API PlacursoAnnanExecutionGatewayAdapter não encontrada.')
+if 'PLACURSO_ANNAN_EXECUTION_GATEWAY_ADAPTER' in engine.read_text(encoding='utf-8'):
+    raise SystemExit('ERRO: Execution Gateway Adapter já foi integrado ao motor.')
+engine.write_text(engine.read_text(encoding='utf-8') + '\n/* PLACURSO_ANNAN_EXECUTION_GATEWAY_ADAPTER */\n' + adapter_source, encoding='utf-8')
 
 subprocess.run(['python3', str(PATCH_COMMUNITY), str(engine)], cwd=ROOT, check=True)
 subprocess.run(['python3', str(PATCH_PHASE4_GUARD), str(engine)], cwd=ROOT, check=True)
@@ -133,6 +141,7 @@ print('OK: core de acesso, psicotécnico de 7 perguntas e aprendizagem bíblica 
 print('OK: Product Factory integrado no mesmo motor ANNAN do Placurso.')
 print('OK: Integration Gateway integrado no mesmo motor ANNAN do Placurso.')
 print('OK: Execution Engine integrado no mesmo motor ANNAN do Placurso.')
+print('OK: Execution Gateway Adapter integrado no mesmo motor ANNAN do Placurso.')
 print('OK: fluxo público → convite → inscrição → Área de Aluno integrado.')
 print('OK: guardião público da Fase 4 integrado; A-Ads preservado.')
 print('OK: Centro de Desafios horizontal no público e no topo do aluno.')
