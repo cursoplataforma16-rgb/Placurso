@@ -26,7 +26,7 @@ vm.runInThisContext(fs.readFileSync({json.dumps(str(ENGINE))}, 'utf8'));
 vm.runInThisContext(fs.readFileSync({json.dumps(str(WORKFLOW))}, 'utf8'));
 const W=globalThis.PlacursoAnnanAutonomousWorkflow;
 const E=globalThis.PlacursoAnnanExecutionEngine;
-const r=W.run({id:'wf-1', objective:'test flow', tasks:[
+const r=W.run({{id:'wf-1', objective:'test flow', tasks:[
   {{id:'step-1', objective:'first'}},
   {{id:'step-2', objective:'second', fail:true}},
   {{id:'step-3', objective:'third'}}
@@ -46,7 +46,7 @@ const fs=require('fs'), vm=require('vm');
 vm.runInThisContext(fs.readFileSync({json.dumps(str(ENGINE))}, 'utf8'));
 vm.runInThisContext(fs.readFileSync({json.dumps(str(WORKFLOW))}, 'utf8'));
 const W=globalThis.PlacursoAnnanAutonomousWorkflow;
-const r=W.run({id:'wf-2', objective:'sensitive flow', sensitive:true, tasks:[{{id:'step-1', objective:'protected'}}]}});
+const r=W.run({{id:'wf-2', objective:'sensitive flow', sensitive:true, tasks:[{{id:'step-1', objective:'protected'}}]}});
 if(r.ok || r.reason!=='approval_required') process.exit(1);
 console.log('ok');
 """
@@ -61,7 +61,7 @@ const fs=require('fs'), vm=require('vm');
 vm.runInThisContext(fs.readFileSync({json.dumps(str(ENGINE))}, 'utf8'));
 vm.runInThisContext(fs.readFileSync({json.dumps(str(WORKFLOW))}, 'utf8'));
 const W=globalThis.PlacursoAnnanAutonomousWorkflow;
-const r=W.run({id:'wf-3', objective:'approved sensitive flow', sensitive:true, approved:true, tasks:[{{id:'step-1', objective:'protected'}}]}});
+const r=W.run({{id:'wf-3', objective:'approved sensitive flow', sensitive:true, approved:true, tasks:[{{id:'step-1', objective:'protected'}}]}});
 if(!r.ok || r.status!=='completed' || r.completed!==1 || r.results[0].verified!==true) process.exit(1);
 console.log('ok');
 """
