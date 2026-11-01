@@ -435,7 +435,8 @@ export function createGrowthHandler({ env, fetchImpl = fetch }: GrowthDependenci
             p_reason: reason,
           },
         });
-        if (!result || !result.content || !result.approval_id) {
+        if (!result || typeof result !== "object" || !("content" in result)
+          || !("approval_id" in result) || !result.content || !result.approval_id) {
           throw new GrowthRequestError(409, "approval_conflict");
         }
         return result.content;
