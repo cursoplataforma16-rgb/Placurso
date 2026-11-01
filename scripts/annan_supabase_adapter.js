@@ -78,7 +78,7 @@
       return Promise.resolve({ok:false,reason:'invalid_input'});
     }
     return getClient().then(function(sb){
-      return sb.auth.signUp({email:safeEmail,password:password,options:{data:{full_name:safeName}}});
+      return sb.auth.signUp({email:safeEmail,password:password,options:{data:{full_name:safeName},emailRedirectTo:window.location.origin+window.location.pathname}});
     }).then(function(result){
       if(result.error) return {ok:false,reason:errorMessage(result.error,'Não foi possível criar a conta.'),user:null};
       var data=result.data||{};
