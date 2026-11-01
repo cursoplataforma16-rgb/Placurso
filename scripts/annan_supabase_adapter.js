@@ -83,7 +83,10 @@
       if(result.error) return {ok:false,reason:errorMessage(result.error,'Não foi possível criar a conta.'),user:null};
       var data=result.data||{};
       if(!data.user) return {ok:false,reason:'signup_incomplete',user:null};
-      if(!data.session) return {ok:false,reason:'email_confirmation_required',user:data.user};
+      if(!data.session){
+        if(Array.isArray(data.user.identities)&&data.user.identities.length===0)return {ok:false,reason:'account_already_exists',user:null};
+        return {ok:false,reason:'email_confirmation_required',user:data.user};
+      }
       return getCurrentUser().then(function(current){
         return current.ok?{ok:true,user:current.user}:{ok:false,reason:current.reason||'session_unavailable',user:null};
       });
