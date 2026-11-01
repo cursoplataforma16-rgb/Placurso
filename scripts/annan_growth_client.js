@@ -29,6 +29,18 @@
       return errorResult('unauthenticated', 'Entre na sua conta para aceder à gestão.');
     }
 
+    const gateway = root.PlacursoAnnanIntegrationGateway;
+    if (!gateway || typeof gateway.dispatch !== 'function') {
+      return errorResult('annan_gateway_unavailable', 'O Gateway central do ANNAN não está disponível.');
+    }
+    const route = gateway.dispatch('placurso-growth', {
+      type: operation,
+      source: 'growth-center',
+    });
+    if (!route || route.ok !== true) {
+      return errorResult('growth_gateway_unavailable', 'A capacidade de crescimento não está registada no ANNAN.');
+    }
+
     try {
       const client = await persistence.getClient();
       const body = { operation: operation, payload: payload || {} };
