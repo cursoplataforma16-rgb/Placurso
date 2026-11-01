@@ -107,7 +107,7 @@
 
 - [x] **Step 1: Run the full Growth Gateway CI workflow.** Run the CEO contract, Edge Function tests, growth schema, build integration, ANNAN gateway, and Phase 8/9 regression tests.
 - [x] **Step 2: Deploy the updated `annan-growth` function.** Confirm the deployed version is active and `verify_jwt = true`.
-- [ ] **Step 3: Publish the tested site build.** Merge the reviewed PR to `main`, confirm Netlify publishes the merged commit, and verify the live URL uses the new patch and cache version.
+- [x] **Step 3: Publish the tested site build.** PR #19 was squash-merged to `main` as `5aab21509928ebe94c9850de733ae38468c750f8`; production Netlify deploy `6ae7cb8400896a7da014f99e` is `ready` and serves `https://placurso.netlify.app`.
 - [ ] **Step 4: Verify database authorization after deployment.** The singleton must have the new email and the Auth UUID claimed only by a successful login using that Google account; the previous UUID remains a non-admin profile.
 - [ ] **Step 5: Request one real Google login on the user's device.** Full external OAuth completion must be verified in the browser with `belcianycosmedionisio@gmail.com`; tests cannot substitute for Google's interactive consent/account selection.
 - [ ] **Step 6: Report evidence and any remaining external action.** Do not claim the browser login is fully verified until the real login attempt succeeds.

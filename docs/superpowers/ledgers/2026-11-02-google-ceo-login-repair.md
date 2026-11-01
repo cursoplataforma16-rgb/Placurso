@@ -44,12 +44,14 @@ Task 1 produces the identity and browser behavior assertions consumed by Task 2 
 - The first real production build exposed a second legacy browser-side `CEO_EMAILS` array that could promote email addresses without server authorization. Added `_disable_legacy_browser_ceo_allowlist()` to the generator; it removes the old promotional comment and empties `CEO_EMAILS`, failing closed if the expected source block cannot be found.
 - Added `scripts/test_ceo_login_build_output.py` and a CI step to run the exact production build commands, then verify generated `public/index.html` and `public/sw.js`. Latest build reports `Generated CEO login asset verification: PASS`; both old and new CEO email strings are absent from browser HTML.
 
-### Task 5: Deployment — in progress
+### Task 5: Deployment — production published; first interactive login pending
 
 - Complete: latest Growth Gateway CI and all six other project workflows passed at code head `c16a1cd3f7a7abcb427b20cc795aed600d82d8e1`; Deno test output was `9 passed | 0 failed`; generated Netlify asset test passed.
 - Complete: `annan-growth` version 3 is ACTIVE with `verify_jwt = true`.
 - Complete: Netlify Deploy Preview for PR #19 is READY at `https://deploy-preview-19--placurso.netlify.app`, using code head `c16a1cd3f7a7abcb427b20cc795aed600d82d8e1`; deploy ID `6ae7cae59b3d71d940f94899`.
-- Pending: merge PR #19 to trigger the production Netlify deployment; inspect the resulting production deploy.
+- Complete: PR #19 squash-merged to `main` as `5aab21509928ebe94c9850de733ae38468c750f8`.
+- Complete: production Netlify deploy `6ae7cb8400896a7da014f99e` is `ready`, context `production`, branch `main`, commit `5aab21509928ebe94c9850de733ae38468c750f8`; production alias is `https://placurso.netlify.app`.
+- Complete: post-deploy database check confirms the singleton is the new CEO email, the previous account is `aluno`, and no old admin profile remains.
 - Pending: first interactive Google login with `belcianycosmedionisio@gmail.com`. The new account does not yet exist in `auth.users`; the first successful OAuth login will create/confirm that Auth identity and atomically claim the CEO singleton. This remains the only way to prove the full browser-to-Google-to-Auth login end to end.
 
 ## Rulings I made
