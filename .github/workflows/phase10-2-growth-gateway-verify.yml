@@ -1,6 +1,8 @@
 name: Phase 10.2 Growth Gateway Verification
 
 on:
+  push:
+    branches: [feature/phase10-2-audience-growth-engine]
   pull_request:
     branches: [main]
     paths:
