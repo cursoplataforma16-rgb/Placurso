@@ -68,6 +68,15 @@
       }
 
       const taskId = `${workflowId}:${stepId}`;
+      const taskSensitive = sensitive || step.sensitive === true;
+      if (step.sensitive === true && !sensitive) {
+        summary.status = 'failed';
+        summary.failed += 1;
+        summary.skipped = steps.length - index - 1;
+        summary.results.push({ index, taskId, status: 'failed', reason: 'approval_required' });
+        break;
+      }
+
       const created = Engine.create({
         id: taskId,
         objective: safeText(step.objective || `Workflow step ${index + 1}`, 240),
@@ -75,7 +84,7 @@
         integration: step.integration,
         eventType: step.eventType,
         event: step.event,
-        sensitive: sensitive || step.sensitive === true,
+        sensitive: taskSensitive,
       });
 
       if (!created.ok) {
@@ -84,6 +93,17 @@
         summary.skipped = steps.length - index - 1;
         summary.results.push({ index, taskId, status: 'failed', reason: created.reason });
         break;
+      }
+
+      if (taskSensitive && input.approved === true) {
+        const approved = Engine.approve(taskId);
+        if (!approved.ok) {
+          summary.status = 'failed';
+          summary.failed += 1;
+          summary.skipped = steps.length - index - 1;
+          summary.results.push({ index, taskId, status: 'failed', reason: approved.reason });
+          break;
+        }
       }
 
       const started = Engine.start(taskId);
@@ -96,11 +116,11 @@
       }
 
       if (step.fail === true) {
-        const failed = Engine.fail(taskId, 'workflow_step_failed');
+        Engine.fail(taskId, 'workflow_step_failed');
         summary.status = 'failed';
         summary.failed += 1;
         summary.skipped = steps.length - index - 1;
-        summary.results.push({ index, taskId, status: 'failed', reason: failed.reason || 'workflow_step_failed' });
+        summary.results.push({ index, taskId, status: 'failed', reason: 'workflow_step_failed' });
         break;
       }
 
