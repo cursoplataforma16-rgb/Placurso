@@ -29,6 +29,11 @@ def test_full_netlify_build_publishes_traffic_assets_and_keeps_annan():
 
     public = ROOT / "public"
     homepage = (public / "index.html").read_text(encoding="utf-8")
+    # Guard the generated public homepage body, not only its SEO head.
+    homepage_body = homepage.split("</head>", 1)[1] if "</head>" in homepage else homepage
+    assert "Aprenda algo útil." in homepage_body, "generated homepage is missing Placurso platform content"
+    assert "Dionuel" not in homepage_body, "generated homepage contains unrelated project content"
+    assert "Alfaiataria" not in homepage_body, "generated homepage contains unrelated atelier content"
     calculator = (public / "ferramentas" / "calculadora-margem" / "index.html").read_text(encoding="utf-8")
     guide = (public / "guias" / "calcular-margem-lucro" / "index.html").read_text(encoding="utf-8")
     engine = (public / "psico-engine.js").read_text(encoding="utf-8")
