@@ -42,7 +42,7 @@ def test_full_netlify_build_publishes_traffic_assets_and_keeps_annan():
         print("ARCHIVE COURSE INDEX PATHS:", course_indexes[:20])
         for entry in course_indexes[:2]:
             source_html = archive.read(entry).decode("utf-8", errors="replace")
-            refs = re.findall(r'(?:src|href)=["\\']([^"\\']+)["\\']', source_html, flags=re.I)
+            refs = re.findall(r"""(?:src|href)=["']([^"']+)["']""", source_html, flags=re.I)
             print("COURSE INDEX STRUCTURE:", {"path": entry, "bytes": len(source_html), "asset_refs": refs[:60]})
     assert "Aprenda algo útil." in homepage_body, "generated homepage is missing Placurso platform content"
     assert "Dionuel" not in homepage_body, "generated homepage contains unrelated project content"
