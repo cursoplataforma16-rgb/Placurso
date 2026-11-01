@@ -1,0 +1,1 @@
+Review: verify ordered execution, stop-on-failure, approval, and build integration.
