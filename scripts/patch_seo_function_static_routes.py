@@ -3,8 +3,8 @@ import re
 import sys
 
 
-EXCLUDED_ROUTES = {"/robots.txt", "/sitemap.xml", "/cursos", "/cursos/*"}
-REQUIRED_DYNAMIC_ROUTES = {"/p/*", "/ver", "/bio", "/links"}
+EXCLUDED_ROUTES = {"/robots.txt", "/sitemap.xml", "/cursos"}
+REQUIRED_DYNAMIC_ROUTES = {"/p/*", "/cursos/*", "/ver", "/bio", "/links"}
 
 
 def _skip_string(source: str, index: int) -> int:
@@ -176,8 +176,8 @@ def main() -> None:
     except ValueError as error:
         raise SystemExit(f"ERRO: {error}")
     path.write_text(updated, encoding="utf-8")
-    print("OK: robots.txt, sitemap.xml e rotas /cursos removidos da função SEO.")
-    print("OK: /p/*, /ver, /bio e /links preservadas; /cursos passa pela página estática.")
+    print("OK: robots.txt, sitemap.xml e rota exacta /cursos removidos da função SEO.")
+    print("OK: /cursos/* e restantes rotas dinâmicas preservadas; /cursos usa redirecionamento estático.")
 
 
 if __name__ == "__main__":
