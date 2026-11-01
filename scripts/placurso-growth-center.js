@@ -151,6 +151,7 @@
 
     const integrations=el('section');integrations.className='pg-section pg-note';integrations.appendChild(el('b','APIs, conectores e MCP'));integrations.appendChild(el('p','O gateway será o ponto único para APIs, webhooks e MCP. Chaves privadas ficam no servidor, nunca no navegador.'));integrations.appendChild(el('p','Estado actual: painel e planeador preparados. OAuth, publicações reais e métricas aguardam credenciais e autorização das aplicações oficiais.'));integrations.appendChild(el('p','Controlo do CEO: ligar contas, publicar conteúdos e gastar orçamento só ocorre com autorização válida. Nenhuma conta aparece como ligada antes da confirmação da plataforma.'));rootPanel.appendChild(integrations);
     container.replaceChildren(rootPanel);
+    refreshManagement();
   }
   root.renderPlacursoGrowthCenter = render;
   root.PlacursoGrowthCenter = Object.freeze({ buildCampaignBrief: brief, platforms: channels.map(p=>({id:p.id,name:p.name})) });
