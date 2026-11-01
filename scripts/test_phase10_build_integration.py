@@ -45,7 +45,7 @@ def test_full_netlify_build_publishes_traffic_assets_and_keeps_annan():
         print("ROOT INDEX SCRIPT REFERENCES:", script_refs[:100])
         if "home-curso-simples.js" in names:
             home_script = archive.read("home-curso-simples.js").decode("utf-8", errors="replace")
-            print("COURSE HOME SCRIPT SOURCE:", home_script[:14000])
+            print("COURSE HOME SCRIPT TAIL:", home_script[-7000:])
         for entry in course_indexes[:2]:
             source_html = archive.read(entry).decode("utf-8", errors="replace")
             refs = re.findall(r"""(?:src|href)=["']([^"']+)["']""", source_html, flags=re.I)
