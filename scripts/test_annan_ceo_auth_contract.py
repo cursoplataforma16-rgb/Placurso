@@ -80,7 +80,7 @@ def test_ceo_role_is_provisioned_only_by_service_role_rpc():
     assert "create or replace function public.placurso_ceo_bootstrap_profile" in sql
     assert "auth.role()" in sql and "service_role" in sql
     assert "auth.users" in sql
-    assert "email_confirmed_at is not null" in sql
+    assert "v_auth.email_confirmed_at is null" in sql
     assert "raw_app_meta_data" in sql and "google" in sql
     assert "public.growth_ceo_identity" in sql
     assert "for update" in sql
