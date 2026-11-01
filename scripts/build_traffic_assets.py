@@ -16,7 +16,7 @@ GUIDE_TITLE = "Como calcular margem de lucro e definir o preço de venda | Placu
 STYLE = """
 :root{color-scheme:dark;--bg:#101a2b;--panel:#18263a;--panel2:#20324a;--text:#f4f6fa;--muted:#bdc8d8;--accent:#e0b568;--line:#344863}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font:16px/1.65 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{margin:0;padding-top:160px;background:var(--bg);color:var(--text);font:16px/1.65 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 a{color:#f0c77f;text-underline-offset:3px}
 a:focus,button:focus,input:focus,select:focus{outline:3px solid #e0b568;outline-offset:2px}
 header,main,footer{width:min(100% - 32px,900px);margin-inline:auto}
