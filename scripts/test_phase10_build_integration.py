@@ -5,6 +5,7 @@ import sys
 ROOT = Path(__file__).resolve().parent.parent
 BUILD = ROOT / "scripts" / "build_netlify.py"
 PATCH_STATIC_SEO = ROOT / "scripts" / "patch_static_seo_routes.py"
+PATCH_SEO_FUNCTION = ROOT / "scripts" / "patch_seo_function_static_preference.py"
 
 
 def test_full_netlify_build_publishes_traffic_assets_and_keeps_annan():
@@ -15,6 +16,14 @@ def test_full_netlify_build_publishes_traffic_assets_and_keeps_annan():
         text=True,
     )
     assert result.returncode == 0, result.stderr or result.stdout
+
+    function_patch = subprocess.run(
+        [sys.executable, str(PATCH_SEO_FUNCTION)],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+    )
+    assert function_patch.returncode == 0, function_patch.stderr or function_patch.stdout
 
     static_patch = subprocess.run(
         [sys.executable, str(PATCH_STATIC_SEO)],
@@ -30,6 +39,7 @@ def test_full_netlify_build_publishes_traffic_assets_and_keeps_annan():
     guide = (public / "guias" / "calcular-margem-lucro" / "index.html").read_text(encoding="utf-8")
     engine = (public / "psico-engine.js").read_text(encoding="utf-8")
     redirects = (public / "_redirects").read_text(encoding="utf-8")
+    seo_function = (ROOT / "netlify" / "functions" / "seo.mjs").read_text(encoding="utf-8")
 
     assert "DIONUEL" not in homepage.split("</head>", 1)[0]
     assert "Placurso" in homepage.split("</head>", 1)[0]
@@ -44,6 +54,7 @@ def test_full_netlify_build_publishes_traffic_assets_and_keeps_annan():
     assert (public / "robots.txt").is_file()
     assert "/robots.txt " not in redirects
     assert "/sitemap.xml " not in redirects
+    assert "preferStatic: true" in seo_function
 
 
 if __name__ == "__main__":
