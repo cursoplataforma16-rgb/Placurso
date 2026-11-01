@@ -4,7 +4,6 @@ import sys
 
 ROOT = Path(__file__).resolve().parent.parent
 BUILD = ROOT / "scripts" / "build_netlify.py"
-PATCH_SEO_ROUTES = ROOT / "scripts" / "patch_seo_function_static_routes.py"
 PATCH_REDIRECTS = ROOT / "scripts" / "patch_static_seo_routes.py"
 
 
@@ -17,14 +16,13 @@ def test_full_netlify_build_publishes_traffic_assets_and_keeps_annan():
     )
     assert result.returncode == 0, result.stderr or result.stdout
 
-    for patch in [PATCH_SEO_ROUTES, PATCH_REDIRECTS]:
-        patched = subprocess.run(
-            [sys.executable, str(patch)],
-            cwd=ROOT,
-            capture_output=True,
-            text=True,
-        )
-        assert patched.returncode == 0, patched.stderr or patched.stdout
+    redirect_patch = subprocess.run(
+        [sys.executable, str(PATCH_REDIRECTS)],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+    )
+    assert redirect_patch.returncode == 0, redirect_patch.stderr or redirect_patch.stdout
 
     public = ROOT / "public"
     homepage = (public / "index.html").read_text(encoding="utf-8")
