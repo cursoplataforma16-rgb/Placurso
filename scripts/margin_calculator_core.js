@@ -8,6 +8,25 @@
   "use strict";
 
   function calculateMargin(input) {
+    if (!input || typeof input !== "object") {
+      return { valid: false, error: "Preencha todos os campos com números válidos." };
+    }
+
+    const required = [
+      "unitCost",
+      "unitExpenses",
+      "feePercent",
+      "salePrice",
+      "targetMarginPercent"
+    ];
+    if (required.some((key) =>
+      input[key] === null ||
+      input[key] === undefined ||
+      String(input[key]).trim() === ""
+    )) {
+      return { valid: false, error: "Preencha todos os campos com números válidos." };
+    }
+
     const values = {
       unitCost: Number(input.unitCost),
       unitExpenses: Number(input.unitExpenses),
