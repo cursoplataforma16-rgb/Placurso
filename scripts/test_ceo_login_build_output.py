@@ -8,6 +8,8 @@ SERVICE_WORKER = ROOT / "public" / "sw.js"
 def test_generated_site_contains_server_verified_ceo_google_flow():
     assert INDEX.is_file(), "Netlify build did not generate public/index.html"
     source = INDEX.read_text(encoding="utf-8")
+    assert "const CEO_EMAILS = [];" in source, "legacy browser-side CEO allowlist was not disabled"
+    assert "O e-mail abaixo é promovido automaticamente a CEO" not in source
     for marker in (
         "sb.auth.getUser()",
         "operation: 'ceo.bootstrap'",
