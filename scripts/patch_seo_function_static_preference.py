@@ -50,7 +50,7 @@ def _config_bounds(source: str) -> tuple[int, int]:
             block_comment = True
             i += 2
             continue
-        if char in ("'", '"', "\`"):
+        if char in ("'", '"' , chr(96)):
             quote = char
         elif char == "{":
             depth += 1
