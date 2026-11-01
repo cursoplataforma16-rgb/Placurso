@@ -21,32 +21,41 @@ def run_patch(source: str) -> str:
         return redirects.read_text(encoding="utf-8")
 
 
-def test_removes_only_static_seo_redirects():
+def test_removes_conflicting_seo_and_course_redirects():
     source = """# Keep unrelated routes intact
 /robots.txt /.netlify/functions/seo 200
 /sitemap.xml /.netlify/functions/seo?type=sitemap 200
 https://placurso.netlify.app/robots.txt /.netlify/functions/seo 200
+/cursos /.netlify/functions/seo 301
+/cursos/* /cursos 301
 /blog/* /blog/index.html 200
-/cursos /index.html 200
 """
     result = run_patch(source)
     assert "/robots.txt " not in result
     assert "/sitemap.xml " not in result
     assert "https://placurso.netlify.app/robots.txt " not in result
+    assert "/cursos /.netlify/functions/seo" not in result
+    assert "/cursos/* /cursos 301" not in result
+    assert "/cursos /cursos/index.html 200!" in result
+    assert "/cursos/ /cursos/index.html 200!" in result
+    assert "/cursos/* /cursos/index.html 200!" in result
     assert "/blog/* /blog/index.html 200" in result
-    assert "/cursos /index.html 200" in result
     assert "# Keep unrelated routes intact" in result
 
 
 def test_static_seo_redirect_cleanup_is_idempotent():
-    source = "/robots.txt /.netlify/functions/seo 200\n/cursos /index.html 200\n"
+    source = "/robots.txt /.netlify/functions/seo 200\n/cursos /.netlify/functions/seo 301\n/blog /blog.html 200\n"
     once = run_patch(source)
     twice = run_patch(once)
     assert twice == once
-    assert twice == "/cursos /index.html 200\n"
+    assert twice.splitlines()[:3] == [
+        "/cursos /cursos/index.html 200!",
+        "/cursos/ /cursos/index.html 200!",
+        "/cursos/* /cursos/index.html 200!",
+    ]
 
 
 if __name__ == "__main__":
-    test_removes_only_static_seo_redirects()
+    test_removes_conflicting_seo_and_course_redirects()
     test_static_seo_redirect_cleanup_is_idempotent()
-    print("Phase 10 static SEO redirect cleanup: PASS")
+    print("Phase 10 static SEO and course route cleanup: PASS")
