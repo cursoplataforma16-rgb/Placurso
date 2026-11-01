@@ -18,11 +18,15 @@ def test_growth_function_is_separate_from_learning_function():
 def test_growth_function_requires_server_side_ceo_authorization():
     source = FUNCTION.read_text(encoding="utf-8")
     for marker in (
-        "PLACURSO_GROWTH_CEO_USER_ID",
         "/auth/v1/user",
+        "growth_ceo_identity",
+        "johnjunior.tchek@gmail.com",
+        "app_metadata",
+        "email_confirmed_at",
         "public.perfis",
         "papel",
         "admin",
+        "ceo.bootstrap",
         "ceo_not_configured",
         "forbidden",
     ):
