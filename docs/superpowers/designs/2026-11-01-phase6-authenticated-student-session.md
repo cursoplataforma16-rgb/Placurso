@@ -12,6 +12,7 @@ Substituir a inscrição meramente local por uma identidade real de aluno atrav�
 - O projecto Supabase Placurso `plataforma-curso` está activo.
 - As tabelas `annan_learning_events` e `annan_student_profiles` existem e têm RLS activa.
 - As políticas limitam as operações do aluno às linhas com `user_id = auth.uid()`; a chave service-role não é usada no browser.
+- A tabela `annan_learning_events` tem índice único `(user_id,event_id)` e políticas RLS explícitas de INSERT, SELECT e UPDATE para `authenticated`, com verificação por `auth.uid()`; isto sustenta o upsert idempotente.
 - O adaptador já existia, mas só verificava `auth.getUser()`; o formulário de aluno ainda marcava a sessão como membro em localStorage, sem criar conta nem iniciar sessão.
 - O histórico local está versionado em `placurso_annan_learning_v1`.
 
