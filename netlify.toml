@@ -1,5 +1,5 @@
 [build]
-  command = "python3 scripts/build_netlify.py && python3 scripts/strategic_games_patch.py && python3 scripts/strategic_decision_game.py && python3 scripts/patch_seo_function_static_routes.py && python3 scripts/patch_static_seo_routes.py"
+  command = "python3 scripts/build_netlify.py && python3 scripts/strategic_games_patch.py && python3 scripts/strategic_decision_game.py && python3 scripts/patch_static_seo_routes.py"
   publish = "public"
 
 [functions]
