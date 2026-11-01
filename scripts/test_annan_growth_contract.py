@@ -76,7 +76,7 @@ def test_growth_schema_migration_exists_and_closes_direct_access():
         "growth_metrics",
         "growth_audit_log",
     ):
-        assert f"create table public.{table}" in sql, f"missing table {table}"
+        assert re.search(rf"create table(?: if not exists)? public\\.{table}\\b", sql), f"missing table {table}"
         assert f"alter table public.{table} enable row level security" in sql
         assert f"revoke all privileges on table public.{table}" in sql
     assert "grant all privileges on table public.growth_" not in sql or "to service_role" in sql
