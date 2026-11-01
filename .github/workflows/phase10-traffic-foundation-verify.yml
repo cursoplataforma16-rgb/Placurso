@@ -1,0 +1,34 @@
+name: Phase 10 Traffic Foundation Verification
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/patch_placurso_seo.py'
+      - 'scripts/build_traffic_assets.py'
+      - 'scripts/margin_calculator_core.js'
+      - 'scripts/test_phase10_seo_metadata.py'
+      - 'scripts/test_margin_calculator.js'
+      - 'scripts/test_phase10_traffic_assets.py'
+      - 'scripts/test_phase10_build_integration.py'
+      - 'scripts/build_netlify.py'
+      - 'placurso-site-root.zip'
+      - '.github/workflows/phase10-traffic-foundation-verify.yml'
+
+jobs:
+  traffic-foundation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verify homepage SEO metadata patch
+        run: python scripts/test_phase10_seo_metadata.py
+      - name: Verify margin calculator arithmetic
+        run: node scripts/test_margin_calculator.js
+      - name: Verify generated pages, A-Ads and sitemap
+        run: python scripts/test_phase10_traffic_assets.py
+      - name: Verify complete Netlify build and ANNAN preservation
+        run: python scripts/test_phase10_build_integration.py
