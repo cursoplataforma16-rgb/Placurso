@@ -90,7 +90,7 @@
 - The browser uses `sb.auth.getUser()` and `sb.functions.invoke('annan-growth', { body: { operation: 'ceo.bootstrap' } })`.
 - A positive response with `data.role === 'admin'` displays CEO access. A `403` means the authenticated Google user is not the CEO and continues into the standard student flow. Technical errors show a retryable authentication/service message and never grant privileges.
 
-- [ ] **Step 1: Add regression assertions for the non-CEO student path.** Verify that a normal Google student is not blocked by the expected CEO `403`.
+- [ ] **Step 1: Add regression assertions for both browser branches.** Verify that a normal Google student is not blocked by the expected CEO `403`, and that a timeout/5xx/bootstrap failure displays a retryable error without rendering CEO access or silently continuing as verified.
 - [ ] **Step 2: Run the browser contract test and confirm it fails.**
 - [ ] **Step 3: Remove the hardcoded CEO email condition from the patch.** Always ask the server to classify an authenticated Google session; branch only on the verified server response/status.
 - [ ] **Step 4: Run the browser contract test and build integration test.** Expected: `python scripts/test_annan_ceo_auth_contract.py` and `python scripts/test_phase10_2_build_integration.py` pass.
