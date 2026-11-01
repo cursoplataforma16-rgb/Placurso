@@ -39,7 +39,7 @@
 
 **Files:**
 - Create: `scripts/test_annan_growth_contract.py`
-- Create: `scripts/test_annan_growth_service.js`
+- Create: `supabase/functions/annan-growth/index_test.ts`
 - Create: `scripts/test_phase10_2_build_integration.py`
 - Test: existing `scripts/test_phase8_integration_gateway.py`
 - Test: existing `scripts/test_phase9_2_build_integration.py`
@@ -51,7 +51,7 @@
 - No publishing or external provider operations are part of this contract.
 
 - [ ] **Step 1: Write failing tests** for the operation allowlist, server-only privileged credentials, JWT enforcement, CEO authorization, approval version binding, audit logging, and explicit no-publish scope.
-- [ ] **Step 2: Run the new tests** with `python scripts/test_annan_growth_contract.py` and `node scripts/test_annan_growth_service.js`.
+- [ ] **Step 2: Run the new tests** with `python scripts/test_annan_growth_contract.py` and `deno test --allow-net supabase/functions/annan-growth/index_test.ts`.
 - [ ] Confirm the failures are caused by the missing service/contracts, not syntax or test setup.
 - [ ] **Step 3: Commit the tests** before writing production code.
 
@@ -115,8 +115,9 @@
 - Test: existing `scripts/test_annan_execution_gateway_adapter.js`
 
 **Interfaces:**
-- Register one integration named `placurso-growth`, kind `channel` or `api`, with metadata only.
-- Dispatch describes a request to the server-side `annan-growth` capability; it must not carry provider credentials, access tokens or unrestricted URLs.
+- Register one integration named `placurso-growth`, kind `channel`, version `10.2`, with metadata only.
+- The browser client checks the existing Gateway registry and dispatches a credential-free operation descriptor before invoking `annan-growth` through the existing Supabase session client; the browser Gateway itself must not make external network calls.
+- Dispatch must not carry provider credentials, access tokens or unrestricted URLs.
 - Do not add a second learning/decision engine or perform external provider HTTP requests from the browser-side Gateway.
 
 - [ ] **Step 1: Add failing tests** proving the Gateway accepts safe growth metadata, rejects secret-like payloads, refuses unknown operations and keeps external network access out of the browser module.
