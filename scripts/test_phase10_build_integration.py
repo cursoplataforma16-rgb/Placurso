@@ -43,6 +43,11 @@ def test_full_netlify_build_publishes_traffic_assets_and_keeps_annan():
         source_index = archive.read("index.html").decode("utf-8", errors="replace")
         script_refs = re.findall(r"""<script[^>]+src=["']([^"']+)["']""", source_index, flags=re.I)
         print("ROOT INDEX SCRIPT REFERENCES:", script_refs[:100])
+        for token in ("modoLojaInfo", "modoHolding", "function init(", "async function init(", "renderVitrineLoja("):
+            positions = [match.start() for match in re.finditer(re.escape(token), source_index)]
+            print("ROOT STARTUP TOKEN:", token, "count=", len(positions))
+            for position in positions[:8]:
+                print("ROOT STARTUP CONTEXT:", source_index[max(0, position-500):position+900])
         print("ROOT INDEX TAIL DIAGNOSTIC:", source_index[-9000:])
         for token in ("renderHomeCursoSimples", "location.hostname", "modo-loja", "home-curso-simples.js"):
             positions = [match.start() for match in re.finditer(re.escape(token), source_index)]
