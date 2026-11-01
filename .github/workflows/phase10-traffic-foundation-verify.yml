@@ -11,7 +11,10 @@ on:
       - 'scripts/test_margin_calculator.js'
       - 'scripts/test_phase10_traffic_assets.py'
       - 'scripts/test_phase10_build_integration.py'
+      - 'scripts/patch_static_seo_routes.py'
+      - 'scripts/test_phase10_static_seo_routes.py'
       - 'scripts/build_netlify.py'
+      - 'netlify.toml'
       - 'placurso-site-root.zip'
       - '.github/workflows/phase10-traffic-foundation-verify.yml'
 
@@ -26,6 +29,8 @@ jobs:
           node-version: 22
       - name: Verify homepage SEO metadata patch
         run: python scripts/test_phase10_seo_metadata.py
+      - name: Verify static robots and sitemap routes
+        run: python scripts/test_phase10_static_seo_routes.py
       - name: Verify margin calculator arithmetic
         run: node scripts/test_margin_calculator.js
       - name: Verify generated pages, A-Ads and sitemap
