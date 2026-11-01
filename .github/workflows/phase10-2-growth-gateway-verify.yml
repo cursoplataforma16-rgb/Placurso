@@ -8,6 +8,8 @@ on:
     paths:
       - 'supabase/functions/annan-growth/**'
       - 'supabase/migrations/*growth_foundation*.sql'
+      - 'supabase/migrations/*ceo_google_login_repair.sql'
+      - 'supabase/migrations/*ceo_signup_profile_from_identity.sql'
       - 'scripts/annan_growth_client.js'
       - 'scripts/placurso-growth-center.js'
       - 'scripts/test_annan_growth_contract.py'
