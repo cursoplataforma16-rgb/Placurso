@@ -32,6 +32,8 @@ def test_full_netlify_build_publishes_traffic_assets_and_keeps_annan():
     assert "PlacursoAnnanAutonomousWorkflow" in engine
     assert (public / "sitemap.xml").is_file()
     assert (public / "robots.txt").is_file()
+    seo_function = (ROOT / "netlify" / "functions" / "seo.mjs").read_text(encoding="utf-8")
+    assert "preferStatic: true" in seo_function
 
 
 if __name__ == "__main__":
