@@ -68,9 +68,10 @@ def test_auth_signup_trigger_creates_students_and_defers_ceo_promotion():
     )
     sql = CEO_RPC_MIGRATIONS[0].read_text(encoding="utf-8").lower()
     assert "create or replace function public.handle_new_user()" in sql
-    assert "values (new.id" in sql
-    assert "'aluno'" in sql
-    assert "growth_ceo_identity" not in sql.split("create or replace function public.handle_new_user()", 1)[1].split("$function$;", 1)[0]
+    signup_body = sql.split("create or replace function public.handle_new_user()", 1)[1].split("$function$;", 1)[0]
+    assert "values (" in signup_body and "new.id," in signup_body
+    assert "'aluno'" in signup_body
+    assert "growth_ceo_identity" not in signup_body
 
 
 def test_ceo_role_is_provisioned_only_by_service_role_rpc():
