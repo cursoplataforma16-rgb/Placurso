@@ -16,3 +16,9 @@ jobs:
           python-version: "3.11"
       - name: Run Phase 4 advertising regression
         run: python3 scripts/tests/test_phase4_public_guard.py
+      - name: Verify A-Ads preservation
+        run: python3 scripts/test_aads_ad_preserved.py
+      - name: Verify A-Ads unit 2459988
+        run: python3 scripts/test_aads_unit_2459988.py
+      - name: Verify A-Ads build integration
+        run: python3 scripts/test_aads_build_integration.py
