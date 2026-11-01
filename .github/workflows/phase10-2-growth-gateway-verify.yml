@@ -55,6 +55,21 @@ jobs:
           python scripts/strategic_decision_game.py
           python scripts/patch_static_seo_routes.py
           python scripts/test_ceo_login_build_output.py
+      - name: Upload extracted source and production output for isolation review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: placurso-source-isolation-review
+          retention-days: 1
+          path: |
+            .site-extracted/index.html
+            .site-extracted/psico-engine.js
+            .site-extracted/netlify/functions/seo.mjs
+            public/index.html
+            public/psico-engine.js
+            public/manifest.json
+            public/sw.js
+            public/_redirects
       - name: Verify existing ANNAN gateway
         run: node scripts/test_annan_integration_gateway.js
       - name: Verify Phase 8 and Phase 9 integration contracts
