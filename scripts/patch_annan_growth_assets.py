@@ -35,7 +35,7 @@ def _patch_ceo_google_auth(source: str) -> str:
     )
     source = _replace_once(source, old_google_handler, new_google_handler, "mensagem clara para Google OAuth")
 
-    anchor = "  casca('<div class=\\"loading-screen\\">A preparar…</div>');\\n  if(comGoogle){ let cv = '';"
+    anchor = "  casca('<div class=\"loading-screen\">A preparar…</div>');\n  if(comGoogle){ let cv = '';"
     replacement = """  casca('<div class="loading-screen">A preparar…</div>');
   if(comGoogle){
     let authUser = null;
