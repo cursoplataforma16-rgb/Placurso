@@ -1,0 +1,27 @@
+name: Phase 9.3 Autonomous Workflow Verification
+
+on:
+  push:
+    branches: [main, 'feature/**']
+  pull_request:
+    branches: [main]
+
+jobs:
+  phase9-3:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Verify workflow contract
+        run: python3 scripts/test_phase9_3_workflow.py
+      - name: Verify build integration contract
+        run: python3 scripts/test_phase9_3_build_integration.py
+      - name: Verify workflow syntax
+        run: node --check scripts/annan_autonomous_workflow.js
+      - name: Verify execution engine syntax
+        run: node --check scripts/annan_execution_engine.js
