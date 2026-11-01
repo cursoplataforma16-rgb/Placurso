@@ -38,3 +38,22 @@ jobs:
           python-version: '3.x'
       - name: Verify A-ADS remains enabled and other ad cleanup remains
         run: python scripts/test_aads_ad_preserved.py
+
+  authenticated-student-flow:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check ANNAN Supabase adapter syntax
+        run: node --check scripts/annan_supabase_adapter.js
+      - name: Test ANNAN authentication and persistence adapter
+        run: node scripts/test_annan_supabase_adapter.js
+      - name: Verify authenticated student session boundary
+        run: python scripts/test_phase6_authenticated_session_contract.py
+      - name: Verify community flow composition
+        run: python scripts/test_community_flow_pipeline.py
