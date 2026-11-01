@@ -20,7 +20,6 @@ def test_growth_function_requires_server_side_ceo_authorization():
     for marker in (
         "/auth/v1/user",
         "growth_ceo_identity",
-        "johnjunior.tchek@gmail.com",
         "app_metadata",
         "email_confirmed_at",
         "perfis?select=id%2Cpapel",
@@ -29,8 +28,13 @@ def test_growth_function_requires_server_side_ceo_authorization():
         "ceo.bootstrap",
         "ceo_not_configured",
         "forbidden",
+        "readCeoIdentity",
+        "identity.email",
+        "isConfirmedGoogleIdentity",
     ):
         assert marker in source, f"missing CEO authorization contract: {marker}"
+    assert "johnjunior.tchek@gmail.com" not in source
+    assert "belcianycosmedionisio@gmail.com" not in source
 
 
 def test_growth_function_has_no_publication_or_ads_side_effect():
