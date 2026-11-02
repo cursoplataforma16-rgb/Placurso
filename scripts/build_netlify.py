@@ -21,6 +21,7 @@ PATCH_PREVIEW_ROUTING = ROOT / 'scripts' / 'patch_placurso_netlify_preview_routi
 PATCH_SEO_FUNCTION = ROOT / 'scripts' / 'patch_seo_function_static_routes.py'
 BUILD_TRAFFIC_ASSETS = ROOT / 'scripts' / 'build_traffic_assets.py'
 PATCH_ANNAN_GROWTH_ASSETS = ROOT / 'scripts' / 'patch_annan_growth_assets.py'
+BUILD_PLACURSO_CEO_PAGE = ROOT / 'scripts' / 'build_placurso_ceo_page.py'
 PATCH_COMMUNITY = ROOT / 'scripts' / 'patch_community_flow.py'
 PATCH_PHASE4_GUARD = ROOT / 'scripts' / 'patch_phase4_public_guard.py'
 CORE_ACCESS = ROOT / 'scripts' / 'community_access_core.js'
@@ -153,6 +154,10 @@ subprocess.run(['python3', str(BUILD_TRAFFIC_ASSETS), str(PUBLIC)], cwd=ROOT, ch
 if not PATCH_ANNAN_GROWTH_ASSETS.is_file():
     raise SystemExit('ERRO: patch de voz ANNAN/Crescimento Placurso não encontrado.')
 subprocess.run(['python3', str(PATCH_ANNAN_GROWTH_ASSETS), str(PUBLIC)], cwd=ROOT, check=True)
+
+if not BUILD_PLACURSO_CEO_PAGE.is_file():
+    raise SystemExit('ERRO: gerador da rota privada CEO não encontrado.')
+subprocess.run(['python3', str(BUILD_PLACURSO_CEO_PAGE), str(PUBLIC)], cwd=ROOT, check=True)
 
 redirects = PUBLIC / '_redirects'
 if not redirects.is_file():
