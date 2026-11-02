@@ -687,12 +687,28 @@ export function createSocialOAuthHandler({ env, fetchImpl = fetch }: OAuthDepend
     await auditConnected(actorId, String(account.id), "youtube");
   }
 
+  async function inspectMetaAccessToken(token: string): Promise<Set<string>> {
+    const appId = required("META_APP_ID");
+    const appSecret = required("META_APP_SECRET");
+    const url = new URL("https://graph.facebook.com/" + graphVersion + "/debug_token");
+    url.searchParams.set("input_token", token);
+    url.searchParams.set("access_token", appId + "|" + appSecret);
+    const response = await fetchImpl(url, { headers: { accept: "application/json" } });
+    const result = await providerJson(response, "meta_token_inspection");
+    const data = asRecord(result.data);
+    if (data.is_valid !== true || String(data.app_id || "") !== appId) {
+      throw new OAuthError(403, "whatsapp_token_not_valid_for_this_app");
+    }
+    const scopes = Array.isArray(data.scopes) ? data.scopes.map(String) : [];
+    return new Set(scopes);
+  }
+
   async function completeWhatsApp(actorId: string, payload: Record<string, unknown>): Promise<Record<string, unknown>> {
     const code = typeof payload.code === "string" ? payload.code.trim() : "";
     const rawState = typeof payload.state === "string" ? payload.state : "";
     const wabaId = typeof payload.wabaId === "string" ? payload.wabaId.trim() : "";
     const phoneNumberId = typeof payload.phoneNumberId === "string" ? payload.phoneNumberId.trim() : "";
-    if (!code || !rawState || !/^\d{5,30}$/.test(wabaId) || !/^\d{5,30}$/.test(phoneNumberId)) {
+    if (!code || !rawState || !/^\\d{5,30}$/.test(wabaId) || !/^\\d{5,30}$/.test(phoneNumberId)) {
       throw new OAuthError(400, "invalid_whatsapp_signup_payload");
     }
     const state = await consumeState(rawState, "whatsapp");
@@ -702,16 +718,26 @@ export function createSocialOAuthHandler({ env, fetchImpl = fetch }: OAuthDepend
     const exchanged = await exchangeMetaCode(code, true);
     const token = typeof exchanged.access_token === "string" ? exchanged.access_token : "";
     if (!token) throw new OAuthError(502, "whatsapp_token_missing");
-    const phone = await metaGraph(phoneNumberId + "?fields=id%2Cdisplay_phone_number%2Cverified_name%2Cwhatsapp_business_account", token);
-    const verifiedWaba = asRecord(phone.whatsapp_business_account);
-    const verifiedPhoneId = typeof phone.id === "string" ? phone.id : "";
-    const verifiedWabaId = typeof verifiedWaba.id === "string" ? verifiedWaba.id : "";
-    if (verifiedPhoneId !== phoneNumberId || (verifiedWabaId && verifiedWabaId !== wabaId)) {
-      throw new OAuthError(403, "whatsapp_asset_mismatch");
+
+    const grantedScopes = await inspectMetaAccessToken(token);
+    if (!grantedScopes.has("whatsapp_business_management")
+      || !grantedScopes.has("whatsapp_business_messaging")) {
+      throw new OAuthError(403, "whatsapp_permissions_missing");
     }
-    const displayPhone = typeof phone.display_phone_number === "string" ? phone.display_phone_number : "Número WhatsApp";
-    const verifiedName = typeof phone.verified_name === "string" ? phone.verified_name : "WhatsApp Business";
+
     const business = await metaGraph(wabaId + "?fields=id%2Cname", token);
+    if (String(business.id || "") !== wabaId) {
+      throw new OAuthError(403, "whatsapp_business_account_mismatch");
+    }
+    const phoneNumbers = await metaGraph(
+      wabaId + "/phone_numbers?fields=id%2Cdisplay_phone_number%2Cverified_name&limit=100",
+      token,
+    );
+    const phone = asArray(phoneNumbers.data).find((item) => String(item.id || "") === phoneNumberId);
+    if (!phone) throw new OAuthError(403, "whatsapp_phone_not_owned_by_business_account");
+
+    const displayPhone = typeof phone.display_phone_number === "string" ? phone.display_phone_number : phoneNumberId;
+    const verifiedName = typeof phone.verified_name === "string" ? phone.verified_name : "WhatsApp Business";
     const businessName = typeof business.name === "string" ? business.name : verifiedName;
     const account = await saveAccount({
       platform: "whatsapp",
@@ -727,7 +753,7 @@ export function createSocialOAuthHandler({ env, fetchImpl = fetch }: OAuthDepend
       accessToken: token,
       expiresIn: Number(exchanged.expires_in) || null,
       tokenType: "Bearer",
-      scopes: ["whatsapp_business_management", "whatsapp_business_messaging"],
+      scopes: Array.from(grantedScopes),
     });
     await auditConnected(actorId, String(account.id), "whatsapp");
     return { id: account.id, platform: "whatsapp", display_name: account.display_name, connection_state: "connected" };
