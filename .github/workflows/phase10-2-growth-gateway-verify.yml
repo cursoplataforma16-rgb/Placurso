@@ -64,7 +64,9 @@ jobs:
           python scripts/build_netlify.py
           python scripts/strategic_games_patch.py
           python scripts/strategic_decision_game.py
+          node --check public/psico-engine.js
           python scripts/test_ceo_login_build_output.py
+          python scripts/test_placurso_clean_site.py
       - name: Verify the generated CEO page is present
         run: test -s public/ceo.html
       - name: Block DIONUEL and legacy schema from Placurso source and production bundle
