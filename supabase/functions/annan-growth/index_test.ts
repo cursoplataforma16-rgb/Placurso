@@ -146,8 +146,11 @@ Deno.test("CEO bootstrap provisions the existing verified identity through the p
   if (rpcBody.p_auth_user_id !== ceoUser.id) {
     throw new Error("CEO RPC did not receive the Auth UUID");
   }
-  if (rpc.headers.get("authorization") !== "Bearer sb_secret_server_only") {
-    throw new Error("CEO provisioning RPC was not called with the server-only key");
+  if (rpc.headers.get("apikey") !== "sb_secret_server_only") {
+    throw new Error("CEO provisioning RPC was not called with the configured server-only API key");
+  }
+  if (rpc.headers.has("authorization")) {
+    throw new Error("opaque Supabase secret API key was incorrectly sent as a Bearer JWT");
   }
   if (mock.requests.some((item) => item.url.includes("/rest/v1/perfis") && item.method !== "GET")) {
     throw new Error("CEO bootstrap tried to change the profile directly through PostgREST");
