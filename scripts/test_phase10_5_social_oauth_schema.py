@@ -32,6 +32,11 @@ def test_oauth_state_has_replay_and_expiry_guards():
     assert "check (expires_at > created_at)" in sql
     assert "created_by uuid not null references auth.users(id)" in sql
     assert "unique (account_id)" in sql or "account_id uuid primary key" in sql
+    assert "create or replace function public.consume_growth_oauth_state" in sql
+    assert "oauth_state.used_at is null" in sql
+    assert "oauth_state.expires_at > now()" in sql
+    assert "revoke all on function public.consume_growth_oauth_state(text, text) from public, anon, authenticated" in sql
+    assert "grant execute on function public.consume_growth_oauth_state(text, text) to service_role" in sql
 
 
 if __name__ == "__main__":
