@@ -68,7 +68,7 @@ def test_ceo_injection_is_idempotent_and_has_script_and_mount():
         (public / "ceo.html").write_text(
             '<html><head><script src="/placurso-growth-center.js"></script></head>'
             '<body><div id="growth"></div>'
-            '<script>async function render(){window.renderPlacursoGrowthCenter($(\\'growth\\'));</script></body></html>',
+            "<script>async function render(){window.renderPlacursoGrowthCenter($('growth'));</script></body></html>",
             encoding="utf-8",
         )
         (scripts / "placurso_social_integrations.js").write_text(
