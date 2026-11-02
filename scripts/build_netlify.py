@@ -21,15 +21,23 @@ PATCHES = [
     "patch_phase3d_annan_profile.py",
     "patch_annan_supabase_adapter.py",
 ]
+CORE_PRODUCT_FACTORY = "annan_product_factory.js"
+CORE_INTEGRATION_GATEWAY = "annan_integration_gateway.js"
+CORE_EXECUTION_ENGINE = "annan_execution_engine.js"
+CORE_EXECUTION_GATEWAY_ADAPTER = "annan_execution_gateway_adapter.js"
+CORE_AUTONOMOUS_WORKFLOW = "annan_autonomous_workflow.js"
+PATCH_PHASE4_GUARD = "patch_phase4_public_guard.py"
+PHASE9_3_MARKER = "PLACURSO_ANNAN_AUTONOMOUS_WORKFLOW"
+
 CORES = [
-    ("community_access_core.js", None),
-    ("psychotechnical_core.js", None),
-    ("bible_learning_core.js", None),
-    ("annan_product_factory.js", "PlacursoAnnanProductFactory"),
-    ("annan_integration_gateway.js", "PlacursoAnnanIntegrationGateway"),
-    ("annan_execution_engine.js", "PlacursoAnnanExecutionEngine"),
-    ("annan_execution_gateway_adapter.js", "PlacursoAnnanExecutionGatewayAdapter"),
-    ("annan_autonomous_workflow.js", "PlacursoAnnanAutonomousWorkflow"),
+    ("community_access_core.js", None, "PLACURSO_ANNAN_COMMUNITY_ACCESS"),
+    ("psychotechnical_core.js", None, "PLACURSO_ANNAN_PSYCHOTECHNICAL"),
+    ("bible_learning_core.js", None, "PLACURSO_ANNAN_BIBLE_LEARNING"),
+    (CORE_PRODUCT_FACTORY, "PlacursoAnnanProductFactory", "PLACURSO_ANNAN_PRODUCT_FACTORY"),
+    (CORE_INTEGRATION_GATEWAY, "PlacursoAnnanIntegrationGateway", "PLACURSO_ANNAN_INTEGRATION_GATEWAY"),
+    (CORE_EXECUTION_ENGINE, "PlacursoAnnanExecutionEngine", "PLACURSO_ANNAN_EXECUTION_ENGINE"),
+    (CORE_EXECUTION_GATEWAY_ADAPTER, "PlacursoAnnanExecutionGatewayAdapter", "PLACURSO_ANNAN_EXECUTION_GATEWAY_ADAPTER"),
+    (CORE_AUTONOMOUS_WORKFLOW, "PlacursoAnnanAutonomousWorkflow", PHASE9_3_MARKER),
 ]
 FINAL_BUILDERS = [
     "build_placurso_clean_site.py",
@@ -99,14 +107,13 @@ def main() -> None:
     for patch in PATCHES:
         run_python(patch, str(engine))
 
-    for filename, required_symbol in CORES:
+    for filename, required_symbol, marker in CORES:
         path = ROOT / "scripts" / filename
         if not path.is_file():
             raise SystemExit(f"ERRO: módulo ANNAN obrigatório em falta: {filename}")
         source = path.read_text(encoding="utf-8")
         if required_symbol and required_symbol not in source:
             raise SystemExit(f"ERRO: API ausente em {filename}: {required_symbol}")
-        marker = f"PLACURSO_BUNDLE_{filename.replace('.', '_').upper()}"
         if marker in engine.read_text(encoding="utf-8"):
             raise SystemExit(f"ERRO: módulo já integrado: {filename}")
         engine.write_text(
@@ -117,7 +124,7 @@ def main() -> None:
         )
 
     run_python("patch_community_flow.py", str(engine))
-    run_python("patch_phase4_public_guard.py", str(engine))
+    run_python(PATCH_PHASE4_GUARD, str(engine))
     subprocess.run(["node", "--check", str(engine)], cwd=ROOT, check=True)
     shutil.copy2(engine, PUBLIC / "psico-engine.js")
 
@@ -133,7 +140,6 @@ def main() -> None:
     run_python("patch_placurso_seo_function.py", str(FUNCTIONS / "seo.mjs"))
 
     subprocess.run(["node", "--check", str(PUBLIC / "psico-engine.js")], cwd=ROOT, check=True)
-    subprocess.run(["node", "--check", str(PUBLIC / "ceo.html")], cwd=ROOT, check=False)
     subprocess.run(["node", "--check", str(FUNCTIONS / "seo.mjs")], cwd=ROOT, check=True)
 
     print(f"OK: {sum(1 for item in PUBLIC.rglob('*') if item.is_file())} ficheiros finais preparados.")
