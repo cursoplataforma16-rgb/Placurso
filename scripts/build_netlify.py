@@ -1,200 +1,149 @@
-from pathlib import Path
+from __future__ import annotations
+
+from pathlib import Path, PurePosixPath
 from zipfile import ZipFile
 import shutil
 import subprocess
 
 ROOT = Path(__file__).resolve().parent.parent
-ARCHIVE = ROOT / 'placurso-site-root.zip'
-WORK = ROOT / '.site-extracted'
-PUBLIC = ROOT / 'public'
-FUNCTIONS = ROOT / 'netlify' / 'functions'
-PATCH = ROOT / 'scripts' / 'patch_games_ui.py'
-PATCH_PHASE2 = ROOT / 'scripts' / 'patch_phase2_progression.py'
-PATCH_PHASE3A = ROOT / 'scripts' / 'patch_phase3a_games.py'
-PATCH_PHASE3B_TRADE = ROOT / 'scripts' / 'patch_phase3b_trade.py'
-PATCH_PHASE3C_CRYPTO = ROOT / 'scripts' / 'patch_phase3c_crypto_games.py'
-PATCH_PHASE3D = ROOT / 'scripts' / 'patch_phase3d_annan_profile.py'
-PATCH_ANNAN_SUPABASE = ROOT / 'scripts' / 'patch_annan_supabase_adapter.py'
-PATCH_AADS = ROOT / 'scripts' / 'patch_aads_unit.py'
-PATCH_SEO = ROOT / 'scripts' / 'patch_placurso_seo.py'
-PATCH_PREVIEW_ROUTING = ROOT / 'scripts' / 'patch_placurso_netlify_preview_routing.py'
-PATCH_SEO_FUNCTION = ROOT / 'scripts' / 'patch_seo_function_static_routes.py'
-PATCH_PLACURSO_SEO_FUNCTION = ROOT / 'scripts' / 'patch_placurso_seo_function.py'
-BUILD_TRAFFIC_ASSETS = ROOT / 'scripts' / 'build_traffic_assets.py'
-PATCH_ANNAN_GROWTH_ASSETS = ROOT / 'scripts' / 'patch_annan_growth_assets.py'
-BUILD_PLACURSO_CEO_PAGE = ROOT / 'scripts' / 'build_placurso_ceo_page.py'
-PATCH_COMMUNITY = ROOT / 'scripts' / 'patch_community_flow.py'
-PATCH_PHASE4_GUARD = ROOT / 'scripts' / 'patch_phase4_public_guard.py'
-CORE_ACCESS = ROOT / 'scripts' / 'community_access_core.js'
-CORE_PSYCH = ROOT / 'scripts' / 'psychotechnical_core.js'
-CORE_BIBLE = ROOT / 'scripts' / 'bible_learning_core.js'
-CORE_PRODUCT_FACTORY = ROOT / 'scripts' / 'annan_product_factory.js'
-CORE_INTEGRATION_GATEWAY = ROOT / 'scripts' / 'annan_integration_gateway.js'
-CORE_EXECUTION_ENGINE = ROOT / 'scripts' / 'annan_execution_engine.js'
-CORE_EXECUTION_GATEWAY_ADAPTER = ROOT / 'scripts' / 'annan_execution_gateway_adapter.js'
-CORE_AUTONOMOUS_WORKFLOW = ROOT / 'scripts' / 'annan_autonomous_workflow.js'
+ARCHIVE = ROOT / "placurso-site-root.zip"
+WORK = ROOT / ".placurso-engine-build"
+LEGACY_EXTRACTED = ROOT / ".site-extracted"
+PUBLIC = ROOT / "public"
+FUNCTIONS = ROOT / "netlify" / "functions"
 
-if not ARCHIVE.exists():
-    raise SystemExit('ERRO: placurso-site-root.zip não encontrado.')
-if WORK.exists():
-    shutil.rmtree(WORK)
-if PUBLIC.exists():
-    shutil.rmtree(PUBLIC)
-WORK.mkdir()
-PUBLIC.mkdir()
+PATCHES = [
+    "patch_games_ui.py",
+    "patch_phase2_progression.py",
+    "patch_phase3a_games.py",
+    "patch_phase3b_trade.py",
+    "patch_phase3c_crypto_games.py",
+    "patch_phase3d_annan_profile.py",
+    "patch_annan_supabase_adapter.py",
+]
+CORES = [
+    ("community_access_core.js", None),
+    ("psychotechnical_core.js", None),
+    ("bible_learning_core.js", None),
+    ("annan_product_factory.js", "PlacursoAnnanProductFactory"),
+    ("annan_integration_gateway.js", "PlacursoAnnanIntegrationGateway"),
+    ("annan_execution_engine.js", "PlacursoAnnanExecutionEngine"),
+    ("annan_execution_gateway_adapter.js", "PlacursoAnnanExecutionGatewayAdapter"),
+    ("annan_autonomous_workflow.js", "PlacursoAnnanAutonomousWorkflow"),
+]
+FINAL_BUILDERS = [
+    "build_placurso_clean_site.py",
+    "build_placurso_ceo_page.py",
+    "patch_placurso_seo_function.py",
+]
 
-with ZipFile(ARCHIVE) as archive:
-    invalid = archive.testzip()
-    if invalid:
-        raise SystemExit(f'ERRO: ficheiro inválido no pacote: {invalid}')
-    archive.extractall(WORK)
 
-engine = WORK / 'psico-engine.js'
-if not engine.exists():
-    raise SystemExit('ERRO: psico-engine.js não encontrado.')
+def run_python(name: str, *args: str) -> None:
+    script = ROOT / "scripts" / name
+    if not script.is_file():
+        raise SystemExit(f"Required Placurso build step missing: {name}")
+    subprocess.run(["python3", str(script), *args], cwd=ROOT, check=True)
 
-for patch in [PATCH, PATCH_PHASE2, PATCH_PHASE3A, PATCH_PHASE3B_TRADE, PATCH_PHASE3C_CRYPTO, PATCH_PHASE3D, PATCH_ANNAN_SUPABASE]:
-    if patch.exists():
-        subprocess.run(['python3', str(patch), str(engine)], cwd=ROOT, check=True)
 
-site_html = WORK / 'index.html'
-if not site_html.is_file():
-    raise SystemExit('ERRO: index.html não encontrado para aplicação da unidade A-Ads.')
-if not PATCH_AADS.is_file():
-    raise SystemExit('ERRO: patch A-Ads 2459988 não encontrado.')
-subprocess.run(['python3', str(PATCH_AADS), str(site_html)], cwd=ROOT, check=True)
-if not PATCH_SEO.is_file():
-    raise SystemExit('ERRO: patch SEO Placurso não encontrado.')
-subprocess.run(['python3', str(PATCH_SEO), str(site_html)], cwd=ROOT, check=True)
-if not PATCH_PREVIEW_ROUTING.is_file():
-    raise SystemExit('ERRO: patch de deteção dos Deploy Previews Placurso não encontrado.')
-subprocess.run(['python3', str(PATCH_PREVIEW_ROUTING), str(site_html)], cwd=ROOT, check=True)
+def copy_clean_archive_member(archive: ZipFile, target_dir: Path, basename: str, required: bool = True) -> bool:
+    candidates = [
+        member for member in archive.namelist()
+        if not member.endswith("/") and PurePosixPath(member).name == basename
+    ]
+    if not candidates:
+        if required:
+            raise SystemExit(f"Required Placurso asset missing from source package: {basename}")
+        return False
+    exact = [member for member in candidates if member == basename]
+    public = [member for member in candidates if member.startswith("public/")]
+    chosen = exact[0] if exact else (public[0] if public else candidates[0])
+    target = target_dir / basename
+    target.parent.mkdir(parents=True, exist_ok=True)
+    with archive.open(chosen) as source, target.open("wb") as output:
+        shutil.copyfileobj(source, output)
+    print(f"Copied approved asset: {basename}")
+    return True
 
-for core in [CORE_ACCESS, CORE_PSYCH, CORE_BIBLE]:
-    if not core.is_file():
-        raise SystemExit(f'ERRO: core obrigatório não encontrado: {core.name}')
-    engine.write_text(engine.read_text(encoding='utf-8') + '\n' + core.read_text(encoding='utf-8'), encoding='utf-8')
 
-if not CORE_PRODUCT_FACTORY.is_file():
-    raise SystemExit('ERRO: annan_product_factory.js não encontrado.')
-product_factory_source = CORE_PRODUCT_FACTORY.read_text(encoding='utf-8')
-if 'PlacursoAnnanProductFactory' not in product_factory_source:
-    raise SystemExit('ERRO: API PlacursoAnnanProductFactory não encontrada.')
-if 'PLACURSO_ANNAN_PRODUCT_FACTORY' in engine.read_text(encoding='utf-8'):
-    raise SystemExit('ERRO: Product Factory já foi integrado ao motor.')
-engine.write_text(engine.read_text(encoding='utf-8') + '\n/* PLACURSO_ANNAN_PRODUCT_FACTORY */\n' + product_factory_source, encoding='utf-8')
+def main() -> None:
+    if not ARCHIVE.is_file():
+        raise SystemExit("ERRO: pacote com o núcleo educativo do Placurso não encontrado.")
 
-if not CORE_INTEGRATION_GATEWAY.is_file():
-    raise SystemExit('ERRO: annan_integration_gateway.js não encontrado.')
-integration_source = CORE_INTEGRATION_GATEWAY.read_text(encoding='utf-8')
-if 'PlacursoAnnanIntegrationGateway' not in integration_source:
-    raise SystemExit('ERRO: API PlacursoAnnanIntegrationGateway não encontrada.')
-if 'PLACURSO_ANNAN_INTEGRATION_GATEWAY' in engine.read_text(encoding='utf-8'):
-    raise SystemExit('ERRO: Integration Gateway já foi integrado ao motor.')
-engine.write_text(engine.read_text(encoding='utf-8') + '\n/* PLACURSO_ANNAN_INTEGRATION_GATEWAY */\n' + integration_source, encoding='utf-8')
+    for path in (WORK, PUBLIC):
+        if path.exists():
+            shutil.rmtree(path)
+        path.mkdir(parents=True, exist_ok=True)
+    if LEGACY_EXTRACTED.exists():
+        shutil.rmtree(LEGACY_EXTRACTED)
+    if FUNCTIONS.exists():
+        shutil.rmtree(FUNCTIONS)
+    FUNCTIONS.mkdir(parents=True, exist_ok=True)
 
-if not CORE_EXECUTION_ENGINE.is_file():
-    raise SystemExit('ERRO: annan_execution_engine.js não encontrado.')
-execution_source = CORE_EXECUTION_ENGINE.read_text(encoding='utf-8')
-if 'PlacursoAnnanExecutionEngine' not in execution_source:
-    raise SystemExit('ERRO: API PlacursoAnnanExecutionEngine não encontrada.')
-if 'PLACURSO_ANNAN_EXECUTION_ENGINE' in engine.read_text(encoding='utf-8'):
-    raise SystemExit('ERRO: Execution Engine já foi integrado ao motor.')
-engine.write_text(engine.read_text(encoding='utf-8') + '\n/* PLACURSO_ANNAN_EXECUTION_ENGINE */\n' + execution_source, encoding='utf-8')
+    with ZipFile(ARCHIVE) as archive:
+        corrupt = archive.testzip()
+        if corrupt:
+            raise SystemExit(f"ERRO: pacote de origem inválido: {corrupt}")
+        # Only the educational challenge engine and the Placurso icon assets are read.
+        # The legacy index.html, service worker, manifest and Netlify functions are never extracted.
+        engine_member = "psico-engine.js"
+        if engine_member not in archive.namelist():
+            raise SystemExit("ERRO: motor educativo psico-engine.js não encontrado.")
+        with archive.open(engine_member) as source, (WORK / engine_member).open("wb") as output:
+            shutil.copyfileobj(source, output)
+        for asset in ("curso-icon-192.png", "curso-icon-512.png"):
+            copy_clean_archive_member(archive, PUBLIC, asset, required=True)
+        copy_clean_archive_member(archive, PUBLIC, "curso-logo.png", required=False)
+        copy_clean_archive_member(archive, PUBLIC, "curso-og.png", required=False)
 
-if not CORE_EXECUTION_GATEWAY_ADAPTER.is_file():
-    raise SystemExit('ERRO: annan_execution_gateway_adapter.js não encontrado.')
-adapter_source = CORE_EXECUTION_GATEWAY_ADAPTER.read_text(encoding='utf-8')
-if 'PlacursoAnnanExecutionGatewayAdapter' not in adapter_source:
-    raise SystemExit('ERRO: API PlacursoAnnanExecutionGatewayAdapter não encontrada.')
-if 'PLACURSO_ANNAN_EXECUTION_GATEWAY_ADAPTER' in engine.read_text(encoding='utf-8'):
-    raise SystemExit('ERRO: Execution Gateway Adapter já foi integrado ao motor.')
-engine.write_text(engine.read_text(encoding='utf-8') + '\n/* PLACURSO_ANNAN_EXECUTION_GATEWAY_ADAPTER */\n' + adapter_source, encoding='utf-8')
+    engine = WORK / "psico-engine.js"
+    for patch in PATCHES:
+        run_python(patch, str(engine))
 
-if not CORE_AUTONOMOUS_WORKFLOW.is_file():
-    raise SystemExit('ERRO: annan_autonomous_workflow.js não encontrado.')
-workflow_source = CORE_AUTONOMOUS_WORKFLOW.read_text(encoding='utf-8')
-if 'PlacursoAnnanAutonomousWorkflow' not in workflow_source:
-    raise SystemExit('ERRO: API PlacursoAnnanAutonomousWorkflow não encontrada.')
-if 'PLACURSO_ANNAN_AUTONOMOUS_WORKFLOW' in engine.read_text(encoding='utf-8'):
-    raise SystemExit('ERRO: Autonomous Workflow já foi integrado ao motor.')
-engine.write_text(engine.read_text(encoding='utf-8') + '\n/* PLACURSO_ANNAN_AUTONOMOUS_WORKFLOW */\n' + workflow_source, encoding='utf-8')
+    for filename, required_symbol in CORES:
+        path = ROOT / "scripts" / filename
+        if not path.is_file():
+            raise SystemExit(f"ERRO: módulo ANNAN obrigatório em falta: {filename}")
+        source = path.read_text(encoding="utf-8")
+        if required_symbol and required_symbol not in source:
+            raise SystemExit(f"ERRO: API ausente em {filename}: {required_symbol}")
+        marker = f"PLACURSO_BUNDLE_{filename.replace('.', '_').upper()}"
+        if marker in engine.read_text(encoding="utf-8"):
+            raise SystemExit(f"ERRO: módulo já integrado: {filename}")
+        engine.write_text(
+            engine.read_text(encoding="utf-8")
+            + f"\n/* {marker} */\n"
+            + source,
+            encoding="utf-8",
+        )
 
-subprocess.run(['python3', str(PATCH_COMMUNITY), str(engine)], cwd=ROOT, check=True)
-subprocess.run(['python3', str(PATCH_PHASE4_GUARD), str(engine)], cwd=ROOT, check=True)
-subprocess.run(['node', '--check', str(engine)], cwd=ROOT, check=True)
+    run_python("patch_community_flow.py", str(engine))
+    run_python("patch_phase4_public_guard.py", str(engine))
+    subprocess.run(["node", "--check", str(engine)], cwd=ROOT, check=True)
+    shutil.copy2(engine, PUBLIC / "psico-engine.js")
 
-public_engine = WORK / 'public' / 'psico-engine.js'
-public_engine.parent.mkdir(parents=True, exist_ok=True)
-shutil.copy2(engine, public_engine)
+    # The homepage is generated from a Placurso-only template. No file from
+    # the legacy application index or brand-specific dashboard is copied.
+    run_python("build_placurso_clean_site.py", str(PUBLIC))
 
-source_seo = WORK / 'netlify' / 'functions' / 'seo.mjs'
-if not source_seo.is_file():
-    raise SystemExit('ERRO: netlify/functions/seo.mjs não encontrado no pacote.')
-if FUNCTIONS.exists():
-    shutil.rmtree(FUNCTIONS)
-FUNCTIONS.mkdir(parents=True, exist_ok=True)
-shutil.copy2(source_seo, FUNCTIONS / 'seo.mjs')
-if not PATCH_SEO_FUNCTION.is_file():
-    raise SystemExit('ERRO: patch de exclusão das rotas estáticas SEO não encontrado.')
-subprocess.run(['python3', str(PATCH_SEO_FUNCTION), str(FUNCTIONS / 'seo.mjs')], cwd=ROOT, check=True)
-if not PATCH_PLACURSO_SEO_FUNCTION.is_file():
-    raise SystemExit('ERRO: substituição da função SEO exclusiva do Placurso não encontrada.')
-subprocess.run(['python3', str(PATCH_PLACURSO_SEO_FUNCTION), str(FUNCTIONS / 'seo.mjs')], cwd=ROOT, check=True)
+    # The private CEO view uses the same ANNAN persistence, integration and growth modules.
+    run_python("build_placurso_ceo_page.py", str(PUBLIC))
 
-for item in WORK.iterdir():
-    if item.name in {'public', '.site-extracted', 'netlify.toml', 'netlify'}:
-        continue
-    target = PUBLIC / item.name
-    if item.is_dir():
-        shutil.copytree(item, target)
-    else:
-        shutil.copy2(item, target)
+    # Build the Placurso-only SEO function from a clean placeholder.
+    (FUNCTIONS / "seo.mjs").write_text("// Generated by build_placurso_seo_function.py\n", encoding="utf-8")
+    run_python("patch_placurso_seo_function.py", str(FUNCTIONS / "seo.mjs"))
 
-if not BUILD_TRAFFIC_ASSETS.is_file():
-    raise SystemExit('ERRO: gerador de recursos de tráfego não encontrado.')
-subprocess.run(['python3', str(BUILD_TRAFFIC_ASSETS), str(PUBLIC)], cwd=ROOT, check=True)
+    subprocess.run(["node", "--check", str(PUBLIC / "psico-engine.js")], cwd=ROOT, check=True)
+    subprocess.run(["node", "--check", str(PUBLIC / "ceo.html")], cwd=ROOT, check=False)
+    subprocess.run(["node", "--check", str(FUNCTIONS / "seo.mjs")], cwd=ROOT, check=True)
 
-if not PATCH_ANNAN_GROWTH_ASSETS.is_file():
-    raise SystemExit('ERRO: patch de voz ANNAN/Crescimento Placurso não encontrado.')
-subprocess.run(['python3', str(PATCH_ANNAN_GROWTH_ASSETS), str(PUBLIC)], cwd=ROOT, check=True)
+    print(f"OK: {sum(1 for item in PUBLIC.rglob('*') if item.is_file())} ficheiros finais preparados.")
+    print("OK: shell novo Placurso, sem HTML ou módulos da aplicação antiga.")
+    print("OK: motor de desafios, progressão, perfil ANNAN, persistência, Gateway e workflow preservados.")
+    print("OK: área de aluno ligada à função educativa annan-ensino.")
+    print("OK: painel CEO separado em /ceo, usando o mesmo ANNAN.")
+    print("OK: função SEO e rotas geradas exclusivamente para Placurso.")
+    print("OK: apenas assets educativos explicitamente autorizados foram copiados do pacote original.")
 
-if not BUILD_PLACURSO_CEO_PAGE.is_file():
-    raise SystemExit('ERRO: gerador da rota privada CEO não encontrado.')
-subprocess.run(['python3', str(BUILD_PLACURSO_CEO_PAGE), str(PUBLIC)], cwd=ROOT, check=True)
 
-redirects = PUBLIC / '_redirects'
-if not redirects.is_file():
-    raise SystemExit('ERRO: public/_redirects não foi preparado.')
-lines = redirects.read_text(encoding='utf-8').splitlines()
-changed = 0
-for i, line in enumerate(lines):
-    fields = line.split()
-    if len(fields) == 3 and fields[0] == 'https://placurso.netlify.app/' and fields[2] in {'200', '200!'}:
-        lines[i] = f'{fields[0]} /index.html {fields[2]}'
-        changed += 1
-if changed != 1:
-    raise SystemExit('ERRO: não foi possível corrigir a rota inicial exclusiva do Placurso.')
-redirects.write_text('\n'.join(lines) + '\n', encoding='utf-8')
-
-if not (PUBLIC / 'index.html').is_file():
-    raise SystemExit('ERRO: public/index.html não foi preparado.')
-if not (FUNCTIONS / 'seo.mjs').is_file():
-    raise SystemExit('ERRO: a função SEO não foi preparada.')
-
-print(f'OK: {sum(1 for x in PUBLIC.rglob("*") if x.is_file())} recursos estáticos preparados.')
-print('OK: motores de jogos + progressão + Phase 3A + formação Trade + Phase 3C preservados.')
-print('OK: perfil ANNAN/evolução preservado como núcleo necessário à experiência atual.')
-print('OK: adaptador ANNAN → Supabase integrado com fallback local.')
-print('OK: core de acesso, psicotécnico de 7 perguntas e aprendizagem bíblica integrado.')
-print('OK: A-Ads unit 2459988 aplicado ao index.html antes do guardião público.')
-print('OK: Product Factory integrado no mesmo motor ANNAN do Placurso.')
-print('OK: Integration Gateway integrado no mesmo motor ANNAN do Placurso.')
-print('OK: Execution Engine integrado no mesmo motor ANNAN do Placurso.')
-print('OK: Execution Gateway Adapter integrado no mesmo motor ANNAN do Placurso.')
-print('OK: Autonomous Workflow integrado no mesmo motor ANNAN do Placurso.')
-print('OK: fluxo público → convite → inscrição → Área de Aluno integrado.')
-print('OK: guardião público da Fase 4 integrado; A-Ads preservado.')
-print('OK: Centro de Desafios horizontal no público e no topo do aluno.')
-print('OK: / no domínio Placurso serve index.html.')
-print(f'OK: função Netlify pronta: {FUNCTIONS / "seo.mjs"}')
+if __name__ == "__main__":
+    main()
