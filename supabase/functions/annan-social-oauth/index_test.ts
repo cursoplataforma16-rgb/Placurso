@@ -155,6 +155,44 @@ Deno.test("fails closed when Meta App Secret is missing before creating OAuth st
   }
 });
 
+Deno.test("WhatsApp start returns the v4 configuration but never App Secret", async () => {
+  const mock = makeFetch([
+    { body: CEO },
+    { body: IDENTITY },
+    { body: PROFILE },
+    { body: [{ state_hash: "d".repeat(64) }] },
+  ]);
+  const handler = createSocialOAuthHandler({ env: createEnv(ENV), fetchImpl: mock.fetchImpl });
+  const response = await handler(post({ action: "whatsapp.start" }));
+  const body = await response.json();
+  if (!response.ok || body.ok !== true) throw new Error("WhatsApp Embedded Signup did not start");
+  if (body.data.appId !== "meta-app-id" || body.data.configId !== "meta-config-id"
+    || body.data.graphVersion !== "v26.0") {
+    throw new Error("WhatsApp v4 start did not return the expected public configuration");
+  }
+  if (JSON.stringify(body).includes("meta-app-secret")) throw new Error("Meta App Secret leaked in WhatsApp start response");
+  const saved = JSON.parse(mock.requests[3].body);
+  if (saved.platform !== "whatsapp" || !/^[a-f0-9]{64}$/.test(saved.state_hash)) {
+    throw new Error("WhatsApp start did not persist a hashed, provider-bound state");
+  }
+});
+
+Deno.test("WhatsApp start fails closed when Embedded Signup config ID is absent", async () => {
+  const mock = makeFetch([
+    { body: CEO },
+    { body: IDENTITY },
+    { body: PROFILE },
+  ]);
+  const env = { ...ENV };
+  delete (env as Record<string, string>).META_EMBEDDED_SIGNUP_CONFIG_ID;
+  const handler = createSocialOAuthHandler({ env: createEnv(env), fetchImpl: mock.fetchImpl });
+  const response = await handler(post({ action: "whatsapp.start" }));
+  if (response.status !== 503) throw new Error("WhatsApp start did not fail closed without config ID");
+  if (mock.requests.some((item) => item.url.includes("growth_oauth_states"))) {
+    throw new Error("WhatsApp state was created before Embedded Signup configuration validation");
+  }
+});
+
 Deno.test("rejects callback with an unknown state without exchanging an authorization code", async () => {
   const mock = makeFetch([{ body: [] }]);
   const handler = createSocialOAuthHandler({ env: createEnv(ENV), fetchImpl: mock.fetchImpl });
