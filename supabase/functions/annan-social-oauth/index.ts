@@ -364,7 +364,7 @@ export function createSocialOAuthHandler({ env, fetchImpl = fetch }: OAuthDepend
     if (provider === "meta") {
       const appId = required("META_APP_ID");
       required("META_APP_SECRET");
-      if (!/^v\\d+\\.\\d+$/.test(graphVersion)) throw new OAuthError(503, "meta_graph_version_invalid");
+      if (!/^v\d+\.\d+$/.test(graphVersion)) throw new OAuthError(503, "meta_graph_version_invalid");
       const state = await createState("meta", actorId, META_SCOPES, null);
       const url = new URL("https://www.facebook.com/" + graphVersion + "/dialog/oauth");
       url.searchParams.set("client_id", appId);
