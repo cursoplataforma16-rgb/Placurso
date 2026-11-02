@@ -18,7 +18,6 @@ HTML = r'''<!doctype html>
 button{border:0;border-radius:10px;padding:13px 16px;background:var(--accent);color:white;font-weight:750;cursor:pointer;width:100%}button:disabled{opacity:.55;cursor:wait}
 .secondary{background:transparent;border:1px solid var(--line);margin-top:9px}.status{min-height:24px;margin-top:12px;font-size:13px}.hidden{display:none!important}
 </style>
-<script src="/vendor/supabase-js.js"></script>
 <script src="/psico-engine.js"></script>
 <script src="/annan_growth_client.js"></script>
 <script src="/placurso-growth-center.js"></script>
