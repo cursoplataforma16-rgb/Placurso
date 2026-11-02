@@ -10,21 +10,21 @@ EXTRACTED = ROOT / ".site-extracted"
 PUBLIC = ROOT / "public"
 
 PATTERNS = {
-    "DIONUEL_BRAND": re.compile(r"\\bdionuel\\b", re.IGNORECASE),
+    "DIONUEL_BRAND": re.compile(r"\bdionuel\b", re.IGNORECASE),
     "LEGACY_USUARIOS_TABLE": re.compile(
-        r"(?:\\.from\\s*\\(\\s*['\"\x60]usuarios['\"\x60]\\s*\\)"
-        r"|\\bpublic\\s*\\.\\s*usuarios\\b"
-        r"|\\busuarios\\s*:\\s*autor_id\\b)",
+        r"(?:\.from\s*\(\s*['\"]usuarios['\"]\s*\)"
+        r"|\bpublic\s*\.\s*usuarios\b"
+        r"|\busuarios\s*:\s*autor_id\b)",
         re.IGNORECASE,
     ),
-    "OLD_KUNICA_DOMAIN": re.compile(r"\\bkunica\\.netlify\\.app\\b", re.IGNORECASE),
+    "OLD_KUNICA_DOMAIN": re.compile(r"\bkunica\.netlify\.app\b", re.IGNORECASE),
     "OLD_DIONUEL_SUPABASE_HOST": re.compile(
-        r"\\boettkaytgkkbrjoaeiqu\\.supabase\\.co\\b", re.IGNORECASE
+        r"\boettkaytgkkbrjoaeiqu\.supabase\.co\b", re.IGNORECASE
     ),
     "LEGACY_BRAND_ASSET": re.compile(
-        r"logo[-_]dionuel|dionuel\\.(?:png|svg|webp|jpe?g)", re.IGNORECASE
+        r"logo[-_]dionuel|dionuel\.(?:png|svg|webp|jpe?g)", re.IGNORECASE
     ),
-    "DUAL_BRAND_ROUTER": re.compile(r"\\behRotaCurso\\s*\\(", re.IGNORECASE),
+    "DUAL_BRAND_ROUTER": re.compile(r"\behRotaCurso\s*\(", re.IGNORECASE),
 }
 
 TEXT_SUFFIXES = {
