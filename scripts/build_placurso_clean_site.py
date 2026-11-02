@@ -12,75 +12,192 @@ ROOT_HTML = r'''<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#14284b">
-<meta name="description" content="Aprende no telemóvel com desafios práticos, orientação ANNAN, percursos e acompanhamento da evolução.">
+<meta name="theme-color" content="#f5f7f7">
+<meta name="description" content="Escolhe o que queres aprender. Percursos práticos com orientação do ANNAN, ao teu ritmo.">
 <meta property="og:site_name" content="Placurso">
-<meta property="og:title" content="Placurso — aprender, aplicar e crescer">
-<meta property="og:description" content="Aprendizagem prática, desafios e percursos com ANNAN.">
+<meta property="og:title" content="Placurso — escolhe o que queres aprender">
+<meta property="og:description" content="Aprendizagem prática, escolhas simples e orientação do ANNAN.">
 <meta property="og:image" content="/curso-icon-512.png">
 <link rel="canonical" href="https://placurso.netlify.app/">
 <link rel="manifest" href="/manifest.json">
 <link rel="icon" href="/curso-icon-192.png">
-<title>Placurso — aprender, aplicar e crescer</title>
+<title>Placurso — escolhe o que queres aprender</title>
 <style>
-:root{color-scheme:light;--navy:#14284b;--navy2:#203c65;--teal:#1b8a83;--ink:#1d2b3e;--muted:#65758b;--paper:#f5f7fb;--line:#dbe4ef;--white:#fff;--gold:#d8c59f}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.55 Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-a{color:inherit}.wrap{width:min(1080px,100%);margin:0 auto;padding:0 18px}.top{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}.top-inner{min-height:68px;display:flex;align-items:center;justify-content:space-between;gap:14px}
-.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:900;letter-spacing:.12em;color:var(--navy)}.brand-mark{width:38px;height:38px;display:grid;place-items:center;border-radius:11px;background:var(--navy);color:white;font-size:18px}.brand small{display:block;font-size:9px;letter-spacing:.16em;color:var(--muted);font-weight:700}
-.nav{display:flex;align-items:center;gap:17px}.nav a{text-decoration:none;font-size:12px;font-weight:750;color:#506078}.button{display:inline-flex;justify-content:center;align-items:center;min-height:44px;padding:0 17px;border:0;border-radius:10px;background:var(--teal);color:white;font-weight:850;font-size:12px;text-decoration:none;cursor:pointer;box-shadow:0 5px 14px rgba(27,138,131,.15)}.button.dark{background:var(--navy)}.button.outline{background:white;color:var(--navy);border:1px solid var(--line);box-shadow:none}.button:disabled{opacity:.55;cursor:wait}
-.hero{padding:64px 0 46px;background:radial-gradient(ellipse at 85% 12%,rgba(27,138,131,.12),transparent 38%),linear-gradient(135deg,#fff,#f0f4fa)}.hero-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(260px,.8fr);gap:32px;align-items:center}.eyebrow{font-size:10px;letter-spacing:.17em;font-weight:900;color:var(--teal)}h1{font-size:clamp(34px,6vw,58px);line-height:1.04;letter-spacing:-.04em;margin:12px 0 18px;color:var(--navy);max-width:670px}.hero p{max-width:590px;color:var(--muted);font-size:16px;line-height:1.7;margin:0 0 24px}.hero-actions{display:flex;gap:10px;flex-wrap:wrap}.hero-note{display:flex;gap:9px;align-items:center;margin-top:17px;color:var(--muted);font-size:11px}.hero-card{padding:22px;border:1px solid #d9e4ec;border-radius:20px;background:white;box-shadow:0 20px 55px rgba(20,40,75,.08)}.hero-card-top{display:flex;justify-content:space-between;align-items:center}.pill{padding:5px 9px;border-radius:999px;background:#e8f5f3;color:#1a716c;font-size:9px;font-weight:900;letter-spacing:.07em}.hero-stat{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:16px}.stat{padding:13px;border-radius:12px;background:#f4f7fb}.stat b{display:block;color:var(--navy);font-size:18px}.stat span{font-size:9px;color:var(--muted)}
-.section{padding:48px 0}.section-head{max-width:650px;margin-bottom:20px}.section-head h2{font-size:clamp(24px,4vw,35px);letter-spacing:-.03em;line-height:1.12;color:var(--navy);margin:7px 0}.section-head p{color:var(--muted);font-size:13px;line-height:1.6;margin:0}
-.feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.feature{padding:18px;border:1px solid var(--line);border-radius:15px;background:#fff}.feature-icon{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;background:#eaf2f7;font-size:19px}.feature h3{font-size:14px;color:var(--navy);margin:12px 0 5px}.feature p{font-size:11px;line-height:1.6;color:var(--muted);margin:0}
-.learning{padding:20px;border-radius:19px;background:var(--navy);color:#fff;display:grid;grid-template-columns:1fr auto;gap:20px;align-items:center}.learning h2{font-size:23px;line-height:1.15;margin:0 0 7px}.learning p{margin:0;color:#d0d9e6;font-size:12px;line-height:1.6;max-width:620px}
-.course-list{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:13px}.course{padding:14px;border:1px solid var(--line);border-radius:13px;background:white}.course b{display:block;color:var(--navy);font-size:13px}.course p{margin:5px 0;color:var(--muted);font-size:10px}.empty{padding:17px;border:1px dashed #c6d3e1;border-radius:13px;color:var(--muted);font-size:11px;background:rgba(255,255,255,.6)}
-#coursePanel{display:none;margin-top:16px;padding:18px;border:1px solid var(--line);border-radius:16px;background:white}#coursePanel.open{display:block}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field{display:flex;flex-direction:column;gap:5px}.field label{font-size:10px;font-weight:850;color:#506078}.field input,.field select,.question input{min-height:42px;width:100%;padding:0 11px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);font:inherit;font-size:12px}.form-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.status{min-height:22px;margin-top:9px;color:var(--muted);font-size:11px}.lesson-scenes{display:grid;gap:9px;margin-top:12px}.scene{padding:12px;border-radius:11px;background:#f2f6fa}.scene b{display:block;font-size:12px;color:var(--navy)}.scene p{font-size:11px;color:#506078;margin:5px 0 0}.question{display:flex;gap:8px;margin-top:13px}.chat-answer{margin-top:9px;padding:12px;border-radius:12px;background:#eaf5f3;color:#235a56;font-size:11px;line-height:1.55}
-#challengeArea{padding-top:14px}.pch-challenges{min-height:20px}
-.footer{padding:25px 0;margin-top:28px;border-top:1px solid var(--line);background:white}.footer-inner{display:flex;justify-content:space-between;align-items:center;gap:10px;color:var(--muted);font-size:10px}.footer a{color:var(--navy);font-weight:800;text-decoration:none}
-@media(max-width:760px){.nav{display:none}.hero{padding:43px 0 34px}.hero-grid{grid-template-columns:1fr;gap:21px}.hero-card{max-width:none}.feature-grid,.course-list{grid-template-columns:1fr}.learning{grid-template-columns:1fr}.learning .button{width:100%}.section{padding:34px 0}.footer-inner{align-items:flex-start;flex-direction:column}}
-@media(max-width:420px){.wrap{padding:0 13px}.hero h1{font-size:36px}.form-grid{grid-template-columns:1fr}.hero-actions .button{width:100%}}
+:root{color-scheme:light;--ink:#203044;--navy:#183452;--teal:#167c72;--muted:#637487;--paper:#f5f7f7;--card:#fff;--line:#dce5e8;--soft:#eaf2f1;--focus:#b36c2d}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input,select{font:inherit}
+button{min-height:44px;cursor:pointer}
+a{color:inherit}
+.wrap{width:min(900px,100%);margin:0 auto;padding:0 18px}
+.top{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.96);border-bottom:1px solid var(--line);backdrop-filter:blur(10px)}
+.top-inner{min-height:66px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--navy);font-weight:900;letter-spacing:.08em}
+.brand-mark{width:36px;height:36px;display:grid;place-items:center;border-radius:10px;background:var(--navy);color:#fff;font-size:17px}
+.brand small{display:block;font-size:9px;color:var(--muted);letter-spacing:.12em;font-weight:700}
+.button{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 17px;border:0;border-radius:11px;background:var(--teal);color:#fff;font-size:13px;font-weight:850;text-decoration:none}
+.button.secondary{background:#fff;border:1px solid var(--line);color:var(--navy)}
+.button:disabled{opacity:.45;cursor:not-allowed}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+.hero{padding:38px 0 22px}
+.eyebrow{display:inline-block;color:var(--teal);font-size:10px;font-weight:900;letter-spacing:.15em}
+h1{margin:8px 0 9px;color:var(--navy);font-size:clamp(30px,6vw,43px);line-height:1.1;letter-spacing:-.035em;max-width:620px}
+.hero p{max-width:600px;margin:0;color:var(--muted);font-size:15px;line-height:1.65}
+.choice-section{padding:22px 0 30px}
+.section-heading{margin:0 0 16px}
+.section-heading h2{margin:0;color:var(--navy);font-size:clamp(21px,4vw,27px);line-height:1.2;letter-spacing:-.02em}
+.section-heading p{margin:6px 0 0;color:var(--muted);font-size:13px}
+.area-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.area-choice{display:flex;align-items:center;gap:12px;width:100%;min-height:76px;padding:13px;text-align:left;border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);transition:border-color .15s ease,background .15s ease,transform .15s ease}
+.area-choice:hover{border-color:#9abbb6;transform:translateY(-1px)}
+.area-choice[aria-pressed="true"]{border:2px solid var(--teal);background:#eef7f5;padding:12px}
+.area-icon{width:42px;height:42px;flex:0 0 42px;display:grid;place-items:center;border-radius:12px;background:var(--soft);font-size:20px}
+.area-copy{display:block;min-width:0}
+.area-name{display:block;color:var(--navy);font-weight:850;font-size:14px}
+.area-description{display:block;margin-top:2px;color:var(--muted);font-size:11px;line-height:1.35}
+.area-arrow{margin-left:auto;color:var(--teal);font-size:20px;font-weight:700}
+.all-areas{margin-top:13px;display:inline-flex;align-items:center;gap:8px;border:0;background:transparent;color:var(--teal);font-size:13px;font-weight:850;padding:8px 0}
+#moreLearningAreas{margin-top:10px}
+#moreLearningAreas[hidden]{display:none}
+.choice-status{min-height:23px;margin:12px 0 0;color:var(--muted);font-size:12px}
+.selected-path{margin-top:12px;padding:17px;border:1px solid #b9d5cf;border-radius:15px;background:#edf6f4}
+.selected-path[hidden]{display:none}
+.selected-path p{margin:0;color:var(--muted);font-size:11px}
+.selected-path h3{margin:3px 0 7px;color:var(--navy);font-size:19px}
+.selected-path .actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
+.disclosure{margin:15px 0;border:1px solid var(--line);border-radius:14px;background:#fff;overflow:hidden}
+.disclosure summary{min-height:54px;padding:15px 17px;display:flex;align-items:center;cursor:pointer;list-style:none;color:var(--navy);font-weight:850;font-size:13px}
+.disclosure summary::-webkit-details-marker{display:none}
+.disclosure summary:after{content:"+";margin-left:auto;color:var(--teal);font-size:20px;font-weight:500}
+.disclosure[open] summary:after{content:"−"}
+.disclosure-body{padding:0 16px 18px}
+.course-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.course{padding:13px;border:1px solid var(--line);border-radius:11px;background:#fbfcfc}
+.course b{display:block;color:var(--navy);font-size:13px}
+.course p{margin:4px 0 0;color:var(--muted);font-size:11px}
+.empty{padding:13px;border:1px dashed #c4d1d4;border-radius:11px;color:var(--muted);font-size:12px}
+.course-panel{display:none;margin-top:15px;padding:17px;border:1px solid var(--line);border-radius:14px;background:#f8fbfa}
+.course-panel.open{display:block}
+.course-panel h3{margin:0;color:var(--navy);font-size:19px}
+.course-panel-intro{margin:5px 0 14px;color:var(--muted);font-size:12px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{color:#526578;font-weight:800;font-size:11px}
+.field input,.field select,.question input{width:100%;min-height:45px;padding:0 11px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);font-size:13px}
+.optional-fields{grid-column:1/-1;margin-top:1px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.optional-fields summary{padding:11px 12px;color:var(--teal);font-size:12px;font-weight:800;cursor:pointer}
+.optional-inner{padding:0 12px 12px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
+.status{min-height:23px;margin-top:9px;color:var(--muted);font-size:12px}
+.lesson-scenes{display:grid;gap:9px;margin-top:12px}
+.scene{padding:13px;border-radius:10px;background:#edf3f3}
+.scene b{display:block;color:var(--navy);font-size:13px}
+.scene p{margin:5px 0 0;color:#526578;font-size:12px}
+.question{display:flex;gap:8px;margin-top:13px}
+.chat-answer{margin-top:10px;padding:12px;border-radius:11px;background:#e8f4f1;color:#235d56;font-size:12px;line-height:1.55}
+.challenge-copy{padding:0 0 12px;color:var(--muted);font-size:12px}
+.pch-challenges{min-height:20px}
+.footer{margin-top:28px;padding:22px 0;border-top:1px solid var(--line);background:#fff}
+.footer-inner{display:flex;justify-content:space-between;align-items:center;gap:10px;color:var(--muted);font-size:11px}
+.footer a{color:var(--navy);font-weight:850;text-decoration:none}
+@media(max-width:600px){.wrap{padding:0 14px}.top-inner{min-height:61px}.hero{padding:30px 0 18px}.area-grid,.course-list{grid-template-columns:1fr}.area-choice{min-height:70px}.section-heading p{font-size:12px}.form-grid,.optional-inner{grid-template-columns:1fr}.optional-fields{grid-column:1}.footer-inner{align-items:flex-start;flex-direction:column}.selected-path .actions .button{width:100%}.question{flex-direction:column}.question .button{width:100%}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
 <header class="top"><div class="wrap top-inner">
-<a class="brand" href="/"><span class="brand-mark">P</span><span>PLACURSO<small>APRENDER · APLICAR · CRESCER</small></span></a>
-<nav class="nav"><a href="#como-funciona">Como funciona</a><a href="#cursos">Cursos</a><a href="#desafios">Desafios</a></nav>
-<button class="button dark google-login" type="button">Entrar com Google</button>
+<a class="brand" href="/" aria-label="Placurso — página inicial"><span class="brand-mark" aria-hidden="true">P</span><span>PLACURSO<small>APRENDER · APLICAR · CRESCER</small></span></a>
+<button class="button secondary google-login" type="button">Entrar com Google</button>
 </div></header>
-<main>
-<section class="hero"><div class="wrap hero-grid">
-<div><span class="eyebrow">APRENDIZAGEM PRÁTICA</span><h1>Aprende algo útil. Avança ao teu ritmo.</h1><p>Estuda no telemóvel, experimenta desafios, define os teus objectivos e acompanha a tua evolução com orientação do ANNAN.</p>
-<div class="hero-actions"><button class="button" id="startLearning" type="button">Começar a aprender</button><a class="button outline" href="#desafios">Explorar desafios</a></div>
-<div class="hero-note"><span>✓</span><span>Entrada inicial gratuita · Percurso ajustado ao teu objectivo</span></div></div>
-<aside class="hero-card"><div class="hero-card-top"><b style="color:var(--navy)">O teu próximo passo</b><span class="pill">ANNAN</span></div><p style="font-size:12px;color:var(--muted);line-height:1.6;margin:12px 0">Começa por conhecer o teu objectivo. O percurso de aprendizagem organiza-se a partir daí.</p><div class="hero-stat"><div class="stat"><b>01</b><span>Definir objectivo</span></div><div class="stat"><b>02</b><span>Praticar</span></div><div class="stat"><b>03</b><span>Medir evolução</span></div><div class="stat"><b>04</b><span>Avançar</span></div></div></aside>
-</div></section>
-<section class="section" id="como-funciona"><div class="wrap"><div class="section-head"><span class="eyebrow">O MÉTODO</span><h2>Aprender é mais do que assistir a uma aula.</h2><p>O Placurso reúne prática, avaliação e acompanhamento para transformar conhecimento em capacidade de execução.</p></div>
-<div class="feature-grid"><article class="feature"><span class="feature-icon">🎯</span><h3>Objectivo claro</h3><p>Indica o que pretendes alcançar e o ANNAN organiza o ponto de partida.</p></article><article class="feature"><span class="feature-icon">🧠</span><h3>Prática orientada</h3><p>Desafios e exercícios ajudam a testar raciocínio, atenção e decisão.</p></article><article class="feature"><span class="feature-icon">📈</span><h3>Evolução registada</h3><p>Os resultados são guardados na tua conta e podem orientar os próximos passos.</p></article></div>
-</div></section>
-<section class="section" id="cursos" style="padding-top:8px"><div class="wrap"><div class="learning"><div><h2>Aprender com o ANNAN</h2><p>Cria a tua sessão, define o teu objectivo e começa pela aula de introdução. O catálogo só apresenta cursos que já estejam publicados.</p></div><button class="button" type="button" id="openLearning">Abrir área de aprendizagem</button></div><div id="courseCatalog" class="course-list" aria-live="polite"><div class="empty">A consultar o catálogo...</div></div><section id="coursePanel" aria-live="polite"><h3 id="panelTitle" style="margin:0;color:var(--navy);font-size:18px">Área de aprendizagem ANNAN</h3><p id="panelIntro" style="font-size:11px;color:var(--muted);margin:6px 0 14px">Entra com Google para criares ou recuperares a tua sessão de aluno.</p>
-<form id="studentProfile" hidden><div class="form-grid">
-<div class="field"><label for="ageGroup">Faixa etária</label><select id="ageGroup" required><option value="">Selecciona</option><option value="7-12">7–12 anos</option><option value="13-17">13–17 anos</option><option value="18-25">18–25 anos</option><option value="26-35">26–35 anos</option><option value="36+">36 anos ou mais</option></select></div>
-<div class="field"><label for="birthplace">Local de nascimento (opcional)</label><input id="birthplace" maxlength="100" placeholder="Província ou município"></div>
-<div class="field"><label for="studentPhone">Telemóvel (opcional)</label><input id="studentPhone" type="tel" maxlength="32" placeholder="+244"></div>
+<main class="wrap">
+<section class="hero">
+<span class="eyebrow">APRENDIZAGEM AO TEU RITMO</span>
+<h1>O que gostarias de aprender?</h1>
+<p>Escolhe uma área. O ANNAN ajuda-te a encontrar um bom ponto de partida, sem pressa e sem complicações.</p>
+</section>
+<section class="choice-section" id="learningAreas" aria-labelledby="learningAreasTitle">
+<div class="section-heading"><h2 id="learningAreasTitle">Escolhe uma área para começar</h2><p>Podes mudar de escolha sempre que quiseres.</p></div>
+<div class="area-grid" role="group" aria-label="Áreas principais de aprendizagem">
+<button class="area-choice" type="button" data-interest="tecnologia" aria-pressed="false"><span class="area-icon" aria-hidden="true">💻</span><span class="area-copy"><span class="area-name">Tecnologia</span><span class="area-description">Competências digitais e tecnologia</span></span><span class="area-arrow" aria-hidden="true">›</span></button>
+<button class="area-choice" type="button" data-interest="marketing" aria-pressed="false"><span class="area-icon" aria-hidden="true">📣</span><span class="area-copy"><span class="area-name">Marketing e publicidade</span><span class="area-description">Comunicação, vendas e marcas</span></span><span class="area-arrow" aria-hidden="true">›</span></button>
+<button class="area-choice" type="button" data-interest="educacao" aria-pressed="false"><span class="area-icon" aria-hidden="true">📚</span><span class="area-copy"><span class="area-name">Educação</span><span class="area-description">Ensino, estudo e aprendizagem</span></span><span class="area-arrow" aria-hidden="true">›</span></button>
+<button class="area-choice" type="button" data-interest="biblia" aria-pressed="false"><span class="area-icon" aria-hidden="true">🌿</span><span class="area-copy"><span class="area-name">Ensino bíblico</span><span class="area-description">Bíblia, histórias e conhecimento</span></span><span class="area-arrow" aria-hidden="true">›</span></button>
+</div>
+<button class="all-areas" id="allAreasToggle" type="button" aria-expanded="false" aria-controls="moreLearningAreas">Ver todas as áreas <span aria-hidden="true">⌄</span></button>
+<div id="moreLearningAreas" hidden>
+<div class="area-grid" role="group" aria-label="Mais áreas de aprendizagem">
+<button class="area-choice" type="button" data-interest="agronomia" aria-pressed="false"><span class="area-icon" aria-hidden="true">🌱</span><span class="area-copy"><span class="area-name">Agronomia</span><span class="area-description">Agricultura e produção</span></span><span class="area-arrow" aria-hidden="true">›</span></button>
+<button class="area-choice" type="button" data-interest="ambiente" aria-pressed="false"><span class="area-icon" aria-hidden="true">🌍</span><span class="area-copy"><span class="area-name">Engenharia ambiental</span><span class="area-description">Ambiente e sustentabilidade</span></span><span class="area-arrow" aria-hidden="true">›</span></button>
+<button class="area-choice" type="button" data-interest="telecomunicacoes" aria-pressed="false"><span class="area-icon" aria-hidden="true">📡</span><span class="area-copy"><span class="area-name">Telecomunicações</span><span class="area-description">Redes e comunicações</span></span><span class="area-arrow" aria-hidden="true">›</span></button>
+<button class="area-choice" type="button" data-interest="gestao" aria-pressed="false"><span class="area-icon" aria-hidden="true">📊</span><span class="area-copy"><span class="area-name">Gestão e negócios</span><span class="area-description">Organização e actividade empresarial</span></span><span class="area-arrow" aria-hidden="true">›</span></button>
+<button class="area-choice" type="button" data-interest="outro" aria-pressed="false"><span class="area-icon" aria-hidden="true">✨</span><span class="area-copy"><span class="area-name">Outra área</span><span class="area-description">Indica o tema que procuras</span></span><span class="area-arrow" aria-hidden="true">›</span></button>
+</div>
+</div>
+<p class="choice-status" id="choiceStatus" aria-live="polite">Selecciona uma das áreas para veres o próximo passo.</p>
+<section class="selected-path" id="selectedLearningPath" hidden aria-live="polite">
+<p>A tua escolha</p><h3 id="selectedLearningLabel">Área de aprendizagem</h3>
+<p>Começa com uma breve definição do teu objectivo. O ANNAN ajusta a orientação ao teu ponto de partida.</p>
+<div class="actions"><button class="button" id="continueLearning" type="button" disabled>Continuar</button><button class="button secondary" id="changeLearningPath" type="button">Mudar área</button></div>
+</section>
+</section>
+
+<details class="disclosure" id="courseDisclosure">
+<summary>Cursos disponíveis</summary>
+<div class="disclosure-body">
+<section id="cursos">
+<div class="section-heading"><h2>Aprende com orientação do ANNAN</h2><p>Consulta cursos publicados ou abre a tua área de aprendizagem.</p></div>
+<div id="courseCatalog" class="course-list" aria-live="polite"><div class="empty">A consultar o catálogo...</div></div>
+<button class="button secondary" type="button" id="openLearning" style="margin-top:13px">Abrir a minha área de aprendizagem</button>
+<section class="course-panel" id="coursePanel" aria-live="polite">
+<h3 id="panelTitle">Área de aprendizagem ANNAN</h3>
+<p class="course-panel-intro" id="panelIntro">Entra com Google para criares ou recuperares a tua sessão de aluno.</p>
+<button class="button secondary google-login" type="button">Entrar com Google</button>
+<form id="studentProfile" hidden>
+<div class="form-grid">
+<div class="field"><label for="ageGroup">Faixa etária</label><select id="ageGroup" required><option value="">Selecciona a tua faixa etária</option><option value="7-12">7–12 anos</option><option value="13-17">13–17 anos</option><option value="18-25">18–25 anos</option><option value="26-35">26–35 anos</option><option value="36+">36 anos ou mais</option></select></div>
+<div class="field"><label for="interest">Área de interesse</label><select id="interest" required><option value="">Selecciona uma área</option><option value="tecnologia">Tecnologia</option><option value="educacao">Educação e ensino</option><option value="agronomia">Agronomia</option><option value="ambiente">Engenharia ambiental</option><option value="telecomunicacoes">Telecomunicações</option><option value="marketing">Marketing e publicidade</option><option value="gestao">Gestão e negócios</option><option value="biblia">Ensino bíblico</option><option value="outro">Outra área</option></select></div>
+<div class="field" style="grid-column:1/-1"><label for="objective">O que queres alcançar?</label><input id="objective" maxlength="500" required placeholder="Ex.: aprender uma competência ou preparar-me para uma oportunidade"></div>
+<details class="optional-fields" id="optionalProfileFields">
+<summary>Mais opções (facultativo)</summary>
+<div class="optional-inner">
+<div class="field"><label for="birthplace">Local de nascimento</label><input id="birthplace" maxlength="100" placeholder="Província ou município"></div>
+<div class="field"><label for="studentPhone">Telemóvel</label><input id="studentPhone" type="tel" maxlength="32" placeholder="+244"></div>
 <div class="field"><label for="studyHours">Tempo disponível por semana</label><select id="studyHours"><option value="1-2">1–2 horas</option><option value="3-5">3–5 horas</option><option value="6-10">6–10 horas</option><option value="10+">Mais de 10 horas</option></select></div>
-<div class="field"><label for="interest">Área de interesse</label><select id="interest" required><option value="">Selecciona</option><option value="tecnologia">Tecnologia</option><option value="educacao">Educação e ensino</option><option value="agronomia">Agronomia</option><option value="ambiente">Engenharia ambiental</option><option value="telecomunicacoes">Telecomunicações</option><option value="marketing">Marketing e publicidade</option><option value="gestao">Gestão e negócios</option><option value="biblia">Ensino bíblico</option><option value="outro">Outra área</option></select></div>
-<div class="field"><label for="objective">O que queres alcançar?</label><input id="objective" maxlength="500" required placeholder="Ex.: conseguir o primeiro emprego"></div>
-</div><div class="form-actions"><button class="button" id="saveProfile" type="submit">Guardar objectivo</button></div></form>
-<div id="learningStatus" class="status" role="status"></div><div id="lessonScenes" class="lesson-scenes"></div>
-<div class="question" id="annanQuestionBox" hidden><input id="annanQuestion" maxlength="1000" placeholder="Escreve uma pergunta ao ANNAN"><button class="button dark" id="askAnnan" type="button">Enviar</button></div><div id="annanAnswer" class="chat-answer" hidden></div>
-</section></div></section>
-<section class="section" id="desafios"><div class="wrap"><div class="section-head"><span class="eyebrow">ANNAN · CENTRO DE DESAFIOS</span><h2>Testa as tuas capacidades.</h2><p>Experimenta jogos de raciocínio, memória, foco, estratégia e aprendizagem. A área de desafios é construída pelo mesmo motor ANNAN.</p></div><div id="challengeArea"><div class="pch-challenges" aria-label="Centro de desafios ANNAN"></div></div></div></section>
+</div>
+</details>
+</div>
+<div class="form-actions"><button class="button" id="saveProfile" type="submit">Guardar e continuar</button></div>
+</form>
+<div id="learningStatus" class="status" role="status" aria-live="polite"></div>
+<div id="lessonScenes" class="lesson-scenes"></div>
+<div class="question" id="annanQuestionBox" hidden><input id="annanQuestion" maxlength="1000" placeholder="Escreve uma pergunta ao ANNAN"><button class="button" id="askAnnan" type="button">Enviar pergunta</button></div>
+<div id="annanAnswer" class="chat-answer" hidden></div>
+</section>
+</section>
+</div>
+</details>
+
+<details class="disclosure" id="challengeDisclosure">
+<summary>Experimentar desafios de raciocínio</summary>
+<div class="disclosure-body">
+<p class="challenge-copy">Experimenta desafios de memória, atenção, estratégia e decisão. O mesmo motor ANNAN acompanha os teus resultados.</p>
+<section id="desafios"><div id="challengeArea"><div class="pch-challenges" aria-label="Centro de desafios ANNAN"></div></div></section>
+</div>
+</details>
 </main>
 <footer class="footer"><div class="wrap footer-inner"><span>Placurso · Aprender · Aplicar · Crescer</span><span><a href="/ceo" rel="nofollow">Painel de gestão</a></span></div></footer>
 <script src="/psico-engine.js"></script>
 <script src="/annan-voice.js"></script>
 <script>
+
 (function(){
 'use strict';
 const $=id=>document.getElementById(id);
 const persistence=()=>window.PlacursoAnnanPersistence;
 let client=null,student=null,busy=false;
 function status(text){$('learningStatus').textContent=text||'';}
-function showPanel(){ $('coursePanel').classList.add('open'); $('coursePanel').scrollIntoView({behavior:'smooth',block:'start'}); }
+function showPanel(){ $('courseDisclosure').open=true; $('coursePanel').classList.add('open'); $('coursePanel').scrollIntoView({behavior:'smooth',block:'start'}); }
 async function getClient(){
   const p=persistence();
   if(!p||typeof p.getClient!=='function')throw new Error('O motor de aprendizagem ainda não ficou disponível.');
@@ -119,14 +236,16 @@ async function loadLearning(){
     $('panelTitle').textContent='Bem-vindo, '+String(student.nome||'aluno');
     const profile=await invoke('perfil_ver');
     const details=profile.perfil||{};
-    if(!student.concluido&&!details.objetivo&&!details.meta){
+    const chosenInterest=$('interest').value||sessionStorage.getItem('placurso_selected_interest')||'';
+    const selectionChanged=Boolean(chosenInterest&&chosenInterest!==details.interesse);
+    if((!student.concluido&&!details.objetivo&&!details.meta)||selectionChanged){
       $('studentProfile').hidden=false;
       $('ageGroup').value=details.faixa_etaria||details.idade_grupo||'';
       $('birthplace').value=details.local_nascimento||'';
       $('studentPhone').value=details.telefone||'';
       $('studyHours').value=details.horas_semana||'1-2';
-      $('interest').value=details.interesse||'';
-      $('objective').value=details.objetivo||'';
+      $('interest').value=chosenInterest||details.interesse||'';
+      $('objective').value=details.objetivo||details.meta||'';
       status('Completa o teu perfil de aprendizagem. Só os campos assinalados são obrigatórios.');
       return;
     }
@@ -157,6 +276,7 @@ $('studentProfile').addEventListener('submit',async event=>{
       interesse:$('interest').value,
       objetivo:$('objective').value.trim()
     }});
+    sessionStorage.removeItem('placurso_selected_interest');
     await showLesson();
   }catch(error){status(error.message||'Não foi possível guardar o perfil.');}
   finally{busy=false;button.disabled=false;}
@@ -169,6 +289,9 @@ $('askAnnan').addEventListener('click',async()=>{
   finally{$('askAnnan').disabled=false;}
 });
 async function start(){
+  const selected=$('interest').value||sessionStorage.getItem('placurso_selected_interest')||'';
+  if(!selected){$('choiceStatus').textContent='Escolhe primeiro uma área para continuares.';$('learningAreas').scrollIntoView({behavior:'smooth',block:'start'});return;}
+  $('interest').value=selected;
   showPanel();
   try{
     const p=persistence(),current=await p.getCurrentUser();
@@ -176,7 +299,7 @@ async function start(){
     await loadLearning();
   }catch(error){status(error.message||'Não foi possível confirmar a sessão.');}
 }
-$('startLearning').addEventListener('click',start);
+$('continueLearning').addEventListener('click',start);
 $('openLearning').addEventListener('click',start);
 document.querySelectorAll('.google-login').forEach(button=>button.addEventListener('click',async()=>{
   button.disabled=true;
@@ -200,53 +323,54 @@ async function loadCourses(){
     });
   }catch(_){$('courseCatalog').textContent='Não foi possível consultar o catálogo. Tenta novamente mais tarde.';}
 }
+
+const interestLabels={
+  tecnologia:'Tecnologia',
+  marketing:'Marketing e publicidade',
+  educacao:'Educação',
+  biblia:'Ensino bíblico',
+  agronomia:'Agronomia',
+  ambiente:'Engenharia ambiental',
+  telecomunicacoes:'Telecomunicações',
+  gestao:'Gestão e negócios',
+  outro:'Outra área'
+};
+const validInterests=new Set(Object.keys(interestLabels));
+function chooseInterest(value){
+  if(!validInterests.has(value))return;
+  $('interest').value=value;
+  sessionStorage.setItem('placurso_selected_interest',value);
+  document.querySelectorAll('[data-interest]').forEach(card=>{
+    const selected=card.dataset.interest===value;
+    card.setAttribute('aria-pressed',selected?'true':'false');
+  });
+  $('selectedLearningLabel').textContent=interestLabels[value];
+  $('selectedLearningPath').hidden=false;
+  $('continueLearning').disabled=false;
+  $('choiceStatus').textContent='Escolheste '+interestLabels[value]+'. Podes continuar ou mudar a área.';
+}
+document.querySelectorAll('[data-interest]').forEach(card=>{
+  card.addEventListener('click',()=>chooseInterest(card.dataset.interest));
+});
+$('allAreasToggle').addEventListener('click',()=>{
+  const expanded=$('allAreasToggle').getAttribute('aria-expanded')!=='true';
+  $('allAreasToggle').setAttribute('aria-expanded',String(expanded));
+  $('moreLearningAreas').hidden=!expanded;
+  $('allAreasToggle').textContent=expanded?'Mostrar menos áreas':'Ver todas as áreas';
+});
+$('changeLearningPath').addEventListener('click',()=>{
+  $('learningAreas').scrollIntoView({behavior:'smooth',block:'start'});
+  const first=$('learningAreas').querySelector('[data-interest]');
+  if(first)first.focus({preventScroll:true});
+});
+const savedInterest=sessionStorage.getItem('placurso_selected_interest');
+if(savedInterest&&validInterests.has(savedInterest))chooseInterest(savedInterest);
+
 loadCourses();
 })();
+
 </script>
 </body></html>'''
-
-MANIFEST = {
-    "id": "/",
-    "name": "Placurso",
-    "short_name": "Placurso",
-    "description": "Aprender, aplicar e crescer com ANNAN.",
-    "lang": "pt",
-    "start_url": "/",
-    "scope": "/",
-    "display": "standalone",
-    "background_color": "#f5f7fb",
-    "theme_color": "#14284b",
-    "icons": [
-        {"src": "/curso-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
-        {"src": "/curso-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
-    ],
-}
-
-SERVICE_WORKER = r'''const CACHE_NAME = 'placurso-clean-v1';
-const ASSETS = [
-  '/', '/index.html', '/manifest.json', '/psico-engine.js',
-  '/annan-voice.js', '/curso-icon-192.png', '/curso-icon-512.png'
-];
-self.addEventListener('install', event => {
-  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting()));
-});
-self.addEventListener('activate', event => {
-  event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key)))).then(() => self.clients.claim()));
-});
-self.addEventListener('fetch', event => {
-  const request = event.request;
-  const url = new URL(request.url);
-  if (request.method !== 'GET' || url.origin !== self.location.origin) return;
-  if (url.pathname.startsWith('/p/') || url.pathname.startsWith('/cursos/') || url.pathname === '/ceo') return;
-  event.respondWith(fetch(request).then(response => {
-    if (response.ok && ASSETS.includes(url.pathname)) {
-      const copy = response.clone();
-      caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
-    }
-    return response;
-  }).catch(() => caches.match(request).then(cached => cached || caches.match('/index.html'))));
-});
-'''
 
 
 def _remove_unapproved(public: Path) -> None:
