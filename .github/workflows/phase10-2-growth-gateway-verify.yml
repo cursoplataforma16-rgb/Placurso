@@ -17,6 +17,7 @@ on:
       - 'scripts/test_annan_ceo_auth_contract.py'
       - 'scripts/test_placurso_source_isolation.py'
       - 'scripts/build_placurso_ceo_page.py'
+      - 'scripts/patch_placurso_seo_function.py'
       - 'scripts/test_placurso_isolated_routes.py'
       - 'scripts/test_annan_growth_schema.py'
       - 'scripts/test_phase10_2_build_integration.py'
