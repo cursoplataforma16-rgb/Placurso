@@ -361,14 +361,9 @@ export function createSocialOAuthHandler({ env, fetchImpl = fetch }: OAuthDepend
 
   async function startAuthorization(provider: "meta" | "youtube", actorId: string): Promise<string> {
     encryptionKey();
-    const state = await createState(
-      provider,
-      actorId,
-      provider === "meta" ? META_SCOPES : YOUTUBE_SCOPES,
-      null,
-    );
     if (provider === "meta") {
       const appId = required("META_APP_ID");
+      const state = await createState("meta", actorId, META_SCOPES, null);
       const url = new URL("https://www.facebook.com/" + graphVersion + "/dialog/oauth");
       url.searchParams.set("client_id", appId);
       url.searchParams.set("redirect_uri", CALLBACK_URL);
@@ -383,16 +378,14 @@ export function createSocialOAuthHandler({ env, fetchImpl = fetch }: OAuthDepend
     const clientId = required("GOOGLE_OAUTH_CLIENT_ID");
     required("GOOGLE_OAUTH_CLIENT_SECRET");
     const verifier = randomToken(48);
-    const stateWithVerifier = await createState("youtube", actorId, YOUTUBE_SCOPES, verifier);
-    // The first temporary state was not exposed; consume it so it cannot be replayed.
-    await consumeState(state, "youtube");
+    const state = await createState("youtube", actorId, YOUTUBE_SCOPES, verifier);
     const challenge = await createPkceChallenge(verifier);
     const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
     url.searchParams.set("client_id", clientId);
     url.searchParams.set("redirect_uri", CALLBACK_URL);
     url.searchParams.set("response_type", "code");
     url.searchParams.set("scope", YOUTUBE_SCOPES.join(" "));
-    url.searchParams.set("state", stateWithVerifier);
+    url.searchParams.set("state", state);
     url.searchParams.set("access_type", "offline");
     url.searchParams.set("prompt", "consent");
     url.searchParams.set("include_granted_scopes", "true");
