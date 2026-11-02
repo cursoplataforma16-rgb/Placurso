@@ -69,6 +69,25 @@ def test_redirects_and_netlify_function_output_are_scanned() -> None:
         assert_has_category(audit_directory(root, "netlify_functions"), "DIONUEL_BRAND")
 
 
+
+def test_active_archive_input_scans_only_the_clean_learning_engine() -> None:
+    from audit_placurso_source_bundle import audit_active_engine_input
+    with TemporaryDirectory() as folder:
+        archive = Path(folder) / "bundle.zip"
+        with ZipFile(archive, "w") as z:
+            z.writestr("index.html", "<title>DIONUEL</title>")
+            z.writestr("psico-engine.js", "window.PlacursoGames = {};")
+        findings = audit_active_engine_input(archive)
+        assert not any(findings.values()), findings
+
+
+def test_build_pipeline_does_not_extract_the_legacy_homepage() -> None:
+    from audit_placurso_source_bundle import audit_build_strategy
+    root = Path(__file__).resolve().parents[1]
+    violations = audit_build_strategy(root / "scripts" / "build_netlify.py")
+    assert not any(violations.values()), violations
+
+
 if __name__ == "__main__":
     tests = (
         test_clean_source_bundle_passes,
@@ -76,6 +95,8 @@ if __name__ == "__main__":
         test_legacy_usuarios_table_access_is_blocked,
         test_dual_brand_router_is_blocked,
         test_redirects_and_netlify_function_output_are_scanned,
+        test_active_archive_input_scans_only_the_clean_learning_engine,
+        test_build_pipeline_does_not_extract_the_legacy_homepage,
         test_production_output_is_scanned,
     )
     for test in tests:
