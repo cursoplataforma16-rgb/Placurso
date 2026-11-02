@@ -413,7 +413,7 @@ export function createSocialOAuthHandler({ env, fetchImpl = fetch }: OAuthDepend
     const appId = required("META_APP_ID");
     required("META_APP_SECRET");
     const configId = required("META_EMBEDDED_SIGNUP_CONFIG_ID");
-    if (!/^v\\d+\\.\\d+$/.test(graphVersion)) throw new OAuthError(503, "meta_graph_version_invalid");
+    if (!/^v\d+\.\d+$/.test(graphVersion)) throw new OAuthError(503, "meta_graph_version_invalid");
     const state = await createState("whatsapp", actorId, [], null);
     return { appId, configId, state, graphVersion };
   }
