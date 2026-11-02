@@ -41,12 +41,16 @@ with tempfile.TemporaryDirectory(prefix='placurso-phase4-guard-') as temp:
     subprocess.run(['node', '--check', str(engine)], cwd=ROOT, check=True)
 
 builder = BUILDER.read_text(encoding='utf-8')
+if 'patch_community_flow.py' not in builder:
+    raise SystemExit('Community flow patch is not included in build_netlify.py.')
 if 'patch_phase4_public_guard.py' not in builder:
     raise SystemExit('Phase 4 guard is not included in build_netlify.py.')
-if builder.index('PATCH_COMMUNITY') > builder.index('PATCH_PHASE4_GUARD'):
+community_pos = builder.index('run_python("patch_community_flow.py"')
+guard_pos = builder.index('run_python(PATCH_PHASE4_GUARD')
+if community_pos > guard_pos:
     raise SystemExit('Phase 4 guard must run after community flow.')
 
-print('OK: Phase 4 public guard composes into valid JavaScript.')
+print('OK: Phase 4 guard composes into valid JavaScript.')
 print('OK: visitor guard covers legacy student/game surfaces and selected external ads.')
 print('OK: A-Ads remains explicitly exempt from ad cleanup.')
 print('OK: build order runs the guard after the community flow.')
