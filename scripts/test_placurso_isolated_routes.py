@@ -6,6 +6,34 @@ import re
 import subprocess
 
 from build_placurso_ceo_page import build, clean_redirects
+from patch_placurso_seo_function import SEO_FUNCTION, patch as patch_seo
+
+
+def test_seo_function_is_exclusively_placurso_and_valid() -> None:
+    for marker in (
+        "https://placurso.netlify.app",
+        "sb_publishable_xCkqK8v-DGWq9qnfYSHfPQ_HW9dno1C",
+        "in.(ebook,combo,curso)",
+        "operation",
+        "/cursos/*",
+        "/p/*",
+        "GRATIS",
+    ):
+        assert marker in SEO_FUNCTION, f"missing Placurso SEO route contract: {marker}"
+    for forbidden in (
+        "dionuel",
+        "alfaiataria",
+        "kunica.netlify.app",
+        "public.usuarios",
+        "oettkaytgkkbrjoaeiqu.supabase.co",
+    ):
+        assert forbidden.lower() not in SEO_FUNCTION.lower(), f"legacy SEO reference remains: {forbidden}"
+    with TemporaryDirectory() as folder:
+        output = Path(folder) / "seo.mjs"
+        output.write_text("// placeholder", encoding="utf-8")
+        patch_seo(output)
+        subprocess.run(["node", "--check", str(output)], check=True, capture_output=True, text=True)
+        assert output.read_text(encoding="utf-8") == SEO_FUNCTION
 
 
 def test_ceo_route_reuses_the_existing_annan_runtime() -> None:
@@ -79,6 +107,7 @@ def test_netlify_redirects_remove_legacy_cross_brand_links() -> None:
 
 if __name__ == "__main__":
     for test in (
+        test_seo_function_is_exclusively_placurso_and_valid,
         test_ceo_route_reuses_the_existing_annan_runtime,
         test_ceo_route_fails_closed_when_annan_assets_are_missing,
         test_netlify_redirects_remove_legacy_cross_brand_links,
