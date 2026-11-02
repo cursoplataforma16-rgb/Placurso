@@ -43,3 +43,34 @@ revoke all privileges on table public.growth_oauth_credentials from anon, public
 
 grant all privileges on table public.growth_oauth_states to service_role;
 grant all privileges on table public.growth_oauth_credentials to service_role;
+
+-- Consume a callback state exactly once, in a single database transaction.
+create or replace function public.consume_growth_oauth_state(
+  p_state_hash text,
+  p_expected_platform text
+)
+returns table (
+  platform text,
+  created_by uuid,
+  code_verifier text,
+  requested_scopes text[]
+)
+language sql
+security invoker
+set search_path = ''
+as $function$
+  update public.growth_oauth_states as oauth_state
+  set used_at = now()
+  where oauth_state.state_hash = p_state_hash
+    and oauth_state.platform = p_expected_platform
+    and oauth_state.used_at is null
+    and oauth_state.expires_at > now()
+  returning
+    oauth_state.platform,
+    oauth_state.created_by,
+    oauth_state.code_verifier,
+    oauth_state.requested_scopes;
+$function$;
+
+revoke all on function public.consume_growth_oauth_state(text, text) from public, anon, authenticated;
+grant execute on function public.consume_growth_oauth_state(text, text) to service_role;
