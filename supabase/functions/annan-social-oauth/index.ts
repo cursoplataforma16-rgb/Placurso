@@ -154,10 +154,22 @@ async function decryptCredential(value: string, base64Key: string, platform: str
 export const encryptTokenForTest = encryptCredential;
 export const decryptTokenForTest = decryptCredential;
 
-function safeMessage(status: number): string {
+function safeMessage(status: number, code: string): string {
+  if (code === "forbidden") return "Esta operação está reservada à conta de gestão autorizada.";
+  if (code === "social_provider_configuration_missing" || code === "server_configuration_missing") {
+    return "Faltam configurações seguras da aplicação social no servidor.";
+  }
+  if (code === "oauth_encryption_key_invalid") return "A chave de protecção das credenciais não está configurada correctamente.";
+  if (code.includes("permission_missing")) return "A aplicação não recebeu todas as permissões necessárias. Revê as permissões e a aprovação da aplicação Meta.";
+  if (code.includes("mismatch") || code.includes("not_owned_by_business_account")) {
+    return "A conta empresarial ou o número seleccionado não pertence à conta WhatsApp autorizada.";
+  }
+  if (code === "meta_no_manageable_pages") return "A conta Meta não tem Páginas elegíveis para esta aplicação.";
+  if (code === "youtube_channel_not_found") return "A conta Google autorizada não tem um canal YouTube disponível.";
+  if (code === "google_refresh_token_missing") return "O Google não devolveu autorização offline. Revoga o consentimento anterior e tenta ligar novamente.";
   if (status === 400) return "O pedido de ligação é inválido ou já expirou. Reinicie a ligação.";
   if (status === 401) return "A sessão não é válida. Entre novamente no Placurso.";
-  if (status === 403) return "Esta operação está reservada à conta de gestão autorizada.";
+  if (status === 403) return "A plataforma recusou a autorização solicitada. Confirma as permissões da aplicação.";
   if (status === 404) return "A conta social solicitada não foi encontrada.";
   if (status === 409) return "Este pedido de autorização já foi utilizado. Reinicie a ligação.";
   if (status === 503) return "A configuração segura das integrações ainda não está concluída.";
@@ -168,7 +180,7 @@ function errorResponse(error: unknown, origin = "") {
   const known = error instanceof OAuthError ? error : new OAuthError(500, "internal_error");
   return jsonResponse(known.status, {
     ok: false,
-    error: { code: known.code, message: safeMessage(known.status) },
+    error: { code: known.code, message: safeMessage(known.status, known.code) },
   }, origin);
 }
 
