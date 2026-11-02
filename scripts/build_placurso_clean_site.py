@@ -236,15 +236,15 @@ async function loadLearning(){
     $('panelTitle').textContent='Bem-vindo, '+String(student.nome||'aluno');
     const profile=await invoke('perfil_ver');
     const details=profile.perfil||{};
-    const chosenInterest=$('interest').value||sessionStorage.getItem('placurso_selected_interest')||'';
-    const selectionChanged=Boolean(chosenInterest&&chosenInterest!==details.interesse);
+    const selectedInterest=$('interest').value||sessionStorage.getItem('placurso_selected_interest')||'';
+    const selectionChanged=Boolean(selectedInterest&&selectedInterest!==details.interesse);
     if((!student.concluido&&!details.objetivo&&!details.meta)||selectionChanged){
       $('studentProfile').hidden=false;
       $('ageGroup').value=details.faixa_etaria||details.idade_grupo||'';
       $('birthplace').value=details.local_nascimento||'';
       $('studentPhone').value=details.telefone||'';
       $('studyHours').value=details.horas_semana||'1-2';
-      $('interest').value=chosenInterest||details.interesse||'';
+      $('interest').value=selectedInterest||details.interesse||'';
       $('objective').value=details.objetivo||details.meta||'';
       status('Completa o teu perfil de aprendizagem. Só os campos assinalados são obrigatórios.');
       return;
