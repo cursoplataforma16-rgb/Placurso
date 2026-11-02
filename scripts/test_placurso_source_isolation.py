@@ -55,12 +55,27 @@ def test_production_output_is_scanned() -> None:
         assert_has_category(audit_directory(output, "production_output"), "DIONUEL_BRAND")
 
 
+def test_redirects_and_netlify_function_output_are_scanned() -> None:
+    with TemporaryDirectory() as folder:
+        root = Path(folder)
+        (root / "_redirects").write_text(
+            "https://placurso.netlify.app/alfaiataria https://dionuel.netlify.app/alfaiataria 301!\\n",
+            encoding="utf-8",
+        )
+        assert_has_category(audit_directory(root, "redirect_output"), "DIONUEL_BRAND")
+        (root / "seo.mjs").write_text(
+            "const SITE='https://dionuel.netlify.app';", encoding="utf-8"
+        )
+        assert_has_category(audit_directory(root, "netlify_functions"), "DIONUEL_BRAND")
+
+
 if __name__ == "__main__":
     tests = (
         test_clean_source_bundle_passes,
         test_dionuel_brand_is_blocked,
         test_legacy_usuarios_table_access_is_blocked,
         test_dual_brand_router_is_blocked,
+        test_redirects_and_netlify_function_output_are_scanned,
         test_production_output_is_scanned,
     )
     for test in tests:
