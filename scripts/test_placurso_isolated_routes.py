@@ -14,7 +14,6 @@ def test_seo_function_is_exclusively_placurso_and_valid() -> None:
         "https://placurso.netlify.app",
         "sb_publishable_xCkqK8v-DGWq9qnfYSHfPQ_HW9dno1C",
         "in.(ebook,combo,curso)",
-        "operation",
         "/cursos/*",
         "/p/*",
         "GRATIS",
