@@ -10,10 +10,12 @@ on:
       - 'supabase/migrations/*growth_foundation*.sql'
       - 'supabase/migrations/*ceo_google_login_repair.sql'
       - 'supabase/migrations/*ceo_signup_profile_from_identity.sql'
+      - 'supabase/migrations/*placurso_ceo_bootstrap_rpc.sql'
       - 'scripts/annan_growth_client.js'
       - 'scripts/placurso-growth-center.js'
       - 'scripts/test_annan_growth_contract.py'
       - 'scripts/test_annan_ceo_auth_contract.py'
+      - 'scripts/test_placurso_source_isolation.py'
       - 'scripts/test_annan_growth_schema.py'
       - 'scripts/test_phase10_2_build_integration.py'
       - 'scripts/test_ceo_login_build_output.py'
@@ -40,14 +42,14 @@ jobs:
         run: python scripts/test_annan_growth_contract.py
       - name: Verify Phase 10.3 CEO Google authentication contract
         run: python scripts/test_annan_ceo_auth_contract.py
+      - name: Verify Placurso source isolation guard
+        run: python scripts/test_placurso_source_isolation.py
       - name: Verify growth schema security contract
         run: python scripts/test_annan_growth_schema.py
       - name: Verify server authentication and approval workflow
         run: deno test --allow-net supabase/functions/annan-growth/index_test.ts
       - name: Verify Growth Center build integration
         run: python scripts/test_phase10_2_build_integration.py
-      - name: Audit original site bundle for DIONUEL and obsolete data schema
-        run: python scripts/audit_placurso_source_bundle.py
       - name: Build the production Netlify site and verify CEO login assets
         run: |
           python scripts/build_netlify.py
@@ -55,6 +57,8 @@ jobs:
           python scripts/strategic_decision_game.py
           python scripts/patch_static_seo_routes.py
           python scripts/test_ceo_login_build_output.py
+      - name: Block DIONUEL and legacy schema from Placurso source and production bundle
+        run: python scripts/audit_placurso_source_bundle.py
       - name: Upload extracted source and production output for isolation review
         if: always()
         uses: actions/upload-artifact@v4
