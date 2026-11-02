@@ -21,7 +21,7 @@ def patch(public: Path) -> None:
         anchor = '<script src="/placurso-growth-center.js"></script>'
         if anchor not in html:
             raise SystemExit("CEO growth center script anchor missing.")
-        html = html.replace(anchor, anchor + "\\n" + script_marker, 1)
+        html = html.replace(anchor, anchor + "\n" + script_marker, 1)
 
     dashboard_anchor = '<div id="growth"></div>'
     dashboard_replacement = '<div id="growth"></div><div id="social-integrations"></div>'
@@ -33,7 +33,7 @@ def patch(public: Path) -> None:
     render_anchor = "window.renderPlacursoGrowthCenter($('growth'));"
     render_replacement = (
         render_anchor
-        + "\\n    if(window.PlacursoSocialIntegrations&&typeof window.PlacursoSocialIntegrations.render==='function')"
+        + "\n    if(window.PlacursoSocialIntegrations&&typeof window.PlacursoSocialIntegrations.render==='function')"
         + "await window.PlacursoSocialIntegrations.render($('social-integrations'));"
     )
     if "PlacursoSocialIntegrations.render" not in html:
