@@ -151,9 +151,12 @@ export function createGrowthHandler({ env, fetchImpl = fetch }: GrowthDependenci
 
   async function dbRequest(path: string, { method = "GET", body, prefer = "" }: { method?: string; body?: unknown; prefer?: string } = {}) {
     const key = privilegedKey();
+    // Supabase API keys are sent only through apikey. In particular,
+    // sb_secret_* is an opaque API key, not a JWT; duplicating it as a
+    // Bearer token makes PostgREST reject the privileged request.
+    // The API gateway maps the secret API key to the service_role context.
     const headers = new Headers({
       apikey: key,
-      authorization: "Bearer " + key,
       accept: "application/json",
     });
     if (body !== undefined) headers.set("content-type", "application/json");
@@ -209,33 +212,20 @@ export function createGrowthHandler({ env, fetchImpl = fetch }: GrowthDependenci
       throw new GrowthRequestError(403, "forbidden");
     }
 
-    let claimed = identity;
-    if (!claimed.auth_user_id) {
-      const rows = await dbRequest(
-        "growth_ceo_identity?id=eq.1&auth_user_id=is.null",
-        {
-          method: "PATCH",
-          prefer: "return=representation",
-          body: {
-            auth_user_id: user.id,
-            claimed_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          },
-        },
-      );
-      claimed = Array.isArray(rows) && rows[0] ? rows[0] : await readCeoIdentity();
-    }
-    if (!claimed || claimed.auth_user_id !== user.id) {
+    if (identity.auth_user_id && identity.auth_user_id !== user.id) {
       throw new GrowthRequestError(403, "forbidden");
     }
 
-    const profiles = await dbRequest("perfis?on_conflict=id", {
+    // The database performs the identity lock, singleton claim, Auth re-check,
+    // and protected profile role change in one service-role-only transaction.
+    const profile = await dbRequest("rpc/placurso_ceo_bootstrap_profile", {
       method: "POST",
-      prefer: "resolution=merge-duplicates,return=representation",
-      body: [{ id: user.id, papel: "admin" }],
+      prefer: "return=representation",
+      body: { p_auth_user_id: user.id },
     });
-    const profile = Array.isArray(profiles) ? profiles[0] : null;
-    if (!profile || profile.id !== user.id || profile.papel !== "admin") {
+    if (!profile || typeof profile !== "object"
+      || !("auth_user_id" in profile) || profile.auth_user_id !== user.id
+      || !("papel" in profile) || profile.papel !== "admin") {
       throw new GrowthRequestError(502, "ceo_profile_provision_failed");
     }
 

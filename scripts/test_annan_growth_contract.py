@@ -31,10 +31,13 @@ def test_growth_function_requires_server_side_ceo_authorization():
         "readCeoIdentity",
         "identity.email",
         "isConfirmedGoogleIdentity",
+        "rpc/placurso_ceo_bootstrap_profile",
     ):
         assert marker in source, f"missing CEO authorization contract: {marker}"
     assert "johnjunior.tchek@gmail.com" not in source
     assert "belcianycosmedionisio@gmail.com" not in source
+    assert "perfis?on_conflict=id" not in source
+    assert "growth_ceo_identity?id=eq.1&auth_user_id=is.null" not in source
 
 
 def test_growth_function_has_no_publication_or_ads_side_effect():
@@ -91,6 +94,23 @@ def test_growth_schema_migration_exists_and_closes_direct_access():
     assert "grant all privileges on table public.growth_" not in sql or "to service_role" in sql
 
 
+
+def test_ceo_bootstrap_rpc_is_service_role_only():
+    migration = MIGRATIONS / "20261101234659_placurso_ceo_bootstrap_rpc.sql"
+    assert migration.is_file(), "private CEO bootstrap migration is missing"
+    sql = migration.read_text(encoding="utf-8").lower()
+    for marker in (
+        "create or replace function public.placurso_ceo_bootstrap_profile",
+        "security definer",
+        "grant execute on function public.placurso_ceo_bootstrap_profile(uuid) to service_role",
+        "revoke all on function public.placurso_ceo_bootstrap_profile(uuid) from public, anon, authenticated",
+        "email_confirmed_at",
+        "google",
+        "placurso.allow_ceo_role_change",
+    ):
+        assert marker in sql, f"missing private CEO RPC security contract: {marker}"
+    assert "belcianycosmedionisio@gmail.com" not in sql
+
 if __name__ == "__main__":
     for test in (
         test_growth_function_is_separate_from_learning_function,
@@ -99,6 +119,7 @@ if __name__ == "__main__":
         test_growth_browser_client_contains_no_privileged_secrets,
         test_growth_browser_panel_does_not_fake_connections_or_metrics,
         test_growth_schema_migration_exists_and_closes_direct_access,
+        test_ceo_bootstrap_rpc_is_service_role_only,
     ):
         test()
     print("Phase 10.2 growth contract: PASS")
