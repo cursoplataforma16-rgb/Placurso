@@ -113,7 +113,7 @@ def test_learning_choice_is_guided_progressive_and_accessible():
         assert secondary and "hidden" in secondary.group(0), "secondary areas must start collapsed"
         challenges = re.search(r'<details[^>]*id="challengeDisclosure"[^>]*>', html)
         assert challenges and "open" not in challenges.group(0), "challenge area must start collapsed"
-        optional = re.search(r'<details[^>]*id="optionalProfileFields"[^>]*>([\\s\\S]*?)</details>', html)
+        optional = re.search(r'<details[^>]*id="optionalProfileFields"[^>]*>([\s\S]*?)</details>', html)
         assert optional, "optional profile fields must be inside a disclosure"
         for optional_field in ('id="birthplace"', 'id="studentPhone"', 'id="studyHours"'):
             assert optional_field in optional.group(1), f"{optional_field} must be optional/collapsed"
@@ -131,7 +131,7 @@ def test_learning_choice_controller_keeps_existing_annan_flow():
         build(public)
 
         html = (public / "index.html").read_text(encoding="utf-8")
-        inline = re.findall(r"<script>([\\s\\S]*?)</script>", html)
+        inline = re.findall(r"<script>([\s\S]*?)</script>", html)
         assert len(inline) == 1, "expected one inline controller"
         controller = inline[0]
         for marker in (
