@@ -330,6 +330,35 @@
       return card;
     }
 
+    let callbackNotice = '';
+    let callbackNoticeError = false;
+    const callbackParams = new URLSearchParams(root.location.search);
+    const callbackState = callbackParams.get('social');
+    if (callbackState === 'connected') {
+      callbackNotice = 'Autorização ' + (callbackParams.get('provider') || 'social') + ' concluída; contas verificadas pelo servidor.';
+    } else if (callbackState === 'error') {
+      const reason = callbackParams.get('reason') || '';
+      const messages = {
+        authorization_denied: 'A autorização foi cancelada no portal da plataforma.',
+        meta_no_manageable_pages: 'A Meta não encontrou Páginas elegíveis para a conta autorizada.',
+        meta_pages_show_list_permission_missing: 'A aplicação Meta ainda não tem a permissão de listar Páginas.',
+        meta_no_supported_accounts: 'Não foi encontrada uma Página com acesso válido para esta aplicação.',
+        youtube_channel_not_found: 'A conta Google autorizada não tem um canal YouTube disponível.',
+        google_refresh_token_missing: 'O Google não devolveu autorização offline; tenta ligar novamente com consentimento.',
+        social_provider_configuration_missing: 'Faltam credenciais/configurações OAuth no servidor.',
+        oauth_encryption_key_invalid: 'A chave de protecção das credenciais não está configurada correctamente.',
+      };
+      callbackNotice = messages[reason] || 'A autorização ' + (callbackParams.get('provider') || 'social') + ' não foi concluída. Confirma as permissões e tenta novamente.';
+      callbackNoticeError = true;
+    }
+    if (callbackState) {
+      callbackParams.delete('social');
+      callbackParams.delete('provider');
+      callbackParams.delete('reason');
+      const nextUrl = root.location.pathname + (callbackParams.toString() ? '?' + callbackParams.toString() : '') + root.location.hash;
+      root.history.replaceState({}, '', nextUrl);
+    }
+
     async function load() {
       if (!root.PlacursoGrowthClient || typeof root.PlacursoGrowthClient.listAccounts !== 'function') {
         setStatus('O cliente de integrações do ANNAN não está disponível.', true);
@@ -347,33 +376,16 @@
         PROVIDERS.forEach((provider) => grid.appendChild(renderCard(provider, accounts)));
         const connected = PROVIDERS.reduce((total, provider) => total + accountsFor(accounts, provider.id)
           .filter((item) => ['connected', 'active'].includes(String(item.connection_state || '').toLowerCase())).length, 0);
-        setStatus(connected + ' conta(s) autorizada(s) registada(s) no Placurso. A publicação continua desactivada.');
+        const summary = connected + ' conta(s) autorizada(s) registada(s) no Placurso. A publicação continua desactivada.';
+        setStatus(callbackNotice ? callbackNotice + ' ' + summary : summary, callbackNoticeError);
       } catch (error) {
         grid.replaceChildren();
-        setStatus(error && error.message ? error.message : 'Não foi possível carregar as integrações.', true);
+        setStatus(callbackNotice || (error && error.message ? error.message : 'Não foi possível carregar as integrações.'), true);
       } finally {
         refresh.disabled = false;
       }
     }
 
-    const params = new URLSearchParams(root.location.search);
-    const callbackState = params.get('social');
-    if (callbackState === 'connected') {
-      const provider = params.get('provider') || 'social';
-      setStatus('Autorização ' + provider + ' concluída. A confirmar as contas no servidor…');
-      params.delete('social');
-      params.delete('provider');
-      params.delete('reason');
-      const next = root.location.pathname + (params.toString() ? '?' + params.toString() : '') + root.location.hash;
-      root.history.replaceState({}, '', next);
-    } else if (callbackState === 'error') {
-      setStatus('A autorização ' + (params.get('provider') || 'social') + ' não foi concluída. Reinicia a ligação e confirma as permissões na aplicação.', true);
-      params.delete('social');
-      params.delete('provider');
-      params.delete('reason');
-      const next = root.location.pathname + (params.toString() ? '?' + params.toString() : '') + root.location.hash;
-      root.history.replaceState({}, '', next);
-    }
     await load();
   }
 
