@@ -546,13 +546,32 @@ export function createSocialOAuthHandler({ env, fetchImpl = fetch }: OAuthDepend
     });
   }
 
+  async function grantedMetaPermissions(token: string): Promise<Set<string>> {
+    const response = await metaGraph("me/permissions?limit=100", token);
+    return new Set(asArray(response.data)
+      .filter((item) => item.status === "granted" && typeof item.permission === "string")
+      .map((item) => String(item.permission)));
+  }
+
   async function connectMetaPages(actorId: string, code: string): Promise<number> {
     const short = await exchangeMetaCode(code);
     const shortToken = typeof short.access_token === "string" ? short.access_token : "";
     if (!shortToken) throw new OAuthError(502, "meta_token_missing");
     const long = await longLivedMetaToken(shortToken);
     const token = typeof long.access_token === "string" ? long.access_token : shortToken;
-    const pagesData = await metaGraph("me/accounts?fields=id%2Cname%2Caccess_token%2Ctasks%2Cinstagram_business_account%7Bid%2Cusername%7D&limit=100", token);
+    const granted = await grantedMetaPermissions(token);
+    if (!granted.has("pages_show_list")) {
+      throw new OAuthError(403, "meta_pages_show_list_permission_missing");
+    }
+
+    const pageFields = ["id", "name", "access_token", "tasks"];
+    if (granted.has("instagram_basic")) {
+      pageFields.push("instagram_business_account{id,username}");
+    }
+    const pagesData = await metaGraph(
+      "me/accounts?fields=" + encodeURIComponent(pageFields.join(",")) + "&limit=100",
+      token,
+    );
     const pages = asArray(pagesData.data);
     if (!pages.length) throw new OAuthError(400, "meta_no_manageable_pages");
 
@@ -562,12 +581,16 @@ export function createSocialOAuthHandler({ env, fetchImpl = fetch }: OAuthDepend
       const pageName = typeof page.name === "string" ? page.name : "Facebook Page";
       const pageToken = typeof page.access_token === "string" ? page.access_token : "";
       if (!pageId || !pageToken) continue;
+
+      const pageCapabilities = ["pages.list"];
+      if (granted.has("pages_read_engagement")) pageCapabilities.push("pages.read");
+      if (granted.has("pages_manage_posts")) pageCapabilities.push("pages.publish");
       const pageRow = await saveAccount({
         platform: "facebook",
         externalId: pageId,
         displayName: pageName,
         accountType: "facebook_page",
-        capabilities: ["pages.read", "pages.publish"],
+        capabilities: pageCapabilities,
         actorId,
       });
       await saveCredential({
@@ -576,21 +599,24 @@ export function createSocialOAuthHandler({ env, fetchImpl = fetch }: OAuthDepend
         accessToken: pageToken,
         expiresIn: Number(long.expires_in) || Number(short.expires_in) || null,
         tokenType: "Bearer",
-        scopes: META_SCOPES,
+        scopes: Array.from(granted),
       });
       await auditConnected(actorId, String(pageRow.id), "facebook");
       connected++;
 
       const instagram = asRecord(page.instagram_business_account);
       const instagramId = typeof instagram.id === "string" ? instagram.id : "";
-      if (instagramId) {
+      if (instagramId && granted.has("instagram_basic")) {
+        const instagramCapabilities = ["instagram.read"];
+        if (granted.has("instagram_content_publish")) instagramCapabilities.push("instagram.publish");
+        if (granted.has("instagram_manage_insights")) instagramCapabilities.push("instagram.insights");
         const username = typeof instagram.username === "string" ? instagram.username : "Instagram profissional";
         const igRow = await saveAccount({
           platform: "instagram",
           externalId: instagramId,
           displayName: username,
           accountType: "instagram_professional",
-          capabilities: ["instagram.read", "instagram.publish", "instagram.insights"],
+          capabilities: instagramCapabilities,
           actorId,
         });
         await saveCredential({
@@ -599,7 +625,7 @@ export function createSocialOAuthHandler({ env, fetchImpl = fetch }: OAuthDepend
           accessToken: pageToken,
           expiresIn: Number(long.expires_in) || Number(short.expires_in) || null,
           tokenType: "Bearer",
-          scopes: META_SCOPES,
+          scopes: Array.from(granted),
         });
         await auditConnected(actorId, String(igRow.id), "instagram");
         connected++;
