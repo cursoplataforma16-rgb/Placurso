@@ -1,0 +1,68 @@
+from __future__ import annotations
+
+from pathlib import Path
+from tempfile import TemporaryDirectory
+from zipfile import ZipFile
+
+from audit_placurso_source_bundle import audit_archive, audit_directory
+
+
+def make_archive(path: Path, source: str, filename: str = "index.html") -> None:
+    with ZipFile(path, "w") as archive:
+        archive.writestr(filename, source)
+
+
+def assert_has_category(findings: dict[str, list[str]], category: str) -> None:
+    assert findings.get(category), f"expected {category} to be detected"
+
+
+def test_clean_source_bundle_passes() -> None:
+    with TemporaryDirectory() as folder:
+        archive = Path(folder) / "clean.zip"
+        make_archive(archive, "<html><title>Placurso</title></html>")
+        findings = audit_archive(archive)
+        assert not any(findings.values()), findings
+
+
+def test_dionuel_brand_is_blocked() -> None:
+    with TemporaryDirectory() as folder:
+        archive = Path(folder) / "legacy.zip"
+        make_archive(archive, "<title>Dionuel Alfaiataria</title>")
+        assert_has_category(audit_archive(archive), "DIONUEL_BRAND")
+
+
+def test_legacy_usuarios_table_access_is_blocked() -> None:
+    with TemporaryDirectory() as folder:
+        archive = Path(folder) / "legacy.zip"
+        make_archive(archive, "const { data } = await supabase.from('usuarios').select('*');")
+        assert_has_category(audit_archive(archive), "LEGACY_USUARIOS_TABLE")
+
+
+def test_dual_brand_router_is_blocked() -> None:
+    with TemporaryDirectory() as folder:
+        archive = Path(folder) / "legacy.zip"
+        make_archive(archive, "function ehRotaCurso(){ return location.hostname.includes('placurso'); }")
+        assert_has_category(audit_archive(archive), "DUAL_BRAND_ROUTER")
+
+
+def test_production_output_is_scanned() -> None:
+    with TemporaryDirectory() as folder:
+        output = Path(folder) / "public"
+        output.mkdir()
+        (output / "index.html").write_text("<h1>Placurso</h1>", encoding="utf-8")
+        assert not any(audit_directory(output, "production_output").values())
+        (output / "manifest.json").write_text('{"name":"DIONUEL"}', encoding="utf-8")
+        assert_has_category(audit_directory(output, "production_output"), "DIONUEL_BRAND")
+
+
+if __name__ == "__main__":
+    tests = (
+        test_clean_source_bundle_passes,
+        test_dionuel_brand_is_blocked,
+        test_legacy_usuarios_table_access_is_blocked,
+        test_dual_brand_router_is_blocked,
+        test_production_output_is_scanned,
+    )
+    for test in tests:
+        test()
+    print("Placurso source isolation contract: PASS")
