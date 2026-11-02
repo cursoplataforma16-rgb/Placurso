@@ -69,6 +69,56 @@
     }
   }
 
+  async function callSocial(action, payload) {
+    const persistence = root.PlacursoAnnanPersistence;
+    if (!persistence || typeof persistence.getCurrentUser !== 'function' || typeof persistence.getClient !== 'function') {
+      return errorResult('session_adapter_missing', 'O serviço de autenticação do ANNAN não está disponível.');
+    }
+    const session = await persistence.getCurrentUser();
+    if (!session || !session.ok || !session.user) {
+      return errorResult('unauthenticated', 'Entre com a conta CEO autorizada para ligar os canais.');
+    }
+    const gateway = root.PlacursoAnnanIntegrationGateway;
+    if (!gateway || typeof gateway.dispatch !== 'function') {
+      return errorResult('annan_gateway_unavailable', 'O Gateway central do ANNAN não está disponível.');
+    }
+    const route = gateway.dispatch('placurso-growth', {
+      type: 'social.oauth.' + String(action || '').slice(0, 40),
+      source: 'growth-center',
+    });
+    if (!route || route.ok !== true) {
+      return errorResult('growth_gateway_unavailable', 'A capacidade de integrações não está registada no ANNAN.');
+    }
+    try {
+      const client = await persistence.getClient();
+      const response = await client.functions.invoke('annan-social-oauth', {
+        body: { action: action, payload: payload || {} },
+      });
+      if (response && response.error) {
+        let providerError = null;
+        const context = response.error.context;
+        if (context && typeof context.clone === 'function') {
+          try { providerError = await context.clone().json(); } catch (_) { providerError = null; }
+        }
+        const error = providerError && providerError.error ? providerError.error : {};
+        return errorResult(
+          error.code || 'social_oauth_unavailable',
+          error.message || 'Não foi possível concluir a ligação social.'
+        );
+      }
+      if (!response || !response.data || response.data.ok !== true) {
+        const error = response && response.data && response.data.error ? response.data.error : {};
+        return errorResult(
+          error.code || 'invalid_social_oauth_response',
+          error.message || 'O serviço de integrações devolveu uma resposta inválida.'
+        );
+      }
+      return { ok: true, data: response.data.data };
+    } catch (_) {
+      return errorResult('social_oauth_network_error', 'Não foi possível contactar o serviço seguro de integrações.');
+    }
+  }
+
   root.PlacursoGrowthClient = Object.freeze({
     version: 1,
     listAccounts: function () { return call('account.list', {}, false); },
@@ -79,5 +129,9 @@
     submitContent: function (contentId) { return call('content.submit', { contentId: contentId }, true); },
     decideApproval: function (payload) { return call('approval.decide', payload, true); },
     listAudit: function () { return call('audit.list', {}, false); },
+    startSocialOAuth: function (provider) { return callSocial('start', { provider: provider }); },
+    startWhatsAppSignup: function () { return callSocial('whatsapp.start', {}); },
+    completeWhatsAppSignup: function (payload) { return callSocial('whatsapp.complete', payload); },
+    disconnectSocialAccount: function (accountId) { return callSocial('disconnect', { accountId: accountId }); },
   });
 })(window);
