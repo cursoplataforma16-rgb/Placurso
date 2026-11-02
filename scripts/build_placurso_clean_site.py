@@ -121,12 +121,12 @@ async function loadLearning(){
     const details=profile.perfil||{};
     if(!student.concluido&&!details.objetivo&&!details.meta){
       $('studentProfile').hidden=false;
-      $('studentProfile').elements.ageGroup.value=details.faixa_etaria||details.idade_grupo||'';
-      $('studentProfile').elements.birthplace.value=details.local_nascimento||'';
-      $('studentProfile').elements.studentPhone.value=details.telefone||'';
-      $('studentProfile').elements.studyHours.value=details.horas_semana||'1-2';
-      $('studentProfile').elements.interest.value=details.interesse||'';
-      $('studentProfile').elements.objective.value=details.objetivo||'';
+      $('ageGroup').value=details.faixa_etaria||details.idade_grupo||'';
+      $('birthplace').value=details.local_nascimento||'';
+      $('studentPhone').value=details.telefone||'';
+      $('studyHours').value=details.horas_semana||'1-2';
+      $('interest').value=details.interesse||'';
+      $('objective').value=details.objetivo||'';
       status('Completa o teu perfil de aprendizagem. Só os campos assinalados são obrigatórios.');
       return;
     }
