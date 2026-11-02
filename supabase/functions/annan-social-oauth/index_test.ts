@@ -113,6 +113,48 @@ Deno.test("Google OAuth start validates the CEO and persists only a state hash p
   }
 });
 
+Deno.test("Meta OAuth start requires the server App Secret and never exposes it", async () => {
+  const mock = makeFetch([
+    { body: CEO },
+    { body: IDENTITY },
+    { body: PROFILE },
+    { body: [{ state_hash: "c".repeat(64) }] },
+  ]);
+  const handler = createSocialOAuthHandler({ env: createEnv(ENV), fetchImpl: mock.fetchImpl });
+  const response = await handler(post({ action: "start", provider: "meta" }));
+  const body = await response.json();
+  if (!response.ok || typeof body.data?.authorizationUrl !== "string") {
+    throw new Error("Meta OAuth start did not return an authorization URL");
+  }
+  const url = new URL(body.data.authorizationUrl);
+  if (url.origin !== "https://www.facebook.com" || !url.pathname.endsWith("/dialog/oauth")) {
+    throw new Error("Meta authorization URL did not use the official dialog endpoint");
+  }
+  if (url.searchParams.get("state")?.split(".", 1)[0] !== "meta") {
+    throw new Error("Meta OAuth state was not bound to the Meta provider");
+  }
+  if (url.searchParams.has("client_secret") || body.data.authorizationUrl.includes("meta-app-secret")) {
+    throw new Error("Meta App Secret leaked into the authorization URL");
+  }
+  if (mock.calls() !== 4) throw new Error("Meta OAuth start did not persist exactly one state row");
+});
+
+Deno.test("fails closed when Meta App Secret is missing before creating OAuth state", async () => {
+  const mock = makeFetch([
+    { body: CEO },
+    { body: IDENTITY },
+    { body: PROFILE },
+  ]);
+  const env = { ...ENV };
+  delete (env as Record<string,string>).META_APP_SECRET;
+  const handler = createSocialOAuthHandler({ env: createEnv(env), fetchImpl: mock.fetchImpl });
+  const response = await handler(post({ action: "start", provider: "meta" }));
+  if (response.status !== 503) throw new Error("Meta start did not fail closed without App Secret");
+  if (mock.requests.some((item) => item.url.includes("growth_oauth_states"))) {
+    throw new Error("Meta state row was created before configuration validation");
+  }
+});
+
 Deno.test("rejects callback with an unknown state without exchanging an authorization code", async () => {
   const mock = makeFetch([{ body: [] }]);
   const handler = createSocialOAuthHandler({ env: createEnv(ENV), fetchImpl: mock.fetchImpl });
