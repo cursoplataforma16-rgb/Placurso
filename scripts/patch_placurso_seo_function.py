@@ -85,7 +85,7 @@ async function bioPage() {
 export default async request => {
   const url = new URL(request.url);
   try {
-    if (/^\/cursos\/.*$/.test(url.pathname)) return await courseHome(request);
+    if (url.pathname === '/cursos' || /^\/cursos\/.*$/.test(url.pathname)) return await courseHome(request);
     if (/^\/(?:ver|bio|links)\/?$/.test(url.pathname)) return await bioPage();
     if (url.pathname.startsWith('/p/')) {
       const codeOrId = decodeURIComponent(url.pathname.slice(3).replace(/\/$/,''));
