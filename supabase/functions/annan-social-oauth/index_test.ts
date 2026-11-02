@@ -159,7 +159,7 @@ Deno.test("rejects callback with an unknown state without exchanging an authoriz
   const mock = makeFetch([{ body: [] }]);
   const handler = createSocialOAuthHandler({ env: createEnv(ENV), fetchImpl: mock.fetchImpl });
   const response = await handler(new Request(
-    "https://edge.test/annan-social-oauth?code=one-time-code&state=invalid-state",
+    "https://edge.test/annan-social-oauth?code=one-time-code&state=meta.invalid-state",
   ));
   if (response.status !== 400) throw new Error(`expected 400, received ${response.status}`);
   if (mock.calls() !== 1) throw new Error("invalid state reached an external token endpoint");
