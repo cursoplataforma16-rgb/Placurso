@@ -31,6 +31,7 @@ TEXT_SUFFIXES = {
     ".html", ".htm", ".js", ".mjs", ".ts", ".css", ".json", ".xml",
     ".txt", ".md", ".toml", ".yml", ".yaml", ".webmanifest", ".svg",
 }
+TEXT_FILENAMES = {"_redirects"}
 MAX_TEXT_FILE_BYTES = 8_000_000
 MAX_FINDINGS_PER_CATEGORY = 120
 
@@ -83,7 +84,7 @@ def audit_archive(path: Path = ARCHIVE) -> dict[str, list[str]]:
             if member.is_dir():
                 continue
             _record_path(findings, member.filename)
-            if Path(member.filename).suffix.lower() not in TEXT_SUFFIXES:
+            if Path(member.filename).suffix.lower() not in TEXT_SUFFIXES and Path(member.filename).name not in TEXT_FILENAMES:
                 continue
             if member.file_size > MAX_TEXT_FILE_BYTES:
                 raise SystemExit(
@@ -105,7 +106,7 @@ def audit_directory(path: Path, scope: str) -> dict[str, list[str]]:
             continue
         relative = file_path.relative_to(path).as_posix()
         _record_path(findings, relative)
-        if file_path.suffix.lower() not in TEXT_SUFFIXES:
+        if file_path.suffix.lower() not in TEXT_SUFFIXES and file_path.name not in TEXT_FILENAMES:
             continue
         size = file_path.stat().st_size
         if size > MAX_TEXT_FILE_BYTES:
@@ -123,6 +124,7 @@ def main() -> int:
         ("original_source_bundle", audit_archive(ARCHIVE)),
         ("extracted_source", audit_directory(EXTRACTED, "extracted_source")),
         ("production_output", audit_directory(PUBLIC, "production_output")),
+        ("netlify_function_output", audit_directory(ROOT / "netlify" / "functions", "netlify_function_output")),
     )
     total = 0
     for scope, findings in scopes:
