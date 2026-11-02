@@ -2,18 +2,22 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 BUILD = ROOT / "scripts" / "build_netlify.py"
-PATCH = ROOT / "scripts" / "patch_annan_growth_assets.py"
+CLEAN_BUILDER = ROOT / "scripts" / "build_placurso_clean_site.py"
 CLIENT = ROOT / "scripts" / "annan_growth_client.js"
 PANEL = ROOT / "scripts" / "placurso-growth-center.js"
+CEO_BUILDER = ROOT / "scripts" / "build_placurso_ceo_page.py"
 
 
-def test_growth_client_is_copied_and_loaded_before_the_growth_panel():
-    patch = PATCH.read_text(encoding="utf-8")
-    assert "annan_growth_client.js" in patch
-    assert "growth_client_tag" in patch
+def test_growth_client_and_panel_are_copied_as_ceo_only_assets():
+    build = BUILD.read_text(encoding="utf-8")
+    clean = CLEAN_BUILDER.read_text(encoding="utf-8")
+    ceo = CEO_BUILDER.read_text(encoding="utf-8")
+    assert "build_placurso_clean_site.py" in build
+    assert "annan_growth_client.js" in clean
+    assert "placurso-growth-center.js" in clean
     assert 'root.PlacursoGrowthClient' in CLIENT.read_text(encoding="utf-8")
-    assert "placurso-growth-center.js" in patch
-    assert "PATCH_ANNAN_GROWTH_ASSETS" in BUILD.read_text(encoding="utf-8")
+    assert "PlacursoAnnanIntegrationGateway" in ceo
+    assert "renderPlacursoGrowthCenter" in ceo
 
 
 def test_growth_ui_uses_authenticated_annangrowth_contract():
@@ -48,7 +52,7 @@ def test_provider_channels_remain_disconnected_until_oauth_phase():
 
 if __name__ == "__main__":
     for test in (
-        test_growth_client_is_copied_and_loaded_before_the_growth_panel,
+        test_growth_client_and_panel_are_copied_as_ceo_only_assets,
         test_growth_ui_uses_authenticated_annangrowth_contract,
         test_provider_channels_remain_disconnected_until_oauth_phase,
     ):
