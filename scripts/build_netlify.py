@@ -19,6 +19,7 @@ PATCH_AADS = ROOT / 'scripts' / 'patch_aads_unit.py'
 PATCH_SEO = ROOT / 'scripts' / 'patch_placurso_seo.py'
 PATCH_PREVIEW_ROUTING = ROOT / 'scripts' / 'patch_placurso_netlify_preview_routing.py'
 PATCH_SEO_FUNCTION = ROOT / 'scripts' / 'patch_seo_function_static_routes.py'
+PATCH_PLACURSO_SEO_FUNCTION = ROOT / 'scripts' / 'patch_placurso_seo_function.py'
 BUILD_TRAFFIC_ASSETS = ROOT / 'scripts' / 'build_traffic_assets.py'
 PATCH_ANNAN_GROWTH_ASSETS = ROOT / 'scripts' / 'patch_annan_growth_assets.py'
 BUILD_PLACURSO_CEO_PAGE = ROOT / 'scripts' / 'build_placurso_ceo_page.py'
@@ -137,6 +138,9 @@ shutil.copy2(source_seo, FUNCTIONS / 'seo.mjs')
 if not PATCH_SEO_FUNCTION.is_file():
     raise SystemExit('ERRO: patch de exclusão das rotas estáticas SEO não encontrado.')
 subprocess.run(['python3', str(PATCH_SEO_FUNCTION), str(FUNCTIONS / 'seo.mjs')], cwd=ROOT, check=True)
+if not PATCH_PLACURSO_SEO_FUNCTION.is_file():
+    raise SystemExit('ERRO: substituição da função SEO exclusiva do Placurso não encontrada.')
+subprocess.run(['python3', str(PATCH_PLACURSO_SEO_FUNCTION), str(FUNCTIONS / 'seo.mjs')], cwd=ROOT, check=True)
 
 for item in WORK.iterdir():
     if item.name in {'public', '.site-extracted', 'netlify.toml', 'netlify'}:
