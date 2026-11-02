@@ -151,9 +151,12 @@ export function createGrowthHandler({ env, fetchImpl = fetch }: GrowthDependenci
 
   async function dbRequest(path: string, { method = "GET", body, prefer = "" }: { method?: string; body?: unknown; prefer?: string } = {}) {
     const key = privilegedKey();
+    // Supabase API keys are sent only through apikey. In particular,
+    // sb_secret_* is an opaque API key, not a JWT; duplicating it as a
+    // Bearer token makes PostgREST reject the privileged request.
+    // The API gateway maps the secret API key to the service_role context.
     const headers = new Headers({
       apikey: key,
-      authorization: "Bearer " + key,
       accept: "application/json",
     });
     if (body !== undefined) headers.set("content-type", "application/json");
