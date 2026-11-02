@@ -98,7 +98,7 @@ export default async request => {
   }
 };
 
-export const config = { path: ['/p/*','/cursos/*','/ver','/bio','/links'] };
+export const config = { path: ['/p/*','/cursos','/cursos/','/cursos/*','/ver','/bio','/links'] };
 '''
 
 
