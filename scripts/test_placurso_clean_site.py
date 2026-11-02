@@ -77,7 +77,82 @@ def test_build_script_does_not_extract_or_copy_the_legacy_homepage():
         assert required in source
 
 
+def test_learning_choice_is_guided_progressive_and_accessible():
+    with TemporaryDirectory() as folder:
+        public = Path(folder)
+        (public / "psico-engine.js").write_text("// educational engine", encoding="utf-8")
+        (public / "curso-icon-192.png").write_bytes(b"png")
+        (public / "curso-icon-512.png").write_bytes(b"png")
+        build(public)
+
+        html = (public / "index.html").read_text(encoding="utf-8")
+        for marker in (
+            'id="learningAreas"',
+            'id="allAreasToggle"',
+            'id="moreLearningAreas"',
+            'id="selectedLearningPath"',
+            'id="challengeDisclosure"',
+            'id="optionalProfileFields"',
+            'aria-live="polite"',
+            'aria-pressed="false"',
+            'prefers-reduced-motion',
+            'min-height:44px',
+            'data-interest="tecnologia"',
+            'data-interest="marketing"',
+            'data-interest="educacao"',
+            'data-interest="biblia"',
+            'data-interest="agronomia"',
+            'data-interest="ambiente"',
+            'data-interest="telecomunicacoes"',
+            'data-interest="gestao"',
+            'data-interest="outro"',
+        ):
+            assert marker in html, f"missing guided-interface contract: {marker}"
+
+        secondary = re.search(r'<div[^>]*id="moreLearningAreas"[^>]*>', html)
+        assert secondary and "hidden" in secondary.group(0), "secondary areas must start collapsed"
+        challenges = re.search(r'<details[^>]*id="challengeDisclosure"[^>]*>', html)
+        assert challenges and "open" not in challenges.group(0), "challenge area must start collapsed"
+        optional = re.search(r'<details[^>]*id="optionalProfileFields"[^>]*>([\s\S]*?)</details>', html)
+        assert optional, "optional profile fields must be inside a disclosure"
+        for optional_field in ('id="birthplace"', 'id="studentPhone"', 'id="studyHours"'):
+            assert optional_field in optional.group(1), f"{optional_field} must be optional/collapsed"
+        assert html.index('id="ageGroup"') < html.index('id="optionalProfileFields"')
+        assert html.index('id="optionalProfileFields"') < html.index('id="interest"')
+        assert html.index('id="interest"') < html.index('id="objective"')
+
+
+def test_learning_choice_controller_keeps_existing_annan_flow():
+    with TemporaryDirectory() as folder:
+        public = Path(folder)
+        (public / "psico-engine.js").write_text("// educational engine", encoding="utf-8")
+        (public / "curso-icon-192.png").write_bytes(b"png")
+        (public / "curso-icon-512.png").write_bytes(b"png")
+        build(public)
+
+        html = (public / "index.html").read_text(encoding="utf-8")
+        inline = re.findall(r"<script>([\s\S]*?)</script>", html)
+        assert len(inline) == 1, "expected one inline controller"
+        controller = inline[0]
+        for marker in (
+            "selectedInterest",
+            "data-interest",
+            "studentProfile",
+            "perfil_rapido",
+            "function start()",
+            "allAreasToggle",
+            "selectedLearningPath",
+            "challengeDisclosure",
+        ):
+            assert marker in controller or marker in html, f"missing interaction contract: {marker}"
+        js = public / "guided-home-inline.js"
+        js.write_text(controller, encoding="utf-8")
+        subprocess.run(["node", "--check", str(js)], check=True, capture_output=True, text=True)
+
+
 if __name__ == "__main__":
     test_clean_homepage_uses_educational_engine_and_student_function()
     test_build_script_does_not_extract_or_copy_the_legacy_homepage()
+    test_learning_choice_is_guided_progressive_and_accessible()
+    test_learning_choice_controller_keeps_existing_annan_flow()
     print("Placurso clean-site build contract: PASS")
