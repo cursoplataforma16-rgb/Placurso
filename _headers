@@ -1,0 +1,7 @@
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), microphone=(self), camera=(self)
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: https://txyjrczknkiheofptgxc.supabase.co; connect-src 'self' https://txyjrczknkiheofptgxc.supabase.co wss://txyjrczknkiheofptgxc.supabase.co; frame-src 'self' https://ad.a-ads.com https://*.a-ads.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'

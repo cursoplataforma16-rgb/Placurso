@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /workflows-desativados/
+Disallow: /annan-drive/
+
+Sitemap: https://dionuel.netlify.app/sitemap.xml

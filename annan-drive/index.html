@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Casa do ANNAN: atualizar</title>
+<style>
+  :root{--fundo:#171412;--texto:#efe6da;--linha:#3a322b;--caixa:#221d19;--ouro:#b8935a}
+  body{margin:0;font-family:system-ui,sans-serif;background:var(--fundo);color:var(--texto)}
+  main{max-width:860px;margin:0 auto;padding:20px 16px 40px}
+  h1{font-size:20px;letter-spacing:.04em;margin:0 0 6px}
+  ol{padding-left:20px;line-height:1.6;font-size:15px}
+  li{margin:6px 0}
+  a{color:var(--ouro)}
+  .bloco{border:1px solid var(--linha);border-radius:10px;padding:12px;margin:14px 0}
+  .bloco h2{font-size:15px;margin:0 0 8px}
+  button{background:var(--ouro);border:0;border-radius:8px;padding:11px 18px;font-size:15px;font-weight:700;cursor:pointer;color:#171412}
+  textarea{width:100%;height:28vh;margin-top:10px;background:var(--caixa);color:var(--texto);border:1px solid var(--linha);border-radius:8px;font:12px/1.4 ui-monospace,monospace;padding:10px;box-sizing:border-box}
+  .ok{margin-left:10px;color:#8fd19e}
+</style>
+</head>
+<body>
+<main>
+  <h1>Casa do ANNAN: colar a versão nova</h1>
+  <p>Só é preciso fazer isto uma vez. Depois a casa passa a atualizar-se sozinha.</p>
+  <ol>
+    <li>Abra <a href="https://script.google.com/home" target="_blank" rel="noopener">script.google.com</a> e entre no projeto da casa do ANNAN.</li>
+    <li>Em Definições do projeto (roda dentada), ligue "Mostrar o ficheiro de manifesto appsscript.json no editor".</li>
+    <li>No editor, abra <b>Code.gs</b>, apague tudo e cole o código 1. Guarde.</li>
+    <li>Abra <b>appsscript.json</b>, apague tudo e cole o código 2. Guarde.</li>
+    <li>Implementar → Gerir implementações → lápis → Versão: Nova versão → Implementar. Aceite as permissões que o Google pedir.</li>
+    <li>Abra <a href="https://script.google.com/home/usersettings" target="_blank" rel="noopener">script.google.com/home/usersettings</a> e ligue "Google Apps Script API".</li>
+    <li>Diga ao ANNAN: "a casa está atualizada". Ele confirma e começa a cópia completa.</li>
+  </ol>
+  <div class="bloco"><h2>Código 1: Code.gs</h2><button type="button" data-c="t1">Copiar código 1</button><span class="ok" id="ok-t1"></span><textarea id="t1" readonly>A carregar…</textarea></div>
+  <div class="bloco"><h2>Código 2: appsscript.json</h2><button type="button" data-c="t2">Copiar código 2</button><span class="ok" id="ok-t2"></span><textarea id="t2" readonly>A carregar…</textarea></div>
+</main>
+<script>
+  fetch('Code.gs', { cache: 'no-store' }).then(r => r.text()).then(t => { document.getElementById('t1').value = t; });
+  fetch('appsscript.json', { cache: 'no-store' }).then(r => r.text()).then(t => { document.getElementById('t2').value = t; });
+  document.querySelectorAll('[data-c]').forEach(b => b.addEventListener('click', async () => {
+    const t = document.getElementById(b.dataset.c);
+    try { await navigator.clipboard.writeText(t.value); } catch (_e) { t.select(); document.execCommand('copy'); }
+    document.getElementById('ok-' + b.dataset.c).textContent = '✓ Copiado';
+  }));
+</script>
+</body>
+</html>

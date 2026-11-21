@@ -1,0 +1,9 @@
+/vendor/supabase-js.js   https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2                          200
+/vendor/jspdf.js         https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js                200
+/vendor/pdf.js           https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js             200
+/vendor/pdf.worker.js    https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js      200
+/cursos                  /index.html   200
+/cursos/*                /index.html   200
+/infoprodutos            /   301
+/falar                   /?falar=1   302
+/*                       /index.html   200
