@@ -1,0 +1,412 @@
+{
+ "id": "entrevista-num-dia",
+ "tipo": "Guia prático com ferramentas",
+ "titulo": "Entrevista de emprego: fique pronto num dia",
+ "subtitulo": "4 partes curtas, 3 ferramentas para preencher e um teste no fim de cada parte.",
+ "minutos": 25,
+ "promessa": "Terá **3 respostas prontas** no método STAR, **as suas perguntas** para o entrevistador, a **lista do dia** e a **mensagem de agradecimento** para enviar depois.",
+ "para_quem": "quem tem uma entrevista marcada nos próximos dias e quer chegar preparado, mesmo sem experiência anterior.",
+ "partilha": "Tenho uma entrevista e este guia preparou-me num dia:",
+ "metodo": "Este guia junta o que os serviços públicos de emprego do Reino Unido, do Canadá e de Singapura recomendam, transformado em ferramentas para preencher hoje. Não promete emprego: prepara-o para dar o seu melhor.",
+ "partes": [
+  {
+   "titulo": "Descubra o que vão perguntar",
+   "minutos": 5,
+   "blocos": [
+    {
+     "tipo": "texto",
+     "paragrafos": [
+      "O anúncio da vaga é a sua cábula. As empresas escrevem lá as competências que procuram, e as perguntas da entrevista servem para confirmar essas mesmas competências.",
+      "Por isso, antes de pensar em respostas, leia o anúncio com um lápis na mão."
+     ]
+    },
+    {
+     "tipo": "passos",
+     "itens": [
+      "Sublinhe no anúncio cada competência pedida (por exemplo: **trabalho em equipa**, **atendimento**, **organização**).",
+      "Escolha as **3 mais importantes**. Vai preparar um exemplo real para cada uma.",
+      "Procure a empresa: o que vende, a quem, e uma novidade recente. Bastam 10 minutos."
+     ]
+    },
+    {
+     "tipo": "destaque",
+     "texto": "Os serviços de carreira do País de Gales resumem assim: a descrição da vaga dá as pistas das perguntas que vão fazer."
+    },
+    {
+     "tipo": "cartoes",
+     "titulo": "As perguntas que quase sempre aparecem",
+     "itens": [
+      {
+       "frente": "Fale-me de si.",
+       "verso": "Em 1 minuto: o que estudou ou fez, uma conquista concreta, e porque esta vaga faz sentido agora. Nada de vida pessoal."
+      },
+      {
+       "frente": "Porque quer trabalhar aqui?",
+       "verso": "Use o que descobriu sobre a empresa. Uma frase sobre a empresa e uma sobre o que você traz."
+      },
+      {
+       "frente": "Quais são os seus pontos fortes?",
+       "verso": "Escolha um que esteja no anúncio e prove-o com um exemplo curto."
+      },
+      {
+       "frente": "E um ponto fraco?",
+       "verso": "Um ponto real e pequeno, mais o que já está a fazer para melhorar. Evite falsos defeitos como 'sou perfeccionista'."
+      },
+      {
+       "frente": "Conte uma situação difícil que resolveu.",
+       "verso": "É aqui que entra o método STAR, da parte 2."
+      }
+     ]
+    },
+    {
+     "tipo": "quiz",
+     "perguntas": [
+      {
+       "p": "Onde encontra as melhores pistas sobre as perguntas da entrevista?",
+       "o": [
+        "Nas redes sociais dos funcionários",
+        "No anúncio da vaga",
+        "Em listas genéricas da Internet"
+       ],
+       "c": 1,
+       "e": "O anúncio diz quais competências a empresa vai querer confirmar."
+      },
+      {
+       "p": "Quantas competências deve preparar com exemplos reais?",
+       "o": [
+        "Todas as do anúncio",
+        "As 3 mais importantes",
+        "Nenhuma, improvisa-se"
+       ],
+       "c": 1,
+       "e": "Três exemplos bem preparados servem para a maior parte das perguntas."
+      },
+      {
+       "p": "'Fale-me de si' deve durar cerca de…",
+       "o": [
+        "1 minuto",
+        "5 minutos",
+        "10 segundos"
+       ],
+       "c": 0,
+       "e": "Curto e focado no trabalho: estudos ou experiência, uma conquista e porque quer esta vaga."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "titulo": "Responda com o método STAR",
+   "minutos": 8,
+   "blocos": [
+    {
+     "tipo": "texto",
+     "paragrafos": [
+      "Quando perguntam \"dê um exemplo de quando…\", o entrevistador quer uma história curta e verdadeira. O método **STAR**, recomendado pelo Serviço Nacional de Carreiras do Reino Unido, organiza essa história em quatro partes.",
+      "**S**ituação: onde e quando. **T**arefa: o que tinha de conseguir. **A**ção: o que **você** fez (não a equipa). **R**esultado: o que mudou, de preferência com um número."
+     ]
+    },
+    {
+     "tipo": "destaque",
+     "texto": "A parte mais importante é a **Ação**: passe aí metade do tempo da resposta. O exemplo pode vir da escola, de voluntariado, da igreja, da família ou de um negócio próprio."
+    },
+    {
+     "tipo": "ferramenta",
+     "titulo": "Construtor de resposta STAR",
+     "dica": "Preencha uma vez por cada uma das 3 competências. O texto fica guardado neste telemóvel.",
+     "modelo": "Competência: {comp}\n\nSituação: {s}\nTarefa: {t}\nAção: {a}\nResultado: {r}",
+     "campos": [
+      {
+       "id": "comp",
+       "rotulo": "Competência que vai provar",
+       "linhas": 1,
+       "exemplo": "Atendimento ao cliente"
+      },
+      {
+       "id": "s",
+       "rotulo": "Situação",
+       "ajuda": "Onde e quando, numa frase.",
+       "exemplo": "Ajudava na loja da minha tia aos sábados, no ano passado."
+      },
+      {
+       "id": "t",
+       "rotulo": "Tarefa",
+       "ajuda": "O que tinha de conseguir.",
+       "exemplo": "Um cliente queria devolver um produto fora do prazo e estava zangado."
+      },
+      {
+       "id": "a",
+       "rotulo": "Ação",
+       "ajuda": "O que VOCÊ fez, passo a passo.",
+       "exemplo": "Ouvi sem interromper, expliquei a regra com calma e propus trocar por outro artigo do mesmo valor."
+      },
+      {
+       "id": "r",
+       "rotulo": "Resultado",
+       "ajuda": "O que mudou. Use um número se puder.",
+       "exemplo": "Aceitou a troca, voltou na semana seguinte e trouxe um amigo."
+      }
+     ]
+    },
+    {
+     "tipo": "texto",
+     "paragrafos": [
+      "Depois de escrever, diga a resposta em voz alta, duas vezes. Os serviços de emprego do Reino Unido sugerem ensaiar em frente ao espelho: na entrevista, as palavras já saem sozinhas."
+     ]
+    },
+    {
+     "tipo": "quiz",
+     "perguntas": [
+      {
+       "p": "No STAR, a letra A significa…",
+       "o": [
+        "Ambiente",
+        "Ação",
+        "Atitude"
+       ],
+       "c": 1,
+       "e": "Ação: o que você fez. É a parte que mostra a sua competência."
+      },
+      {
+       "p": "Onde deve passar mais tempo da resposta?",
+       "o": [
+        "Na situação",
+        "Na ação",
+        "No resultado"
+       ],
+       "c": 1,
+       "e": "A ação é a prova. A situação serve só para contextualizar."
+      },
+      {
+       "p": "Um exemplo de voluntariado serve para responder?",
+       "o": [
+        "Sim, se for verdadeiro e mostrar a competência",
+        "Não, só contam empregos formais",
+        "Só se for no estrangeiro"
+       ],
+       "c": 0,
+       "e": "Os guias oficiais aceitam exemplos de casa, trabalho ou voluntariado."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "titulo": "Prepare as suas perguntas e o dia",
+   "minutos": 6,
+   "blocos": [
+    {
+     "tipo": "texto",
+     "paragrafos": [
+      "No fim, quase sempre perguntam: \"Tem alguma pergunta?\". O serviço público de emprego do Canadá recomenda ter duas perguntas que mostrem que estudou a empresa. Dizer \"não\" faz perder um ponto fácil."
+     ]
+    },
+    {
+     "tipo": "ferramenta",
+     "titulo": "As suas 2 perguntas para o entrevistador",
+     "dica": "Evite perguntar primeiro pelo salário ou pelas férias.",
+     "modelo": "1. {q1}\n2. {q2}",
+     "campos": [
+      {
+       "id": "q1",
+       "rotulo": "Pergunta sobre o trabalho",
+       "linhas": 1,
+       "exemplo": "Como é um dia normal nesta função?"
+      },
+      {
+       "id": "q2",
+       "rotulo": "Pergunta sobre a empresa",
+       "linhas": 1,
+       "exemplo": "Quais são os planos da empresa para o próximo ano nesta área?"
+      }
+     ]
+    },
+    {
+     "tipo": "checklist",
+     "titulo": "Lista do dia da entrevista",
+     "dica": "Marque à medida que prepara. Fica guardado.",
+     "itens": [
+      "Morada, hora e nome de quem o vai receber confirmados",
+      "Caminho testado: chegar **10 minutos antes**",
+      "Roupa escolhida e passada na véspera",
+      "Currículo impresso (2 cópias) e documento de identificação",
+      "As 3 respostas STAR lidas em voz alta",
+      "As 2 perguntas para o entrevistador",
+      "Telemóvel em silêncio antes de entrar",
+      "Se for por vídeo: Internet testada, sítio calmo e boa luz no rosto"
+     ]
+    },
+    {
+     "tipo": "quiz",
+     "perguntas": [
+      {
+       "p": "Quando perguntam 'Tem alguma pergunta?', o melhor é…",
+       "o": [
+        "Dizer que não",
+        "Fazer 1 ou 2 perguntas sobre o trabalho ou a empresa",
+        "Perguntar logo pelo salário"
+       ],
+       "c": 1,
+       "e": "Mostra interesse e que estudou a empresa."
+      },
+      {
+       "p": "Com quanta antecedência deve chegar?",
+       "o": [
+        "Cerca de 10 minutos",
+        "1 hora",
+        "À hora exata"
+       ],
+       "c": 0,
+       "e": "Dá margem para imprevistos sem ficar muito tempo à espera."
+      },
+      {
+       "p": "Numa entrevista por vídeo, o mais importante é…",
+       "o": [
+        "Ter um fundo bonito",
+        "Internet testada e sítio sem barulho",
+        "Usar o computador mais caro"
+       ],
+       "c": 1,
+       "e": "Os guias oficiais sublinham um espaço sem distrações e a ligação testada."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "titulo": "Depois da entrevista",
+   "minutos": 4,
+   "blocos": [
+    {
+     "tipo": "texto",
+     "paragrafos": [
+      "O Canadá recomenda enviar um agradecimento **no mesmo dia**: agradece o tempo, repete o seu interesse e lembra o que traz. Poucos candidatos o fazem, e por isso fica na memória de quem decide."
+     ]
+    },
+    {
+     "tipo": "ferramenta",
+     "titulo": "Gerador da mensagem de agradecimento",
+     "dica": "Copie e envie por e-mail ou WhatsApp no próprio dia.",
+     "modelo": "Bom dia, {nome}.\n\nObrigado pelo tempo que me dedicou hoje na entrevista para {funcao}. Fiquei ainda mais interessado na vaga, sobretudo depois de saber {detalhe}.\n\nAcredito que a minha experiência em {ponto} pode ajudar a equipa desde o primeiro dia.\n\nFico ao dispor para qualquer informação.\n\nCom os melhores cumprimentos,\n{eu}",
+     "campos": [
+      {
+       "id": "nome",
+       "rotulo": "Nome de quem o entrevistou",
+       "linhas": 1,
+       "exemplo": "Sra. Marta"
+      },
+      {
+       "id": "funcao",
+       "rotulo": "Função",
+       "linhas": 1,
+       "exemplo": "assistente comercial"
+      },
+      {
+       "id": "detalhe",
+       "rotulo": "Algo que aprendeu na entrevista",
+       "linhas": 1,
+       "exemplo": "os planos de abrir uma nova loja"
+      },
+      {
+       "id": "ponto",
+       "rotulo": "O seu ponto forte para esta vaga",
+       "linhas": 1,
+       "exemplo": "atendimento ao cliente"
+      },
+      {
+       "id": "eu",
+       "rotulo": "O seu nome",
+       "linhas": 1,
+       "exemplo": "João Manuel"
+      }
+     ]
+    },
+    {
+     "tipo": "lista",
+     "itens": [
+      "Anote logo as perguntas que lhe fizeram: servem para a próxima entrevista.",
+      "Se não houver resposta numa semana, envie uma mensagem curta a perguntar pelo ponto da situação.",
+      "Se não ficar com a vaga, peça uma opinião sobre a sua entrevista. Muitas empresas respondem."
+     ]
+    },
+    {
+     "tipo": "quiz",
+     "perguntas": [
+      {
+       "p": "Quando deve enviar o agradecimento?",
+       "o": [
+        "No mesmo dia",
+        "Depois de saber o resultado",
+        "Não se envia"
+       ],
+       "c": 0,
+       "e": "No mesmo dia, enquanto a sua entrevista ainda está fresca na memória."
+      },
+      {
+       "p": "O agradecimento deve incluir…",
+       "o": [
+        "Um pedido de aumento",
+        "O seu interesse e o que traz para a vaga",
+        "Críticas à entrevista"
+       ],
+       "c": 1,
+       "e": "Agradecer, repetir o interesse e lembrar o seu valor."
+      },
+      {
+       "p": "Se não ficar com a vaga, o mais útil é…",
+       "o": [
+        "Desistir de entrevistas",
+        "Pedir uma opinião e anotar as perguntas",
+        "Reclamar com a empresa"
+       ],
+       "c": 1,
+       "e": "Cada entrevista é treino para a próxima."
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "fontes": [
+  {
+   "pais": "Reino Unido",
+   "org": "National Careers Service",
+   "ideia": "método STAR para estruturar exemplos em entrevistas",
+   "url": "https://nationalcareers.service.gov.uk/careers-advice/interview-advice/the-star-method"
+  },
+  {
+   "pais": "Reino Unido",
+   "org": "Job Help (governo)",
+   "ideia": "preparar perguntas prováveis, notas curtas e ensaiar em voz alta",
+   "url": "https://jobhelp.campaign.gov.uk/?p=9526"
+  },
+  {
+   "pais": "Reino Unido (País de Gales)",
+   "org": "Careers Wales",
+   "ideia": "a descrição da vaga dá as pistas das perguntas",
+   "url": "https://careerswales.gov.wales/node/537"
+  },
+  {
+   "pais": "Canadá",
+   "org": "Job Bank",
+   "ideia": "preparar perguntas sobre a empresa e enviar agradecimento no mesmo dia",
+   "url": "https://www.jobbank.gc.ca/findajob/resources/prepare-for-interview"
+  },
+  {
+   "pais": "Canadá",
+   "org": "WorkBC",
+   "ideia": "praticar perguntas comuns e fazer 1 ou 2 perguntas no fim",
+   "url": "https://www.workbc.ca/get-support/job-application-tips/interviews"
+  },
+  {
+   "pais": "Singapura",
+   "org": "MyCareersFuture (governo)",
+   "ideia": "usar exemplos reais e preparar respostas a perguntas comportamentais",
+   "url": "https://content.mycareersfuture.gov.sg/?p=31345"
+  }
+ ],
+ "fim_titulo": "Ainda falta uma parte da entrevista",
+ "fim_texto": "Muitas empresas fazem também um teste psicotécnico. Faça o teste de 10 perguntas, grátis, e veja onde tem de treinar.",
+ "fim_link": "/?jogo=psico",
+ "fim_botao": "Fazer o teste psicotécnico grátis"
+}

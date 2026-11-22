@@ -71,7 +71,7 @@ var CAPS = { serie:'Numérico', percent:'Numérico', intruso:'Numérico', letras
 
 /* ---------- ecrã cheio (reutiliza o painel do desafio) ---------- */
 function abrirPainel(titulo){ $('jNome').textContent = titulo; $('jTempo').textContent = ''; $('jProg').style.width = '0%'; $('jogo').classList.add('ativo'); document.body.style.overflow = 'hidden'; window.__pcSair = fecharPainel; }
-function fecharPainel(){ if(PT.timer){ clearInterval(PT.timer); PT.timer = null; } $('jogo').classList.remove('ativo'); document.body.style.overflow = ''; if(window.pcRedesenhar) window.pcRedesenhar(); desenharPsicoHome(); }
+function fecharPainel(){ if(PT.timer){ clearInterval(PT.timer); PT.timer = null; } $('jogo').classList.remove('ativo'); document.body.style.overflow = ''; if(window.pcRedesenhar) window.pcRedesenhar(); desenharPsicoHome(); if(window.PC_ANNAN) window.PC_ANNAN.desenhar(); }
 var PT = { timer:null };
 
 /* ---------- teste psicotécnico de 10 perguntas ---------- */
@@ -92,7 +92,7 @@ function teste(){
     }; });
   }
   function fim(){
-    var erros = 10 - certas, d = ler(); d.psico = d.psico || []; d.psico.push({ d:new Date().toISOString().slice(0, 10), c:certas, s:Math.round((Date.now() - inicio)/1000) }); d.psico = d.psico.slice(-30); gravar(d);
+    var erros = 10 - certas, d = ler(); d.psico = d.psico || []; var kk = {}; qs.forEach(function(q){ kk[q.k] = q.ok ? 1 : 0; }); var hj = new Date(); d.psico.push({ d:hj.getFullYear() + '-' + String(hj.getMonth() + 1).padStart(2, '0') + '-' + String(hj.getDate()).padStart(2, '0'), c:certas, s:Math.round((Date.now() - inicio)/1000), k:kk }); d.psico = d.psico.slice(-30); gravar(d);
     medir('psico_fim_' + certas);
     var nivel = certas >= 9 ? 'Excelente' : certas >= 7 ? 'Bom' : certas >= 5 ? 'Razoável' : 'A treinar';
     var caps = Object.keys(porCap).map(function(k){ return { k:k, p:porCap[k][0] / porCap[k][1] }; }).sort(function(a, b){ return a.p - b.p; });
@@ -102,6 +102,8 @@ function teste(){
     h += '<details class="rev"><summary>Ver as respostas e porquê</summary>' + qs.map(function(q, n){ return '<p><b>' + (n+1) + '. ' + (q.ok ? 'Certo' : 'Errado') + '</b> · ' + esc(q.tipo) + ': ' + esc(String(q.c)) + '. ' + esc(q.e) + '</p>'; }).join('') + '</details></div>';
     if(erros >= 6) h += '<div class="reco"><b>Recomendado para si: Curso de Psicotecnia</b><p>Errou ' + erros + ' de 10. O curso explica as regras por trás de cada tipo de pergunta (teoria) e dá exercícios novos sem fim (prática). É o treino que mais faz subir neste tipo de teste.</p><button class="a1" id="ptCurso">Ver o curso</button></div>';
     else h += '<div class="reco leve"><b>Quer subir ainda mais?</b><p>' + (fracos.length ? 'Pontos a treinar: ' + fracos.join(', ') + '.' : 'Acertou tudo.') + ' O Curso de Psicotecnia tem teoria e prática para cada tipo.</p><button class="a2" id="ptCurso">Ver o curso</button></div>';
+    var rec = window.PC_ANNAN && window.PC_ANNAN.moduloRecomendado();
+    if(rec) h += '<div class="ag-res"><span class="ag-av">A</span><p>O seu curso fica feito à sua medida: começa por <b>' + esc(rec.nome) + '</b>, onde teve mais dificuldade.</p></div>';
     h += '<div class="acoes"><button class="a2" id="ptPart">Desafiar o meu grupo</button><button class="a1" id="ptDeNovo">Fazer outro teste (perguntas novas)</button><button class="a3" id="ptSair">Voltar ao início</button></div>';
     $('jArea').innerHTML = h; $('jProg').style.width = '100%'; $('jTempo').textContent = '';
     $('ptCurso').onclick = function(){ curso(fracos); };
@@ -133,16 +135,21 @@ function cursoLiberado(){ var d = ler(); return !!d.curso_psico_liberado; }
 function sha(t){ return crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)).then(function(b){ return Array.from(new Uint8Array(b)).map(function(x){ return x.toString(16).padStart(2, '0'); }).join('').slice(0, 20); }); }
 function curso(fracos){
   medir('psico_curso'); abrirPainel('Curso de Psicotecnia');
-  var lib = cursoLiberado(), d = ler(), feitos = d.curso_psico || {};
-  var h = '<div class="curso"><p class="cint">Teoria curta e prática sem fim para testes psicotécnicos de emprego, concursos e entrevistas. Cada exercício é novo.</p>';
-  MODULOS.forEach(function(m, n){
-    var aberto = m.gratis || lib, f = feitos[m.id] || 0;
-    h += '<button class="mod' + (aberto ? '' : ' fechado') + '" data-m="' + n + '"><span class="mn">Módulo ' + (n+1) + (m.gratis ? ' · grátis' : '') + '</span><b>' + m.nome + '</b><em>' + (aberto ? (f ? 'Prática: ' + f + ' exercícios certos' : 'Teoria + prática') : 'Bloqueado') + '</em></button>';
+  var lib = cursoLiberado(), d = ler(), feitos = d.curso_psico || {}, rec = window.PC_ANNAN && window.PC_ANNAN.moduloRecomendado(), pf = window.PC_ANNAN && window.PC_ANNAN.perfil();
+  var obj = pf && window.PC_ANNAN.OBJ[pf.objetivo];
+  var h = '<div class="curso"><p class="cint">Teoria curta e prática sem fim' + (obj ? ' para o seu objetivo: <b>' + esc(obj.nome) + '</b>' : ' para testes psicotécnicos de emprego, concursos e entrevistas') + '. Cada exercício é novo.</p>';
+  if(rec) h += '<div class="ag-res"><span class="ag-av">A</span><p>Pelo seu último teste, comece por <b>' + esc(rec.nome) + '</b>.</p></div>';
+  else h += '<div class="ag-res"><span class="ag-av">A</span><p>Faça primeiro o teste de 10 perguntas: o curso ordena-se pelas suas dificuldades.</p></div>';
+  var ordem = MODULOS.map(function(m, n){ return n; });
+  if(rec) ordem.sort(function(a, b){ return (MODULOS[b].id === rec.m) - (MODULOS[a].id === rec.m) || a - b; });
+  ordem.forEach(function(n){ var m = MODULOS[n];
+    var amostra = !m.gratis && !lib && rec && rec.m === m.id && !d.amostra_rec, aberto = m.gratis || lib || amostra, f = feitos[m.id] || 0;
+    h += '<button class="mod' + (aberto ? '' : ' fechado') + '" data-m="' + n + '"><span class="mn">Módulo ' + (n+1) + (m.gratis ? ' · grátis' : '') + (rec && rec.m === m.id ? ' · recomendado para si' : '') + (amostra ? ' · 1.ª prática grátis' : '') + '</span><b>' + m.nome + '</b><em>' + (aberto ? (f ? 'Prática: ' + f + ' exercícios certos' : 'Teoria + prática') : 'Bloqueado') + '</em></button>';
   });
   if(!lib) h += '<div class="gate"><b>Desbloquear o curso completo</b><p>1 000 Kz ou o equivalente em dólares (USDT pela Bybit ou Binance). Também em meticais.</p><button class="a1" id="cPagar">Pagar 1 000 Kz</button><p class="ou">ou convide 10 pessoas que se registem e façam o teste</p><button class="a2" id="cConv">Convidar o meu grupo</button><p class="ou">Já pagou? Introduza o código que recebeu</p><div class="cod"><input id="cCod" placeholder="PSI-XXXXXX" maxlength="10" autocapitalize="characters"><button class="a2" id="cCodOk">Ativar</button></div><div class="cmsg" id="cMsg"></div></div>';
   h += '<div class="acoes"><button class="a3" id="cSair">Voltar</button></div></div>';
   $('jArea').innerHTML = h;
-  $('jArea').querySelectorAll('[data-m]').forEach(function(b){ b.onclick = function(){ var m = MODULOS[+b.dataset.m]; if(m.gratis || cursoLiberado()) modulo(m); else { var g = $('jArea').querySelector('.gate'); if(g) g.scrollIntoView({ behavior:'smooth', block:'center' }); } }; });
+  $('jArea').querySelectorAll('[data-m]').forEach(function(b){ b.onclick = function(){ var m = MODULOS[+b.dataset.m], dd = ler(); if(m.gratis || cursoLiberado() || (rec && rec.m === m.id && !dd.amostra_rec)) modulo(m); else { var g = $('jArea').querySelector('.gate'); if(g) g.scrollIntoView({ behavior:'smooth', block:'center' }); } }; });
   $('cSair').onclick = fecharPainel;
   if($('cPagar')) $('cPagar').onclick = function(){ medir('psico_pagar'); window.open('https://wa.me/' + WHATS + '?text=' + encodeURIComponent('Olá, quero desbloquear o Curso de Psicotecnia (1 000 Kz). Como pago?'), '_blank', 'noopener'); };
   if($('cConv')) $('cConv').onclick = function(){ convidar(null); };
@@ -157,7 +164,7 @@ function modulo(m){
 function pratica(m){
   var n = 0, certas = 0;
   function prox(){
-    if(n >= 10){ var d = ler(); d.curso_psico = d.curso_psico || {}; d.curso_psico[m.id] = (d.curso_psico[m.id] || 0) + certas; gravar(d); medir('psico_pratica_' + m.id);
+    if(n >= 10){ var d = ler(); d.curso_psico = d.curso_psico || {}; d.curso_psico[m.id] = (d.curso_psico[m.id] || 0) + certas; if(!m.gratis && !cursoLiberado()) d.amostra_rec = 1; var hj = new Date(); d.curso_psico_hoje = hj.getFullYear() + '-' + String(hj.getMonth() + 1).padStart(2, '0') + '-' + String(hj.getDate()).padStart(2, '0'); gravar(d); medir('psico_pratica_' + m.id);
       $('jArea').innerHTML = '<div class="res"><div class="n">' + certas + '/10</div><div class="r">Prática · ' + esc(m.nome) + '</div><p class="msg">' + (certas >= 8 ? 'Domina este tipo. Passe ao módulo seguinte.' : 'Releia a teoria e repita: os exercícios são sempre novos.') + '</p></div><div class="acoes"><button class="a1" id="pOutra">Mais 10 exercícios</button><button class="a2" id="pTeo">Rever a teoria</button><button class="a3" id="pCurso">Voltar ao curso</button></div>';
       $('pOutra').onclick = function(){ pratica(m); }; $('pTeo').onclick = function(){ modulo(m); }; $('pCurso').onclick = function(){ curso(); }; return; }
     var q = G[pick(m.gens)](); $('jProg').style.width = (n * 10) + '%'; $('jTempo').textContent = (n + 1) + '/10';

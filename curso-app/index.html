@@ -4590,15 +4590,16 @@ function pcAnuncioHTML(lugar){
     { t: 'Passe de 7 dias por 500 Kz', d: 'Todas as aulas do nível intermédio e avançado, com o professor ANNAN.', b: 'Ver as aulas', a: 'aprender' },
     { t: 'Oferta de hoje: 3 produtos juntos', d: 'Mais barato do que comprar um a um. Amanhã são outros 3.', b: 'Ver a oferta', a: 'oferta' },
     { t: 'Convide amigos e ganhe dias grátis', d: 'Cada amigo que entrar pelo seu link dá-lhe 1 crédito (1 dia de aulas).', b: 'Pegar o meu link', a: 'aprender' },
-    ...(adulto ? [{ t: 'Conta Visa da Bybit em 7 minutos', d: 'Para pagar e receber em dólares. Parceiro da Plataforma Curso.', b: 'Abrir', a: 'bybit' }] : [])
+    ...(adulto ? [{ t: 'Conta Visa da Bybit em 7 minutos', d: 'Para pagar e receber em dólares. Parceiro da Plataforma Curso.', b: 'Abrir', a: 'bybit' }, { t: 'Aprenda a fazer trade', d: 'Abra a sua conta na Binance e comece com valores pequenos. Parceiro da Plataforma Curso.', b: 'Abrir', a: 'binance' }] : [])
   ];
   const x = casa[(pcAnuncioN++ + new Date().getDate()) % casa.length];
-  return `<div class="pc-anuncio" data-anuncio="${escAttr(lugar)}"><span class="pc-anuncio-etq">${x.a === 'bybit' ? 'Parceiro' : 'Destaque'}</span><div><b>${esc(x.t)}</b><p>${esc(x.d)}</p></div><button type="button" class="pc-anuncio-bt" data-anuncio-ir="${x.a}">${esc(x.b)}</button></div>`;
+  return `<div class="pc-anuncio" data-anuncio="${escAttr(lugar)}"><span class="pc-anuncio-etq">${(x.a === 'bybit' || x.a === 'binance') ? 'Parceiro' : 'Destaque'}</span><div><b>${esc(x.t)}</b><p>${esc(x.d)}</p></div><button type="button" class="pc-anuncio-bt" data-anuncio-ir="${x.a}">${esc(x.b)}</button></div>`;
 }
 function pcLigarAnuncios(raiz){
   raiz.querySelectorAll('[data-anuncio-ir]').forEach(b => b.addEventListener('click', () => { const a = b.dataset.anuncioIr; if(window.medirEvento) medirEvento('anuncio_' + a);
     if(a === 'aprender') irParaAprender(); else if(a === 'oferta'){ const w = document.getElementById('pcDiaWrap'); if(w && w.style.display !== 'none'){ pcMostrarParte('loja'); w.scrollIntoView({ behavior: 'smooth', block: 'start' }); } else { pcMostrarParte('loja'); } }
-    else if(a === 'bybit') window.open('https://www.bybit.com/cards/?ref=AGBWMZV&source=applet_invite', '_blank', 'noopener'); }));
+    else if(a === 'bybit') window.open('https://www.bybit.com/cards/?ref=AGBWMZV&source=applet_invite', '_blank', 'noopener');
+    else if(a === 'binance') window.open('https://www.binance.com/register?ref=758628538', '_blank', 'noopener'); }));
   if(window.medirEvento && raiz.querySelector('[data-anuncio]')) medirEvento('anuncio_visto');
 }
 function pcMostrarParte(parte){

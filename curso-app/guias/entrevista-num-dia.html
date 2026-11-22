@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Plataforma Curso</title>
+<meta name="theme-color" content="#14284B">
+<link rel="icon" href="/curso-icon-192.png" type="image/png">
+<style>
+:root{--azul:#14284B;--azul2:#2E5AA8;--real:#E2A33B;--texto:#1A2233;--suave:#5B6478;--linha:#E3E7EF;--claro:#F3F5F9;--ok:#1E8E5A;--erro:#C0392B}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--texto);background:var(--claro);font-size:17px;line-height:1.6}
+button,input,textarea{font:inherit}
+button{cursor:pointer;border:0}
+.topo{background:var(--azul);color:#fff;padding:18px 18px 22px}
+.topo small{opacity:.8;font-size:13px;letter-spacing:.06em;text-transform:uppercase}
+.topo h1{margin:6px 0 6px;font-size:25px;line-height:1.25}
+.topo p{margin:0;opacity:.9;font-size:15px}
+.topo .meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.topo .meta span{background:rgba(255,255,255,.12);border-radius:20px;padding:4px 10px;font-size:13px}
+.prog{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--linha);padding:8px 16px}
+.prog .b{height:6px;background:var(--claro);border-radius:4px;overflow:hidden}.prog .b i{display:block;height:100%;width:0;background:var(--real);transition:width .3s}
+.prog small{font-size:12px;color:var(--suave)}
+main{max-width:680px;margin:0 auto;padding:12px 14px 40px}
+.promessa{background:#fff;border:1px solid var(--linha);border-radius:16px;padding:14px 16px;margin:12px 0}
+.promessa b{display:block;margin-bottom:4px}
+.parte{background:#fff;border:1px solid var(--linha);border-radius:16px;padding:16px;margin:14px 0}
+.parte>header{display:flex;gap:10px;align-items:baseline}
+.parte>header span{font-size:12px;color:var(--suave);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap}
+.parte h2{margin:0;font-size:21px;line-height:1.3}
+.parte h3{font-size:17px;margin:18px 0 6px}
+.parte p{margin:8px 0}
+.parte ul,.parte ol{padding-left:22px;margin:8px 0}
+.destaque{border-left:4px solid var(--real);background:#FFF8EC;padding:10px 12px;border-radius:0 10px 10px 0;margin:12px 0;font-size:16px}
+.passos{counter-reset:p;list-style:none;padding:0}
+.passos li{counter-increment:p;position:relative;padding:8px 0 8px 40px;border-bottom:1px solid var(--linha)}
+.passos li:before{content:counter(p);position:absolute;left:0;top:8px;width:28px;height:28px;border-radius:50%;background:var(--azul);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
+.ferr{background:var(--claro);border-radius:14px;padding:14px;margin:14px 0}
+.ferr>b{display:block;margin-bottom:4px}.ferr>small{display:block;color:var(--suave);font-size:13px;margin-bottom:8px}
+.ferr label{display:block;font-size:14px;font-weight:600;margin-top:10px}
+.ferr label em{display:block;font-weight:400;font-style:normal;color:var(--suave);font-size:13px}
+.ferr textarea,.ferr input{width:100%;margin-top:4px;padding:10px;border:1px solid var(--linha);border-radius:10px;background:#fff;min-height:44px}
+.ferr textarea{min-height:70px;resize:vertical}
+.saida{background:#fff;border:1px dashed var(--azul2);border-radius:10px;padding:10px;margin-top:10px;white-space:pre-wrap;font-size:15px;min-height:40px}
+.bts{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.bt{background:var(--azul);color:#fff;padding:11px 16px;border-radius:12px;font-weight:700;min-height:44px}
+.bt2{background:#fff;color:var(--azul);border:1px solid var(--azul);padding:11px 16px;border-radius:12px;font-weight:700;min-height:44px}
+.chk{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--linha);font-size:16px}
+.chk input{width:22px;height:22px;margin-top:2px;flex:none;accent-color:var(--ok)}
+.cartao{background:#fff;border:1px solid var(--linha);border-radius:12px;margin-top:8px}
+.cartao summary{padding:12px;font-weight:600;cursor:pointer;list-style:none}
+.cartao summary::-webkit-details-marker{display:none}
+.cartao summary:after{content:"Ver dica";float:right;font-size:12px;color:var(--azul2);font-weight:600}
+.cartao[open] summary:after{content:"Fechar"}
+.cartao div{padding:0 12px 12px;color:var(--suave);font-size:15px}
+.quiz{border-top:2px solid var(--claro);margin-top:16px;padding-top:12px}
+.quiz>b{display:block}.quiz>small{color:var(--suave);font-size:13px}
+.qq{margin-top:12px}.qq p{font-weight:600;margin:0 0 6px}
+.qq button{display:block;width:100%;text-align:left;padding:11px 12px;margin-top:6px;border-radius:10px;background:var(--claro);border:1px solid var(--linha);color:var(--texto);min-height:44px}
+.qq button.certa{background:#E6F4EC;border-color:var(--ok)}.qq button.errada{background:#FBEAEA;border-color:var(--erro)}
+.qq .ex{font-size:14px;color:var(--suave);margin-top:6px}
+.qres{margin-top:12px;font-weight:700}
+.feito{display:none;margin-top:12px;background:#E6F4EC;color:var(--ok);border-radius:10px;padding:10px;font-weight:700;text-align:center}
+.parte.ok .feito{display:block}
+.fontes{font-size:14px}.fontes li{margin:6px 0}.fontes a{color:var(--azul2);word-break:break-word}
+.fim{background:var(--azul);color:#fff;border-radius:16px;padding:18px;margin:18px 0;text-align:center}
+.fim h2{margin:0 0 6px;font-size:21px}.fim p{opacity:.9;margin:6px 0 12px}
+.fim a,.fim button{display:block;width:100%;margin-top:8px;padding:13px;border-radius:12px;font-weight:700;text-decoration:none;min-height:48px}
+.fim .a1{background:var(--real);color:var(--azul)}.fim .a2{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.5)}
+footer{text-align:center;font-size:13px;color:var(--suave);padding:10px 14px 30px}
+footer a{color:var(--azul2)}
+@media print{.prog,.fim,.bts,.quiz,footer .np{display:none}.parte{break-inside:avoid;border:0}body{background:#fff}.topo{color:#000;background:#fff;border-bottom:2px solid #000}}
+</style>
+</head>
+<body>
+<div class="topo"><small id="tTipo"></small><h1 id="tTitulo"></h1><p id="tSub"></p><div class="meta" id="tMeta"></div></div>
+<div class="prog"><div class="b"><i id="pBar"></i></div><small id="pTxt"></small></div>
+<main id="conteudo"></main>
+<footer>Plataforma Curso · <a href="/">Desafio do dia</a> · <a href="https://wa.me/244958392006">Falar connosco</a> · <a href="#" class="np" onclick="window.print();return false">Imprimir / guardar PDF</a></footer>
+
+<!-- O motor de infoprodutos só escreve este bloco de dados (formato em docs/FORMATO_INFOPRODUTO.md). -->
+<script id="dados" type="application/json">{"id": "entrevista-num-dia", "tipo": "Guia prático com ferramentas", "titulo": "Entrevista de emprego: fique pronto num dia", "subtitulo": "4 partes curtas, 3 ferramentas para preencher e um teste no fim de cada parte.", "minutos": 25, "promessa": "Terá **3 respostas prontas** no método STAR, **as suas perguntas** para o entrevistador, a **lista do dia** e a **mensagem de agradecimento** para enviar depois.", "para_quem": "quem tem uma entrevista marcada nos próximos dias e quer chegar preparado, mesmo sem experiência anterior.", "partilha": "Tenho uma entrevista e este guia preparou-me num dia:", "metodo": "Este guia junta o que os serviços públicos de emprego do Reino Unido, do Canadá e de Singapura recomendam, transformado em ferramentas para preencher hoje. Não promete emprego: prepara-o para dar o seu melhor.", "partes": [{"titulo": "Descubra o que vão perguntar", "minutos": 5, "blocos": [{"tipo": "texto", "paragrafos": ["O anúncio da vaga é a sua cábula. As empresas escrevem lá as competências que procuram, e as perguntas da entrevista servem para confirmar essas mesmas competências.", "Por isso, antes de pensar em respostas, leia o anúncio com um lápis na mão."]}, {"tipo": "passos", "itens": ["Sublinhe no anúncio cada competência pedida (por exemplo: **trabalho em equipa**, **atendimento**, **organização**).", "Escolha as **3 mais importantes**. Vai preparar um exemplo real para cada uma.", "Procure a empresa: o que vende, a quem, e uma novidade recente. Bastam 10 minutos."]}, {"tipo": "destaque", "texto": "Os serviços de carreira do País de Gales resumem assim: a descrição da vaga dá as pistas das perguntas que vão fazer."}, {"tipo": "cartoes", "titulo": "As perguntas que quase sempre aparecem", "itens": [{"frente": "Fale-me de si.", "verso": "Em 1 minuto: o que estudou ou fez, uma conquista concreta, e porque esta vaga faz sentido agora. Nada de vida pessoal."}, {"frente": "Porque quer trabalhar aqui?", "verso": "Use o que descobriu sobre a empresa. Uma frase sobre a empresa e uma sobre o que você traz."}, {"frente": "Quais são os seus pontos fortes?", "verso": "Escolha um que esteja no anúncio e prove-o com um exemplo curto."}, {"frente": "E um ponto fraco?", "verso": "Um ponto real e pequeno, mais o que já está a fazer para melhorar. Evite falsos defeitos como 'sou perfeccionista'."}, {"frente": "Conte uma situação difícil que resolveu.", "verso": "É aqui que entra o método STAR, da parte 2."}]}, {"tipo": "quiz", "perguntas": [{"p": "Onde encontra as melhores pistas sobre as perguntas da entrevista?", "o": ["Nas redes sociais dos funcionários", "No anúncio da vaga", "Em listas genéricas da Internet"], "c": 1, "e": "O anúncio diz quais competências a empresa vai querer confirmar."}, {"p": "Quantas competências deve preparar com exemplos reais?", "o": ["Todas as do anúncio", "As 3 mais importantes", "Nenhuma, improvisa-se"], "c": 1, "e": "Três exemplos bem preparados servem para a maior parte das perguntas."}, {"p": "'Fale-me de si' deve durar cerca de…", "o": ["1 minuto", "5 minutos", "10 segundos"], "c": 0, "e": "Curto e focado no trabalho: estudos ou experiência, uma conquista e porque quer esta vaga."}]}]}, {"titulo": "Responda com o método STAR", "minutos": 8, "blocos": [{"tipo": "texto", "paragrafos": ["Quando perguntam \"dê um exemplo de quando…\", o entrevistador quer uma história curta e verdadeira. O método **STAR**, recomendado pelo Serviço Nacional de Carreiras do Reino Unido, organiza essa história em quatro partes.", "**S**ituação: onde e quando. **T**arefa: o que tinha de conseguir. **A**ção: o que **você** fez (não a equipa). **R**esultado: o que mudou, de preferência com um número."]}, {"tipo": "destaque", "texto": "A parte mais importante é a **Ação**: passe aí metade do tempo da resposta. O exemplo pode vir da escola, de voluntariado, da igreja, da família ou de um negócio próprio."}, {"tipo": "ferramenta", "titulo": "Construtor de resposta STAR", "dica": "Preencha uma vez por cada uma das 3 competências. O texto fica guardado neste telemóvel.", "modelo": "Competência: {comp}\n\nSituação: {s}\nTarefa: {t}\nAção: {a}\nResultado: {r}", "campos": [{"id": "comp", "rotulo": "Competência que vai provar", "linhas": 1, "exemplo": "Atendimento ao cliente"}, {"id": "s", "rotulo": "Situação", "ajuda": "Onde e quando, numa frase.", "exemplo": "Ajudava na loja da minha tia aos sábados, no ano passado."}, {"id": "t", "rotulo": "Tarefa", "ajuda": "O que tinha de conseguir.", "exemplo": "Um cliente queria devolver um produto fora do prazo e estava zangado."}, {"id": "a", "rotulo": "Ação", "ajuda": "O que VOCÊ fez, passo a passo.", "exemplo": "Ouvi sem interromper, expliquei a regra com calma e propus trocar por outro artigo do mesmo valor."}, {"id": "r", "rotulo": "Resultado", "ajuda": "O que mudou. Use um número se puder.", "exemplo": "Aceitou a troca, voltou na semana seguinte e trouxe um amigo."}]}, {"tipo": "texto", "paragrafos": ["Depois de escrever, diga a resposta em voz alta, duas vezes. Os serviços de emprego do Reino Unido sugerem ensaiar em frente ao espelho: na entrevista, as palavras já saem sozinhas."]}, {"tipo": "quiz", "perguntas": [{"p": "No STAR, a letra A significa…", "o": ["Ambiente", "Ação", "Atitude"], "c": 1, "e": "Ação: o que você fez. É a parte que mostra a sua competência."}, {"p": "Onde deve passar mais tempo da resposta?", "o": ["Na situação", "Na ação", "No resultado"], "c": 1, "e": "A ação é a prova. A situação serve só para contextualizar."}, {"p": "Um exemplo de voluntariado serve para responder?", "o": ["Sim, se for verdadeiro e mostrar a competência", "Não, só contam empregos formais", "Só se for no estrangeiro"], "c": 0, "e": "Os guias oficiais aceitam exemplos de casa, trabalho ou voluntariado."}]}]}, {"titulo": "Prepare as suas perguntas e o dia", "minutos": 6, "blocos": [{"tipo": "texto", "paragrafos": ["No fim, quase sempre perguntam: \"Tem alguma pergunta?\". O serviço público de emprego do Canadá recomenda ter duas perguntas que mostrem que estudou a empresa. Dizer \"não\" faz perder um ponto fácil."]}, {"tipo": "ferramenta", "titulo": "As suas 2 perguntas para o entrevistador", "dica": "Evite perguntar primeiro pelo salário ou pelas férias.", "modelo": "1. {q1}\n2. {q2}", "campos": [{"id": "q1", "rotulo": "Pergunta sobre o trabalho", "linhas": 1, "exemplo": "Como é um dia normal nesta função?"}, {"id": "q2", "rotulo": "Pergunta sobre a empresa", "linhas": 1, "exemplo": "Quais são os planos da empresa para o próximo ano nesta área?"}]}, {"tipo": "checklist", "titulo": "Lista do dia da entrevista", "dica": "Marque à medida que prepara. Fica guardado.", "itens": ["Morada, hora e nome de quem o vai receber confirmados", "Caminho testado: chegar **10 minutos antes**", "Roupa escolhida e passada na véspera", "Currículo impresso (2 cópias) e documento de identificação", "As 3 respostas STAR lidas em voz alta", "As 2 perguntas para o entrevistador", "Telemóvel em silêncio antes de entrar", "Se for por vídeo: Internet testada, sítio calmo e boa luz no rosto"]}, {"tipo": "quiz", "perguntas": [{"p": "Quando perguntam 'Tem alguma pergunta?', o melhor é…", "o": ["Dizer que não", "Fazer 1 ou 2 perguntas sobre o trabalho ou a empresa", "Perguntar logo pelo salário"], "c": 1, "e": "Mostra interesse e que estudou a empresa."}, {"p": "Com quanta antecedência deve chegar?", "o": ["Cerca de 10 minutos", "1 hora", "À hora exata"], "c": 0, "e": "Dá margem para imprevistos sem ficar muito tempo à espera."}, {"p": "Numa entrevista por vídeo, o mais importante é…", "o": ["Ter um fundo bonito", "Internet testada e sítio sem barulho", "Usar o computador mais caro"], "c": 1, "e": "Os guias oficiais sublinham um espaço sem distrações e a ligação testada."}]}]}, {"titulo": "Depois da entrevista", "minutos": 4, "blocos": [{"tipo": "texto", "paragrafos": ["O Canadá recomenda enviar um agradecimento **no mesmo dia**: agradece o tempo, repete o seu interesse e lembra o que traz. Poucos candidatos o fazem, e por isso fica na memória de quem decide."]}, {"tipo": "ferramenta", "titulo": "Gerador da mensagem de agradecimento", "dica": "Copie e envie por e-mail ou WhatsApp no próprio dia.", "modelo": "Bom dia, {nome}.\n\nObrigado pelo tempo que me dedicou hoje na entrevista para {funcao}. Fiquei ainda mais interessado na vaga, sobretudo depois de saber {detalhe}.\n\nAcredito que a minha experiência em {ponto} pode ajudar a equipa desde o primeiro dia.\n\nFico ao dispor para qualquer informação.\n\nCom os melhores cumprimentos,\n{eu}", "campos": [{"id": "nome", "rotulo": "Nome de quem o entrevistou", "linhas": 1, "exemplo": "Sra. Marta"}, {"id": "funcao", "rotulo": "Função", "linhas": 1, "exemplo": "assistente comercial"}, {"id": "detalhe", "rotulo": "Algo que aprendeu na entrevista", "linhas": 1, "exemplo": "os planos de abrir uma nova loja"}, {"id": "ponto", "rotulo": "O seu ponto forte para esta vaga", "linhas": 1, "exemplo": "atendimento ao cliente"}, {"id": "eu", "rotulo": "O seu nome", "linhas": 1, "exemplo": "João Manuel"}]}, {"tipo": "lista", "itens": ["Anote logo as perguntas que lhe fizeram: servem para a próxima entrevista.", "Se não houver resposta numa semana, envie uma mensagem curta a perguntar pelo ponto da situação.", "Se não ficar com a vaga, peça uma opinião sobre a sua entrevista. Muitas empresas respondem."]}, {"tipo": "quiz", "perguntas": [{"p": "Quando deve enviar o agradecimento?", "o": ["No mesmo dia", "Depois de saber o resultado", "Não se envia"], "c": 0, "e": "No mesmo dia, enquanto a sua entrevista ainda está fresca na memória."}, {"p": "O agradecimento deve incluir…", "o": ["Um pedido de aumento", "O seu interesse e o que traz para a vaga", "Críticas à entrevista"], "c": 1, "e": "Agradecer, repetir o interesse e lembrar o seu valor."}, {"p": "Se não ficar com a vaga, o mais útil é…", "o": ["Desistir de entrevistas", "Pedir uma opinião e anotar as perguntas", "Reclamar com a empresa"], "c": 1, "e": "Cada entrevista é treino para a próxima."}]}]}], "fontes": [{"pais": "Reino Unido", "org": "National Careers Service", "ideia": "método STAR para estruturar exemplos em entrevistas", "url": "https://nationalcareers.service.gov.uk/careers-advice/interview-advice/the-star-method"}, {"pais": "Reino Unido", "org": "Job Help (governo)", "ideia": "preparar perguntas prováveis, notas curtas e ensaiar em voz alta", "url": "https://jobhelp.campaign.gov.uk/?p=9526"}, {"pais": "Reino Unido (País de Gales)", "org": "Careers Wales", "ideia": "a descrição da vaga dá as pistas das perguntas", "url": "https://careerswales.gov.wales/node/537"}, {"pais": "Canadá", "org": "Job Bank", "ideia": "preparar perguntas sobre a empresa e enviar agradecimento no mesmo dia", "url": "https://www.jobbank.gc.ca/findajob/resources/prepare-for-interview"}, {"pais": "Canadá", "org": "WorkBC", "ideia": "praticar perguntas comuns e fazer 1 ou 2 perguntas no fim", "url": "https://www.workbc.ca/get-support/job-application-tips/interviews"}, {"pais": "Singapura", "org": "MyCareersFuture (governo)", "ideia": "usar exemplos reais e preparar respostas a perguntas comportamentais", "url": "https://content.mycareersfuture.gov.sg/?p=31345"}], "fim_titulo": "Ainda falta uma parte da entrevista", "fim_texto": "Muitas empresas fazem também um teste psicotécnico. Faça o teste de 10 perguntas, grátis, e veja onde tem de treinar.", "fim_link": "/?jogo=psico", "fim_botao": "Fazer o teste psicotécnico grátis"}</script>
+
+<script>
+(function(){
+'use strict';
+var D = JSON.parse(document.getElementById('dados').textContent || '{}');
+var CHAVE = 'pc_guia_' + (D.id || 'x');
+function $(id){ return document.getElementById(id); }
+function esc(t){ return String(t == null ? '' : t).replace(/[&<>"]/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]; }); }
+function md(t){ return esc(t).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>'); }
+function ler(){ try{ return JSON.parse(localStorage.getItem(CHAVE) || '{}') || {}; }catch(e){ return {}; } }
+function gravar(o){ try{ localStorage.setItem(CHAVE, JSON.stringify(o)); }catch(e){} }
+function medir(ev){ try{ if(window.medirEvento) window.medirEvento(ev); }catch(e){} }
+var E = ler(); E.campos = E.campos || {}; E.chk = E.chk || {}; E.partes = E.partes || {};
+
+document.title = (D.titulo || 'Guia') + ' · Plataforma Curso';
+$('tTipo').textContent = D.tipo || 'Guia prático';
+$('tTitulo').textContent = D.titulo || '';
+$('tSub').textContent = D.subtitulo || '';
+$('tMeta').innerHTML = [(D.minutos ? D.minutos + ' min' : ''), (D.partes ? D.partes.length + ' partes' : ''), 'Funciona sem Internet', 'Para imprimir'].filter(Boolean).map(function(x){ return '<span>' + esc(x) + '</span>'; }).join('');
+
+function bloco(b, pi, bi){
+  var id = 'p' + pi + 'b' + bi;
+  if(b.tipo === 'texto') return b.paragrafos.map(function(p){ return '<p>' + md(p) + '</p>'; }).join('');
+  if(b.tipo === 'subtitulo') return '<h3>' + esc(b.texto) + '</h3>';
+  if(b.tipo === 'destaque') return '<div class="destaque">' + md(b.texto) + '</div>';
+  if(b.tipo === 'lista') return '<ul>' + b.itens.map(function(i){ return '<li>' + md(i) + '</li>'; }).join('') + '</ul>';
+  if(b.tipo === 'passos') return '<ol class="passos">' + b.itens.map(function(i){ return '<li>' + md(i) + '</li>'; }).join('') + '</ol>';
+  if(b.tipo === 'checklist') return '<div class="ferr"><b>' + esc(b.titulo) + '</b>' + (b.dica ? '<small>' + esc(b.dica) + '</small>' : '') + b.itens.map(function(i, n){ var k = id + '_' + n; return '<label class="chk"><input type="checkbox" data-chk="' + k + '"' + (E.chk[k] ? ' checked' : '') + '><span>' + md(i) + '</span></label>'; }).join('') + '</div>';
+  if(b.tipo === 'cartoes') return '<div><b>' + esc(b.titulo) + '</b>' + b.itens.map(function(c){ return '<details class="cartao"><summary>' + esc(c.frente) + '</summary><div>' + md(c.verso) + '</div></details>'; }).join('') + '</div>';
+  if(b.tipo === 'ferramenta') return '<div class="ferr" data-ferr="' + id + '"><b>' + esc(b.titulo) + '</b>' + (b.dica ? '<small>' + esc(b.dica) + '</small>' : '')
+    + b.campos.map(function(c){ var k = id + '_' + c.id, v = E.campos[k] != null ? E.campos[k] : (c.exemplo || ''); return '<label>' + esc(c.rotulo) + (c.ajuda ? '<em>' + esc(c.ajuda) + '</em>' : '') + (c.linhas === 1 ? '<input data-campo="' + k + '" value="' + esc(v) + '">' : '<textarea data-campo="' + k + '">' + esc(v) + '</textarea>') + '</label>'; }).join('')
+    + '<div class="saida" id="s_' + id + '"></div><div class="bts"><button class="bt" data-copiar="' + id + '">Copiar</button><button class="bt2" data-limpar="' + id + '">Limpar</button></div></div>';
+  if(b.tipo === 'quiz') return '<div class="quiz" data-quiz="' + pi + '"><b>Teste rápido</b><small>Acerte ' + Math.ceil(b.perguntas.length * 0.66) + ' de ' + b.perguntas.length + ' para concluir esta parte.</small>' + b.perguntas.map(function(q, n){ return '<div class="qq" data-q="' + n + '"><p>' + esc(q.p) + '</p>' + q.o.map(function(o, i){ return '<button data-o="' + i + '">' + esc(o) + '</button>'; }).join('') + '<div class="ex"></div></div>'; }).join('') + '<div class="qres"></div></div>';
+  return '';
+}
+
+function montar(){
+  var h = '<div class="promessa"><b>No fim deste guia</b>' + md(D.promessa || '') + (D.para_quem ? '<p style="margin:6px 0 0;color:var(--suave);font-size:15px">Para quem: ' + esc(D.para_quem) + '</p>' : '') + '</div>';
+  (D.partes || []).forEach(function(p, pi){
+    h += '<section class="parte' + (E.partes[pi] ? ' ok' : '') + '" id="parte' + pi + '"><header><span>Parte ' + (pi + 1) + (p.minutos ? ' · ' + p.minutos + ' min' : '') + '</span><h2>' + esc(p.titulo) + '</h2></header>'
+      + (p.blocos || []).map(function(b, bi){ return bloco(b, pi, bi); }).join('') + '<div class="feito">Parte concluída</div></section>';
+  });
+  if(D.fontes && D.fontes.length) h += '<section class="parte"><header><span>Como foi feito</span><h2>Fontes consultadas</h2></header><p style="color:var(--suave);font-size:15px">' + esc(D.metodo || 'Este guia junta o que serviços oficiais de emprego e educação de vários países recomendam, adaptado para ser aplicado hoje.') + '</p><ul class="fontes">' + D.fontes.map(function(f){ return '<li><b>' + esc(f.pais) + '</b> · ' + esc(f.org) + ': ' + esc(f.ideia) + '<br><a href="' + esc(f.url) + '" target="_blank" rel="noopener">' + esc(f.url) + '</a></li>'; }).join('') + '</ul></section>';
+  h += '<div class="fim"><h2>' + esc(D.fim_titulo || 'Continue a treinar') + '</h2><p>' + esc(D.fim_texto || 'O Desafio do dia e o teste psicotécnico mantêm a sua mente pronta. Grátis, 5 minutos por dia.') + '</p><a class="a1" href="' + esc((D.fim_link || '/') + ((D.fim_link || '/').indexOf('?') >= 0 ? '&' : '?') + 'utm_source=guia&utm_campaign=' + (D.id || '')) + '">' + esc(D.fim_botao || 'Ir para o desafio de hoje') + '</a><button class="a2" id="fimPart">Partilhar este guia</button></div>';
+  $('conteudo').innerHTML = h;
+}
+
+function saida(id){
+  var f = document.querySelector('[data-ferr="' + id + '"]'); if(!f) return;
+  var pi = +id.split('b')[0].slice(1), bi = +id.split('b')[1], b = D.partes[pi].blocos[bi], t = b.modelo;
+  b.campos.forEach(function(c){ var v = (E.campos[id + '_' + c.id] != null ? E.campos[id + '_' + c.id] : (c.exemplo || '')).trim(); t = t.split('{' + c.id + '}').join(v || '[' + c.rotulo + ']'); });
+  $('s_' + id).textContent = t;
+}
+function progresso(){
+  var n = (D.partes || []).length, f = Object.keys(E.partes).filter(function(k){ return E.partes[k]; }).length;
+  $('pBar').style.width = (n ? Math.round(f / n * 100) : 0) + '%';
+  $('pTxt').textContent = f === n && n ? 'Guia concluído. Parabéns.' : f + ' de ' + n + ' partes concluídas';
+}
+function ligar(){
+  document.querySelectorAll('[data-campo]').forEach(function(el){ el.addEventListener('input', function(){ E.campos[el.dataset.campo] = el.value; gravar(E); saida(el.dataset.campo.split('_')[0]); }); });
+  document.querySelectorAll('[data-ferr]').forEach(function(f){ saida(f.dataset.ferr); });
+  document.querySelectorAll('[data-copiar]').forEach(function(b){ b.onclick = function(){ var t = $('s_' + b.dataset.copiar).textContent; (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(function(){ b.textContent = 'Copiado'; setTimeout(function(){ b.textContent = 'Copiar'; }, 1500); }).catch(function(){ prompt('Copie o texto:', t); }); medir('guia_copiou'); }; });
+  document.querySelectorAll('[data-limpar]').forEach(function(b){ b.onclick = function(){ var id = b.dataset.limpar; document.querySelectorAll('[data-ferr="' + id + '"] [data-campo]').forEach(function(el){ el.value = ''; E.campos[el.dataset.campo] = ''; }); gravar(E); saida(id); }; });
+  document.querySelectorAll('[data-chk]').forEach(function(c){ c.onchange = function(){ E.chk[c.dataset.chk] = c.checked; gravar(E); }; });
+  document.querySelectorAll('[data-quiz]').forEach(function(qz){
+    var pi = +qz.dataset.quiz, qs = D.partes[pi].blocos.filter(function(b){ return b.tipo === 'quiz'; })[0].perguntas, certas = 0, resp = 0;
+    qz.querySelectorAll('.qq').forEach(function(qq){ var q = qs[+qq.dataset.q];
+      qq.querySelectorAll('[data-o]').forEach(function(b){ b.onclick = function(){
+        var i = +b.dataset.o; qq.querySelectorAll('[data-o]').forEach(function(x){ x.disabled = true; if(+x.dataset.o === q.c) x.classList.add('certa'); });
+        if(i === q.c) certas++; else b.classList.add('errada'); resp++;
+        qq.querySelector('.ex').textContent = (i === q.c ? 'Certo. ' : 'Resposta certa: ' + q.o[q.c] + '. ') + q.e;
+        if(resp === qs.length){
+          var ok = certas >= Math.ceil(qs.length * 0.66), r = qz.querySelector('.qres');
+          r.textContent = certas + ' de ' + qs.length + (ok ? '. Parte concluída.' : '. Releia esta parte e tente de novo.');
+          if(ok){ E.partes[pi] = 1; gravar(E); $('parte' + pi).classList.add('ok'); progresso(); medir('guia_parte_' + pi); }
+          else { var bt = document.createElement('button'); bt.className = 'bt2'; bt.textContent = 'Tentar de novo'; bt.style.marginTop = '8px'; bt.onclick = function(){ montar(); ligar(); progresso(); $('parte' + pi).scrollIntoView(); }; r.appendChild(bt); }
+        }
+      }; });
+    });
+  });
+  $('fimPart').onclick = function(){ var t = (D.partilha || D.titulo) + ' ' + location.origin + location.pathname + '?utm_source=partilha'; if(navigator.share) navigator.share({ text:t }).catch(function(){}); else window.open('https://wa.me/?text=' + encodeURIComponent(t), '_blank', 'noopener'); medir('guia_partilhou'); };
+}
+montar(); ligar(); progresso(); medir('guia_abriu');
+})();
+</script>
+</body>
+</html>

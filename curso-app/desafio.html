@@ -175,6 +175,7 @@ main{max-width:560px;margin:0 auto;padding:16px 16px 96px}
   <div class="serie-txt" id="serieTxt"></div>
 </header>
 <main>
+  <div id="annanGuia"></div>
   <button class="cta" id="btnHoje">Jogar o desafio de hoje</button>
 
   <section class="sec">
@@ -203,6 +204,7 @@ main{max-width:560px;margin:0 auto;padding:16px 16px 96px}
       <p>Livros, ferramentas e aulas para estudar e para testes psicotécnicos, concursos e entrevistas. O nível básico das aulas é grátis.</p>
       <a class="btn" href="/cursos?aprender=1">Começar a aprender grátis</a>
       <a class="btn sec2" href="/cursos">Ver livros e ferramentas</a>
+      <a class="btn sec2" href="/guias/entrevista-num-dia.html">Guia grátis: entrevista de emprego num dia</a>
       <div class="pag">Preços em dólares, pagos pela Bybit ou Binance. Também pode pagar em kwanzas (Multicaixa Express) ou em meticais.</div>
     </div>
   </section>
@@ -228,6 +230,7 @@ main{max-width:560px;margin:0 auto;padding:16px 16px 96px}
 var SITE = location.origin;
 var AADS_UNIT = '2462903';
 var BYBIT = 'https://www.bybit.com/cards/?ref=AGBWMZV&source=applet_invite';
+var BINANCE = 'https://www.binance.com/register?ref=758628538';
 
 /* ---------- memória local ---------- */
 function ler(){ try{ return JSON.parse(localStorage.getItem('pc_jogos') || '{}') || {}; }catch(e){ return {}; } }
@@ -323,7 +326,7 @@ function abrir(id){
   area().innerHTML = '<div class="jinfo">' + j.desc + '</div><button class="grande" id="jComecar">Começar</button>';
   document.getElementById('jComecar').onclick = function(){ ({ diferente:jDiferente, stroop:jStroop, sequencia:jSequencia, relogio:jRelogio })[id](); };
 }
-function fechar(){ pararTempo(); J = null; document.getElementById('jogo').classList.remove('ativo'); document.body.style.overflow = ''; desenharInicio(); if(window.PC_PSICO) window.PC_PSICO.refresh(); }
+function fechar(){ pararTempo(); J = null; document.getElementById('jogo').classList.remove('ativo'); document.body.style.overflow = ''; desenharInicio(); if(window.PC_PSICO) window.PC_PSICO.refresh(); if(window.PC_ANNAN) window.PC_ANNAN.desenhar(); }
 document.getElementById('jSair').onclick = fechar;
 function pararTempo(){ if(timer){ clearInterval(timer); timer = null; } }
 function contagem(seg, aoFim){
@@ -445,10 +448,10 @@ function terminar(valor, qualidade){
   var subiu = gAgora > gAntes ? '<div class="novo" style="margin-left:6px">Nível ' + GRAUS[gAgora] + '</div>' : '';
   var proxHtml = pxr ? '<div class="prox"><b>Próxima meta: ' + pxr.nome + ' (' + txtMeta(j, pxr.alvo) + ')</b><br>Faltam ' + txtMeta(j, Math.round(pxr.falta)) + ' em relação ao seu recorde.<div class="mb"><i style="width:' + pxr.pct + '%"></i></div></div>' : '<div class="prox"><b>Nível Lenda.</b> Está no topo deste jogo.</div>';
   var pp = perfilPub(), verPub = !pp.plano_ativo && pp.faixa !== 'menor', adulto = pp.faixa === 'adulto';
-  var html = '<div class="res">' + (novo ? '<div class="novo">Recorde</div>' : '') + subiu + '<div class="n">' + (j.id === 'relogio' ? (valor/1000).toFixed(2).replace('.', ',') + ' s' : valor) + '</div><div class="r">' + (j.id === 'relogio' ? 'de diferença dos 10,00 s' : j.unidade) + ' · ' + j.nome + '</div><p class="msg">' + msg + '</p>' + proxHtml + '</div>'
+  var html = '<div class="res">' + (novo ? '<div class="novo">Recorde</div>' : '') + subiu + '<div class="n">' + (j.id === 'relogio' ? (valor/1000).toFixed(2).replace('.', ',') + ' s' : valor) + '</div><div class="r">' + (j.id === 'relogio' ? 'de diferença dos 10,00 s' : j.unidade) + ' · ' + j.nome + '</div><p class="msg">' + msg + '</p>' + proxHtml + (window.PC_ANNAN ? window.PC_ANNAN.depoisJogo(j.id, novo, s.n) : '') + '</div>'
     + '<div class="acoes"><button class="a1" id="rDeNovo">Jogar outra vez</button><button class="a2" id="rPartilhar">Desafiar um amigo</button><a class="a2" href="/cursos?aprender=1">Treinar a sério: aulas grátis</a><button class="a3" id="rSair">Voltar ao início</button></div>';
   if(verPub) html += '<div class="pub"><small>Publicidade</small><iframe data-aa="' + AADS_UNIT + '" src="https://acceptable.a-ads.com/' + AADS_UNIT + '/?size=Adaptive" title="Publicidade" loading="lazy" style="border:0;padding:0;width:100%;height:90px;overflow:hidden;display:block;margin:auto"></iframe></div>';
-  if(adulto && !pp.plano_ativo) html += '<div class="parc"><small>Parceria</small><a href="' + BYBIT + '" target="_blank" rel="noopener sponsored">Abra a sua conta Visa em 7 minutos (Bybit)</a></div>';
+  if(adulto && !pp.plano_ativo) html += '<div class="parc"><small>Parceria</small>' + (new Date().getDate() % 2 ? '<a href="' + BYBIT + '" target="_blank" rel="noopener sponsored">Abra a sua conta Visa em 7 minutos (Bybit)</a>' : '<a href="' + BINANCE + '" target="_blank" rel="noopener sponsored">Aprenda a fazer trade (Binance)</a>') + '</div>';
   area().innerHTML = html;
   document.getElementById('jTempo').textContent = ''; document.getElementById('jProg').style.width = '0%';
   document.getElementById('rDeNovo').onclick = function(){ abrir(j.id); };
@@ -483,7 +486,8 @@ document.getElementById('btnHoje').onclick = function(){ abrir(jogoDoDia().id); 
 var q = new URLSearchParams(location.search).get('jogo');
 desenharInicio();
 if(q && JOGOS.some(function(x){ return x.id === q; })) abrir(q);
-var sp = document.createElement('script'); sp.src = '/psico.js?v=1'; document.body.appendChild(sp);
+var sa = document.createElement('script'); sa.src = '/annan-guia.js?v=1'; document.body.appendChild(sa);
+var sp = document.createElement('script'); sp.src = '/psico.js?v=2'; document.body.appendChild(sp);
 if(q === 'psico') setTimeout(function(){ if(window.PC_PSICO) window.PC_PSICO.teste(); }, 300);
 if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(function(){});
 })();
