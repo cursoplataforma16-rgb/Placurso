@@ -26,6 +26,15 @@ a{color:var(--azul2)}
 .dia small{opacity:.75;font-size:13px;text-transform:uppercase;letter-spacing:.08em}
 .dia h1{margin:4px 0 2px;font-size:26px;line-height:1.15}
 .dia p{margin:0;opacity:.85;font-size:15px}
+.meta{margin-top:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);border-radius:12px;padding:10px 12px}
+.meta b{display:block;font-size:15px;color:var(--real)}
+.meta span{display:block;font-size:13px;opacity:.85;margin-top:2px}
+.meta small{display:block;font-size:12px;opacity:.65;margin-top:6px}
+.mb{height:6px;background:rgba(255,255,255,.18);border-radius:3px;margin-top:8px;overflow:hidden}
+.mb i{display:block;height:100%;background:var(--real);border-radius:3px}
+.grau{display:inline-block;align-self:flex-start;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--claro);color:var(--azul2);margin-top:2px}
+.res .prox{margin-top:12px;text-align:left;background:var(--claro);border-radius:10px;padding:10px 12px;font-size:14px}
+.res .prox .mb{background:var(--linha)}
 .serie{display:flex;gap:6px;margin-top:14px}
 .serie i{flex:1;height:6px;border-radius:3px;background:rgba(255,255,255,.18)}
 .serie i.f{background:var(--real)}
@@ -110,6 +119,7 @@ main{max-width:560px;margin:0 auto;padding:16px 16px 96px}
     <small id="diaData"></small>
     <h1 id="diaTitulo">Desafio do dia</h1>
     <p id="diaDesc"></p>
+    <div class="meta" id="diaMeta"></div>
   </div>
   <div class="serie" id="serie"></div>
   <div class="serie-txt" id="serieTxt"></div>
@@ -174,6 +184,15 @@ var JOGOS = [
   { id:'relogio', nome:'Relógio de 10 segundos', fam:'rapidez', desc:'Pare o cronómetro nos 10,00 s. Os números desaparecem aos 3 s.', unidade:'s de diferença', maior:false }
 ];
 var FAMILIAS = { atencao:'Atenção', memoria:'Memória', rapidez:'Controlo do tempo' };
+/* Metas: escada de 5 degraus por jogo. Efeito de proximidade da meta: mostra-se sempre o PRÓXIMO degrau e quanto falta. */
+var GRAUS = ['Bronze','Prata','Ouro','Mestre','Lenda'];
+var METAS = { relogio:[500,200,100,30,10], diferente:[10,18,25,32,40], stroop:[15,25,32,40,48], sequencia:[5,7,9,11,14] };
+function grau(j, v){ var m = METAS[j.id], g = -1; if(v == null) return -1; for(var i = 0; i < m.length; i++){ if(j.maior ? v >= m[i] : v <= m[i]) g = i; } return g; }
+function proxima(j, v){ var g = grau(j, v), m = METAS[j.id]; if(g >= m.length - 1) return null; var alvo = m[g + 1];
+  var falta = v == null ? null : (j.maior ? alvo - v : v - alvo);
+  var ini = g < 0 ? (j.maior ? 0 : m[0] * 3) : m[g], pct = v == null ? 0 : Math.max(0, Math.min(100, Math.round(j.maior ? (v - ini) / (alvo - ini) * 100 : (ini - v) / (ini - alvo) * 100)));
+  return { nome: GRAUS[g + 1], alvo: alvo, falta: falta, pct: pct }; }
+function txtMeta(j, x){ return j.id === 'relogio' ? (x/1000).toFixed(2).replace('.', ',') + ' s' : x + ' ' + j.unidade; }
 function jogoDoDia(d){ return JOGOS[((diaNum(d || hojeStr()) % JOGOS.length) + JOGOS.length) % JOGOS.length]; }
 
 /* ---------- página inicial ---------- */
@@ -183,6 +202,10 @@ function desenharInicio(){
   document.getElementById('diaData').textContent = fmt;
   document.getElementById('diaTitulo').textContent = j.nome;
   document.getElementById('diaDesc').textContent = j.desc;
+  var recH = d.rec && d.rec[j.id], px = proxima(j, recH);
+  document.getElementById('diaMeta').innerHTML = px
+    ? '<b>Próxima meta: ' + px.nome + ' (' + txtMeta(j, px.alvo) + ')</b><span>' + (recH == null ? 'Ainda não jogou este desafio' : 'O seu recorde: ' + txtMeta(j, recH) + ' · faltam ' + txtMeta(j, Math.round(px.falta)) ) + '</span><div class="mb"><i style="width:' + px.pct + '%"></i></div><small>Nível Lenda: ' + txtMeta(j, METAS[j.id][4]) + '</small>'
+    : '<b>Nível Lenda alcançado</b><span>O seu recorde: ' + txtMeta(j, recH) + '. Consegue manter?</span>';
   var feito = d.feito && d.feito[hoje];
   document.getElementById('btnHoje').textContent = feito ? 'Jogar de novo (bater o recorde)' : 'Jogar o desafio de hoje';
   // série de 7 dias com 1 dia de tolerância por semana
@@ -193,7 +216,8 @@ function desenharInicio(){
   var g = '';
   JOGOS.forEach(function(x){
     var rec = d.rec && d.rec[x.id];
-    g += '<button class="cartao' + (x.id === j.id ? ' hoje' : '') + '" data-jogo="' + x.id + '"><b>' + x.nome + '</b><span>' + FAMILIAS[x.fam] + '</span><em>' + (rec != null ? 'Recorde: ' + mostrarValor(x, rec) : (x.id === j.id ? 'Desafio de hoje' : 'Ainda sem recorde')) + '</em></button>';
+    var gr = grau(x, rec), pxc = proxima(x, rec);
+    g += '<button class="cartao' + (x.id === j.id ? ' hoje' : '') + '" data-jogo="' + x.id + '"><b>' + x.nome + '</b><span>' + FAMILIAS[x.fam] + '</span>' + (gr >= 0 ? '<span class="grau">' + GRAUS[gr] + '</span>' : '') + '<em>' + (pxc ? 'Meta ' + pxc.nome + ': ' + txtMeta(x, pxc.alvo) : 'Nível Lenda') + '</em></button>';
   });
   document.getElementById('grelha').innerHTML = g;
   document.querySelectorAll('[data-jogo]').forEach(function(b){ b.addEventListener('click', function(){ abrir(b.dataset.jogo); }); });
@@ -356,8 +380,11 @@ function terminar(valor, qualidade){
     : novo ? 'Primeiro recorde registado. Amanhã há um desafio diferente.'
     : 'O seu recorde é ' + mostrarValor(j, antes) + '. Mais uma tentativa?';
   if(erasDoDia && primeiraHoje && s.n > 1) msg += ' Série: ' + s.n + ' dias seguidos.';
+  var gAntes = grau(j, antes), gAgora = grau(j, d.rec[j.id]), pxr = proxima(j, d.rec[j.id]);
+  var subiu = gAgora > gAntes ? '<div class="novo" style="margin-left:6px">Nível ' + GRAUS[gAgora] + '</div>' : '';
+  var proxHtml = pxr ? '<div class="prox"><b>Próxima meta: ' + pxr.nome + ' (' + txtMeta(j, pxr.alvo) + ')</b><br>Faltam ' + txtMeta(j, Math.round(pxr.falta)) + ' em relação ao seu recorde.<div class="mb"><i style="width:' + pxr.pct + '%"></i></div></div>' : '<div class="prox"><b>Nível Lenda.</b> Está no topo deste jogo.</div>';
   var pp = perfilPub(), verPub = !pp.plano_ativo && pp.faixa !== 'menor', adulto = pp.faixa === 'adulto';
-  var html = '<div class="res">' + (novo ? '<div class="novo">Recorde</div>' : '') + '<div class="n">' + (j.id === 'relogio' ? (valor/1000).toFixed(2).replace('.', ',') + ' s' : valor) + '</div><div class="r">' + (j.id === 'relogio' ? 'de diferença dos 10,00 s' : j.unidade) + ' · ' + j.nome + '</div><p class="msg">' + msg + '</p></div>'
+  var html = '<div class="res">' + (novo ? '<div class="novo">Recorde</div>' : '') + subiu + '<div class="n">' + (j.id === 'relogio' ? (valor/1000).toFixed(2).replace('.', ',') + ' s' : valor) + '</div><div class="r">' + (j.id === 'relogio' ? 'de diferença dos 10,00 s' : j.unidade) + ' · ' + j.nome + '</div><p class="msg">' + msg + '</p>' + proxHtml + '</div>'
     + '<div class="acoes"><button class="a1" id="rDeNovo">Jogar outra vez</button><button class="a2" id="rPartilhar">Desafiar um amigo</button><a class="a2" href="/cursos?aprender=1">Treinar a sério: aulas grátis</a><button class="a3" id="rSair">Voltar ao início</button></div>';
   if(verPub) html += '<div class="pub"><small>Publicidade</small><iframe data-aa="' + AADS_UNIT + '" src="https://acceptable.a-ads.com/' + AADS_UNIT + '/?size=Adaptive" title="Publicidade" loading="lazy" style="border:0;padding:0;width:100%;height:90px;overflow:hidden;display:block;margin:auto"></iframe></div>';
   if(adulto && !pp.plano_ativo) html += '<div class="parc"><small>Parceria</small><a href="' + BYBIT + '" target="_blank" rel="noopener sponsored">Abra a sua conta Visa em 7 minutos (Bybit)</a></div>';
