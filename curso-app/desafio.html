@@ -90,6 +90,56 @@ main{max-width:560px;margin:0 auto;padding:16px 16px 96px}
 .flash-er{animation:fer .3s}
 @keyframes fok{0%{box-shadow:0 0 0 0 rgba(30,142,90,.6)}100%{box-shadow:0 0 0 14px rgba(30,142,90,0)}}
 @keyframes fer{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+/* jogos rápidos */
+.minis{display:grid;gap:10px}
+.mini{background:#fff;border:1px solid var(--linha);border-radius:14px;padding:12px}
+.mh{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px}
+.mh b{font-size:15px}.mh .mc{font-size:13px;color:var(--suave)}
+.mg{display:grid;gap:6px;max-width:200px;margin:0 auto}
+.mg button{aspect-ratio:1;border-radius:8px}
+.mw{text-align:center;font-size:30px;font-weight:800;margin:2px 0 8px}
+.mo{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.mo button{padding:10px;border-radius:10px;background:#fff;border:2px solid;font-weight:700;color:var(--texto)}
+.mr{text-align:center;font-size:40px;font-weight:800;color:var(--azul);font-variant-numeric:tabular-nums;transition:opacity .2s}
+.mb2{display:block;margin:6px auto 0;background:var(--azul);color:#fff;font-weight:700;padding:12px 30px;border-radius:12px}
+/* psicotécnico e curso */
+.psi{background:#fff;border:1px solid var(--linha);border-radius:14px;padding:14px;display:flex;gap:12px;align-items:center}
+.psi div{flex:1;display:flex;flex-direction:column}
+.psi span{font-size:13px;color:var(--suave)}
+.psi em{font-style:normal;font-size:12px;color:var(--azul2);font-weight:600;margin-top:4px}
+.psi .a1{padding:12px 14px;border-radius:12px;font-weight:700;white-space:nowrap}
+.psc{display:block;width:100%;text-align:left;margin-top:8px;background:#fff;border:1px dashed var(--azul2);border-radius:14px;padding:12px 14px;color:var(--texto)}
+.psc span{display:block;font-size:13px;color:var(--suave)}
+.pq{font-size:19px;font-weight:600;text-align:center;max-width:460px}
+.po{display:grid;gap:8px;width:min(92vw,440px)}
+.po button{padding:14px;border-radius:12px;background:#fff;border:1px solid var(--linha);font-weight:600;font-size:17px;color:var(--texto)}
+.po button.certa{background:#E6F4EC;border-color:var(--ok)}
+.po button.errada{background:#FBEAEA;border-color:var(--erro)}
+.expl{width:min(92vw,440px);font-size:15px}
+.expl .a1{display:block;width:100%;margin-top:10px;padding:13px;border-radius:12px;font-weight:700}
+.capt{margin-top:12px;text-align:left}
+.capt .l{display:flex;align-items:center;gap:8px;font-size:13px;margin:4px 0}
+.capt .l span{width:76px;color:var(--suave)}.capt .b{flex:1;height:7px;background:var(--claro);border-radius:4px;overflow:hidden}.capt .b i{display:block;height:100%;background:var(--azul2)}
+.rev{text-align:left;margin-top:12px;font-size:13px}.rev summary{cursor:pointer;color:var(--azul2);font-weight:600}
+.reco{width:min(92vw,440px);background:#FFF6E6;border:1px solid var(--real);border-radius:14px;padding:14px}
+.reco.leve{background:#fff;border-color:var(--linha)}
+.reco p{margin:6px 0 10px;font-size:14px;color:var(--suave)}
+.reco button{width:100%;padding:13px;border-radius:12px;font-weight:700}
+.curso{width:min(92vw,460px);display:grid;gap:10px}
+.cint{margin:0;color:var(--suave);font-size:15px}
+.mod{display:flex;flex-direction:column;gap:2px;text-align:left;background:#fff;border:1px solid var(--linha);border-radius:14px;padding:12px 14px;color:var(--texto)}
+.mod.fechado{opacity:.6}
+.mod em{font-style:normal;font-size:12px;color:var(--azul2);font-weight:600}
+.mn{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--suave)}
+.gate{background:#FFF6E6;border:1px solid var(--real);border-radius:14px;padding:14px}
+.gate p{margin:6px 0;font-size:14px;color:var(--suave)}.gate .ou{text-align:center;margin:10px 0 6px}
+.gate button{width:100%;padding:13px;border-radius:12px;font-weight:700}
+.cod{display:flex;gap:6px}.cod input{flex:1;padding:12px;border:1px solid var(--linha);border-radius:10px;font:inherit;text-transform:uppercase}.cod button{width:auto;padding:12px 16px}
+.cmsg{font-size:13px;color:var(--erro);margin-top:6px}
+.teoria{background:#fff;border:1px solid var(--linha);border-radius:14px;padding:14px;font-size:15px}
+.teoria ol{padding-left:20px}.teoria p{margin:8px 0}
+.curso .a1,.curso .a3{padding:13px;border-radius:12px;font-weight:700}
+.pubhome{margin-top:22px}
 /* resultado */
 .res{background:#fff;border:1px solid var(--linha);border-radius:16px;padding:20px;text-align:center;width:min(92vw,440px)}
 .res .n{font-size:44px;font-weight:800;color:var(--azul)}
@@ -128,6 +178,16 @@ main{max-width:560px;margin:0 auto;padding:16px 16px 96px}
   <button class="cta" id="btnHoje">Jogar o desafio de hoje</button>
 
   <section class="sec">
+    <h2>Jogue já</h2>
+    <div class="minis" id="minis"></div>
+  </section>
+
+  <section class="sec">
+    <h2>Teste psicotécnico</h2>
+    <div id="psicoHome"></div>
+  </section>
+
+  <section class="sec">
     <h2>Treino livre</h2>
     <div class="grelha" id="grelha"></div>
   </section>
@@ -146,6 +206,7 @@ main{max-width:560px;margin:0 auto;padding:16px 16px 96px}
       <div class="pag">Preços em dólares, pagos pela Bybit ou Binance. Também pode pagar em kwanzas (Multicaixa Express) ou em meticais.</div>
     </div>
   </section>
+  <div class="pub pubhome"><small>Publicidade</small><div id="frame" style="width:100%;margin:auto;position:relative;z-index:1"><iframe data-aa="2462903" src="https://acceptable.a-ads.com/2462903/?size=Adaptive" title="Publicidade" style="border:0;padding:0;width:70%;height:auto;min-height:90px;overflow:hidden;display:block;margin:auto"></iframe></div></div>
 </main>
 
 <nav class="nav" aria-label="Navegação">
@@ -262,7 +323,7 @@ function abrir(id){
   area().innerHTML = '<div class="jinfo">' + j.desc + '</div><button class="grande" id="jComecar">Começar</button>';
   document.getElementById('jComecar').onclick = function(){ ({ diferente:jDiferente, stroop:jStroop, sequencia:jSequencia, relogio:jRelogio })[id](); };
 }
-function fechar(){ pararTempo(); J = null; document.getElementById('jogo').classList.remove('ativo'); document.body.style.overflow = ''; desenharInicio(); }
+function fechar(){ pararTempo(); J = null; document.getElementById('jogo').classList.remove('ativo'); document.body.style.overflow = ''; desenharInicio(); if(window.PC_PSICO) window.PC_PSICO.refresh(); }
 document.getElementById('jSair').onclick = fechar;
 function pararTempo(){ if(timer){ clearInterval(timer); timer = null; } }
 function contagem(seg, aoFim){
@@ -422,6 +483,8 @@ document.getElementById('btnHoje').onclick = function(){ abrir(jogoDoDia().id); 
 var q = new URLSearchParams(location.search).get('jogo');
 desenharInicio();
 if(q && JOGOS.some(function(x){ return x.id === q; })) abrir(q);
+var sp = document.createElement('script'); sp.src = '/psico.js?v=1'; document.body.appendChild(sp);
+if(q === 'psico') setTimeout(function(){ if(window.PC_PSICO) window.PC_PSICO.teste(); }, 300);
 if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(function(){});
 })();
 </script>
