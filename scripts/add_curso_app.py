@@ -6,7 +6,8 @@ salvo três pontos marcados:
      página inicial, e os links /cursos?produto=... e /cursos?aprender=1 não abriam nada);
   2. _redirects ganha as rotas da aplicação (vendor, /infoprodutos, /falar);
   3. _headers ganha regras só para a aplicação;
-  4. o menu da página inicial ganha a ligação "Loja e aulas" para /cursos.
+  4. o menu da página inicial ganha a ligação "Loja e aulas" para /cursos;
+  5. a raiz (/) abre a aplicação da Plataforma Curso; a página inicial do build principal fica em /inicio.
 Falha o build se um ficheiro da aplicação colidir com um ficheiro diferente já gerado.
 """
 from __future__ import annotations
@@ -41,6 +42,7 @@ REDIRECTS = """
 /infoprodutos            /cursos            301
 /infoprodutos/*          /cursos            301
 /falar                   /cursos?falar=1    302
+/inicio                  /inicio.html       200
 """
 
 HEADERS = """
@@ -93,7 +95,15 @@ def main() -> None:
             sys.exit("ERRO: a função SEO mudou; não encontrei o ponto onde serve /cursos.")
         SEO.write_text(seo.replace(SEO_ANTES, SEO_DEPOIS, 1), encoding="utf-8")
 
-    home = PUBLIC / "index.html"
+    # A interface da Plataforma Curso abre na raiz (pedido do CEO, 22/11/2026).
+    # A página inicial gerada pelo build principal fica guardada em /inicio.
+    inicio = PUBLIC / "inicio.html"
+    raiz = PUBLIC / "index.html"
+    if not inicio.exists():
+        shutil.move(raiz, inicio)
+    shutil.copy2(APP / "index.html", raiz)
+
+    home = inicio
     h = home.read_text(encoding="utf-8")
     alvo = '<a href="#desafios">Desafios</a>'
     if 'href="/cursos">Loja e aulas<' not in h and alvo in h:
