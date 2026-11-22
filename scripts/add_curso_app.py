@@ -7,7 +7,7 @@ salvo três pontos marcados:
   2. _redirects ganha as rotas da aplicação (vendor, /infoprodutos, /falar);
   3. _headers ganha regras só para a aplicação;
   4. o menu da página inicial ganha a ligação "Loja e aulas" para /cursos;
-  5. a raiz (/) abre a aplicação da Plataforma Curso; a página inicial do build principal fica em /inicio.
+  5. a raiz (/) abre o Desafio do dia (curso-app/desafio.html); a aplicação fica em /cursos; a página inicial do build principal fica em /inicio.
 Falha o build se um ficheiro da aplicação colidir com um ficheiro diferente já gerado.
 """
 from __future__ import annotations
@@ -101,7 +101,8 @@ def main() -> None:
     raiz = PUBLIC / "index.html"
     if not inicio.exists():
         shutil.move(raiz, inicio)
-    shutil.copy2(APP / "index.html", raiz)
+    # A entrada é o Desafio do dia (jogos de 60 s); a loja e as aulas ficam em /cursos.
+    shutil.copy2(APP / "desafio.html", raiz)
 
     home = inicio
     h = home.read_text(encoding="utf-8")

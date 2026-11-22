@@ -41,6 +41,9 @@ export function aplicar({sub,repl,drop,byName}){
 }
 
 export function cabecalho(h){
+  // 22/11/2026: A-Ads 2462903 por omissão (menores e quem paga não veem) e nota de pagamento em dólares/kwanzas/meticais
+  h=h.split("  if(c.rede === 'aads' && /^\\d{5,10}$/.test(String(c.aads_unit || '')) && adulto)\n    return `<div class=\"pc-anuncio pc-anuncio-rede\" data-anuncio=\"${escAttr(lugar)}\"><span class=\"pc-anuncio-etq\">Publicidade</span><iframe data-aa=\"${escAttr(c.aads_unit)}\" src=\"https://ad.a-ads.com/${escAttr(c.aads_unit)}?size=320x50\"").join("  const aadsUnit = String(c.aads_unit || '2462903');\n  if((c.rede || 'aads') === 'aads' && /^\\d{5,10}$/.test(aadsUnit) && pp.faixa !== 'menor')\n    return `<div class=\"pc-anuncio pc-anuncio-rede\" data-anuncio=\"${escAttr(lugar)}\"><span class=\"pc-anuncio-etq\">Publicidade</span><iframe data-aa=\"${escAttr(aadsUnit)}\" src=\"https://acceptable.a-ads.com/${escAttr(aadsUnit)}/?size=Adaptive\"");
+  h=h.split("Kwanza (Kz)</button></div>`;").join("Kwanza (Kz)</button><small class=\"pc-alt\" style=\"display:block;width:100%;margin-top:4px\">Pague em dólares pela Bybit ou Binance. Também pode pagar em kwanzas (Multicaixa Express) ou em meticais.</small></div>`;");
   h=h.split("const HEAD_DIONUEL = { manifest: 'manifest.json', icone: 'icon-192.png', cor: '#1C1A17' };").join("const HEAD_DIONUEL = { manifest: '/manifest-curso.json', icone: '/curso-icon-192.png', cor: '#14284B' };");
   h=h.split("navigator.serviceWorker.register('sw.js')").join("navigator.serviceWorker.register('/cursos-sw.js', { scope: '/cursos' })");
   h=h.split('txyjrczknkiheofptgxc').join('ebdrrsrvjsdjthatfbcd').split('sb_publishable_YzuHPCy8KXRn4w_rJNKPBg_ZeJEZrya').join('sb_publishable_yGhE0wXCqPMKSMrc1xlzkw_1E8JmFD9');

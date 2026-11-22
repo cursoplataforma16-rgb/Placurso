@@ -4386,7 +4386,7 @@ function pcPreco(p){ const pr = promocaoAtiva(p) ? p.preco_promocional : p.preco
 function pcMoedaHTML(){
   if(!PC_USD) return '';
   const m = pcMoeda();
-  return `<div class="pc-moeda" role="group" aria-label="Moeda dos preços"><span>Preços em</span><button type="button" data-pc-moeda="usd" class="${m === 'usd' ? 'ativo' : ''}">Dólar (US$)</button><button type="button" data-pc-moeda="kz" class="${m === 'kz' ? 'ativo' : ''}">Kwanza (Kz)</button></div>`;
+  return `<div class="pc-moeda" role="group" aria-label="Moeda dos preços"><span>Preços em</span><button type="button" data-pc-moeda="usd" class="${m === 'usd' ? 'ativo' : ''}">Dólar (US$)</button><button type="button" data-pc-moeda="kz" class="${m === 'kz' ? 'ativo' : ''}">Kwanza (Kz)</button><small class="pc-alt" style="display:block;width:100%;margin-top:4px">Pague em dólares pela Bybit ou Binance. Também pode pagar em kwanzas (Multicaixa Express) ou em meticais.</small></div>`;
 }
 function pcLigarMoeda(raiz, depois){ (raiz || document).querySelectorAll('[data-pc-moeda]').forEach(b => b.addEventListener('click', () => { try{ localStorage.setItem('pc_moeda', b.dataset.pcMoeda); }catch(_e){} if(typeof depois === 'function') depois(); })); }
 const PC_METODO_PAISES = 'Finlândia, Singapura, Japão, Coreia do Sul, Estónia, Suíça, Alemanha, Países Baixos, Canadá, Reino Unido e Estados Unidos';
@@ -4582,8 +4582,9 @@ function pcAnuncioHTML(lugar){
   const c = (pcAnunciosCfg && pcAnunciosCfg.anuncios) || {}; if(c.ativo === false) return '';
   const pp = pcPerfilPub(); if(pp.plano_ativo) return ''; // quem paga não vê anúncios
   const adulto = pp.faixa === 'adulto';
-  if(c.rede === 'aads' && /^\d{5,10}$/.test(String(c.aads_unit || '')) && adulto)
-    return `<div class="pc-anuncio pc-anuncio-rede" data-anuncio="${escAttr(lugar)}"><span class="pc-anuncio-etq">Publicidade</span><iframe data-aa="${escAttr(c.aads_unit)}" src="https://ad.a-ads.com/${escAttr(c.aads_unit)}?size=320x50" loading="lazy" title="Publicidade" style="width:320px;max-width:100%;height:50px;border:0;overflow:hidden;background:transparent;"></iframe></div>`;
+  const aadsUnit = String(c.aads_unit || '2462903');
+  if((c.rede || 'aads') === 'aads' && /^\d{5,10}$/.test(aadsUnit) && pp.faixa !== 'menor')
+    return `<div class="pc-anuncio pc-anuncio-rede" data-anuncio="${escAttr(lugar)}"><span class="pc-anuncio-etq">Publicidade</span><iframe data-aa="${escAttr(aadsUnit)}" src="https://acceptable.a-ads.com/${escAttr(aadsUnit)}/?size=Adaptive" loading="lazy" title="Publicidade" style="width:320px;max-width:100%;height:50px;border:0;overflow:hidden;background:transparent;"></iframe></div>`;
   if(c.casa === false) return '';
   const casa = [
     { t: 'Passe de 7 dias por 500 Kz', d: 'Todas as aulas do nível intermédio e avançado, com o professor ANNAN.', b: 'Ver as aulas', a: 'aprender' },
