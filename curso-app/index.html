@@ -4420,6 +4420,10 @@ async function pcFontesProdutoHTML(id){
       : `<p>Feito com o método da Plataforma Curso: pesquisa em fontes de referência, comparação com os países com melhor ensino e prática e só factos confirmados.</p>`}
   </div>`;
 }
+document.addEventListener('error', e => {
+  const im = e.target; if(!im || im.tagName !== 'IMG' || !im.closest || !im.closest('.pc-img,.pc-dia-capas')) return;
+  const d = document.createElement('div'); d.className = 'pc-img-vazia'; d.textContent = im.alt || ''; d.dataset.pcProd = im.dataset.pcProd || ''; im.replaceWith(d);
+}, true);
 function pcCartao(p, avaliacoes){
   const av = avaliacoes && avaliacoes[p.id]; const media = av && av.total ? (av.soma / av.total) : 0;
   return `<article class="pc-card" data-pc-prod="${escAttr(p.id)}">
@@ -4681,9 +4685,9 @@ async function renderLojaInfoprodutos(){
       <div data-pc-parte="loja">
       ${cfg.aberta === false
         ? `<section class="pc-sec"><div class="empty-state"><div class="ic">○</div>A loja está temporariamente fechada. <a href="${linkWhatsapp('Olá! Vim da Plataforma Curso.')}" target="_blank" rel="noopener">Fale connosco no WhatsApp</a>.</div></section>`
-        : `<section class="pc-sec" id="pcDestaque"><div class="pc-sec-cab"><h2>Em destaque</h2><span>Deslize para ver mais</span></div><div class="pc-trilho" id="pcTrilho"><div class="pc-vazio">A carregar…</div></div></section>
+        : `<section class="pc-sec" id="pcDestaque"><div class="pc-sec-cab"><h2>Os 3 mais procurados</h2><span>Comece por aqui</span></div><div class="pc-trilho" id="pcTrilho"><div class="pc-vazio">A carregar…</div></div><button type="button" class="pc-bt pc-bt-2" id="pcVerTodos" style="width:100%;margin-top:12px;">Ver todos os livros e ferramentas</button></section>
       <section class="pc-sec" id="pcDiaWrap" style="display:none;"></section>
-      <section class="pc-sec" id="pcProdutos"><div class="pc-sec-cab"><h2>Prontos a usar hoje</h2><span id="pcConta"></span></div>
+      <section class="pc-sec" id="pcProdutos" style="display:none;"><div class="pc-sec-cab"><h2>Prontos a usar hoje</h2><span id="pcConta"></span></div>
         <input type="search" class="pc-busca" id="pcBusca" placeholder="Procurar: caixa, currículo, costura, estudo…" aria-label="Procurar produtos">
         <div class="pc-filtros" id="pcFiltros"></div><div class="pc-grelha" id="pcGrelha"></div></section>`}
       <div id="pcAnuncio1"></div>
@@ -4713,7 +4717,9 @@ async function renderLojaInfoprodutos(){
   metodoP.then(m => { const f = document.getElementById('pcMtFaixa'); if(f) f.innerHTML = pcMetodoFaixa(m); const w = document.getElementById('pcMetodoWrap'); if(w) w.innerHTML = pcMetodoHTML(m); });
   app.querySelectorAll('[data-aprender]').forEach(b => b.addEventListener('click', (e) => { e.preventDefault(); irParaAprender(); }));
   ligarAppBanner();
-  document.getElementById('pcVer')?.addEventListener('click', (e) => { e.preventDefault(); pcMostrarParte('loja'); document.getElementById('pcProdutos')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+  const pcRevelarTodos = () => { const t = document.getElementById('pcProdutos'); if(t) t.style.display = ''; const b = document.getElementById('pcVerTodos'); if(b) b.style.display = 'none'; if(window.medirEvento) medirEvento('ver_todos_produtos'); };
+  document.getElementById('pcVerTodos')?.addEventListener('click', () => { pcRevelarTodos(); document.getElementById('pcProdutos')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+  document.getElementById('pcVer')?.addEventListener('click', (e) => { e.preventDefault(); pcMostrarParte('loja'); pcRevelarTodos(); document.getElementById('pcProdutos')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
   document.getElementById('carrinhoFab').addEventListener('click', abrirCarrinho);
   document.getElementById('carrinhoBackdrop').addEventListener('click', fecharCarrinho);
   atualizarBadgeCarrinho();
@@ -4732,7 +4738,7 @@ async function renderLojaInfoprodutos(){
   };
   const bib = pcBibliotecaHTML(lista); if(bib){ const w = document.getElementById('pcBibWrap'); w.innerHTML = bib; }
   const trilho = document.getElementById('pcTrilho');
-  if(trilho){ trilho.innerHTML = individuais.slice(0, 8).map(p => pcCartao(p, cat.avaliacoes)).join('') || '<div class="pc-vazio">Novos produtos a caminho.</div>'; ligar(trilho); }
+  if(trilho){ trilho.innerHTML = individuais.slice(0, 3).map(p => pcCartao(p, cat.avaliacoes)).join('') || '<div class="pc-vazio">Novos produtos a caminho.</div>'; ligar(trilho); }
   // Oferta do dia: os 3 do combo do dia com o desconto real do combo
   const combo = lista.find(p => p.combo_do_dia && Array.isArray(p.combo_itens));
   const tres = combo ? combo.combo_itens.map(id => porId[id]).filter(Boolean) : [];
