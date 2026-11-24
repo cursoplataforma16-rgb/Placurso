@@ -2276,10 +2276,11 @@ const CEO_SECOES = [
   { id:'inicio', ic:'🏠', nome:'Início', itens:[['home','Visitantes']] },
   { id:'annan', ic:'🧠', nome:'ANNAN', itens:[['annan','ANNAN'], ['fases_annan','Fases do ANNAN'], ['pedidos_annan','Pedidos do ANNAN'], ['tarefas_annan','Tarefas do ANNAN'], ['bancada_annan','Bancada do ANNAN'], ['casa_annan','Casa do ANNAN'], ['apicurso','Cérebro'], ['midias','Biblioteca do atendente'], ['atendente','Atendente'], ['atendimento','Conversas']] },
   { id:'curso', ic:'🛒', nome:'Plataforma Curso', itens:[['produtos_ceo','Produtos e preços'], ['mentoria_ceo','Mentoria'], ['alunos_ceo','Alunos do ANNAN'], ['trabalhos_ceo','Trabalhos pagos'], ['livroscursos','Editar livros e cursos'], ['infoloja','Loja'], ['recebimentos','Recebimentos'], ['biblioteca','Ficheiros'], ['fabrica','Fábrica'], ['oportunidades','Oportunidades'], ['ferramentas','Ferramentas']] },
+  { id:'marketing', ic:'📣', nome:'Marketing', itens:[['redes_ceo','Redes sociais']] },
   { id:'sistema', ic:'⚙️', nome:'Sistema', itens:[['membros','Membros'], ['continuidade','Cópias'], ['integracoes','Integrações'], ['hub','Tudo']] }
 ];
 function ceoGrupos(abasAnnan, escondidas){
-  const fixos = ['home', 'config', 'hub', 'integracoes', 'ligar'];
+  const fixos = ['home', 'config', 'hub', 'integracoes', 'ligar', 'redes_ceo'];
   return CEO_SECOES.map(s => ({
     id: s.id, ic: s.ic, titulo: s.nome,
     itens: [...s.itens, ...(s.id === 'annan' ? (abasAnnan || []).map(a => ['aba_' + a.chave, a.titulo]) : [])]
@@ -2740,7 +2741,7 @@ async function renderCeoShell(){
   // Configuração.
   const abasEscondidas = Array.isArray(configFlag('abas_escondidas_ceo', [])) ? configFlag('abas_escondidas_ceo', []) : [];
   if(abasEscondidas.includes(ceoTab)) ceoTab = 'home';
-  try{ const _q = new URLSearchParams(location.search); if(_q.get('meta') || _q.get('tiktok')) ceoTab = 'ligar'; if(_q.get('youtube')) ceoTab = 'redes_marcas'; const _ab = _q.get('aba'); if(_ab && /^[a-z_]{2,30}$/.test(_ab)) ceoTab = _ab; }catch(_e){}
+  try{ const _q = new URLSearchParams(location.search); if(_q.get('redes')) ceoTab = 'redes_ceo'; if(_q.get('meta') || _q.get('tiktok')) ceoTab = 'ligar'; if(_q.get('youtube')) ceoTab = 'redes_marcas'; const _ab = _q.get('aba'); if(_ab && /^[a-z_]{2,30}$/.test(_ab)) ceoTab = _ab; }catch(_e){}
   const abasAnnan = await carregarAbasAnnan();
   ceoNavEstilos();
   const gruposCeo = ceoGrupos(abasAnnan, abasEscondidas);
@@ -2766,6 +2767,7 @@ async function renderCeoShell(){
   if(ceoTab === 'alunos_ceo') await renderAlunosCEO(content);
   if(ceoTab === 'trabalhos_ceo') await renderTrabalhosCEO(content);
   if(ceoTab === 'visitantes') await renderVisitantesCEO(content);
+  if(ceoTab === 'redes_ceo') await renderRedesCEO(content);
   if(ceoTab === 'fases_annan') await renderFasesAnnan(content);
   if(ceoTab === 'pedidos_annan') await renderPedidosAnnan(content);
   if(ceoTab === 'tarefas_annan') await renderTarefasAnnan(content);
@@ -8021,6 +8023,63 @@ async function renderAprender(){
   try{ const cp = localStorage.getItem('ens_curso_pedido'); if(aluno && cp){ const r = await chamar({ acao: 'curso_ver', curso_id: cp }); if(r.ok) cursoPed = r; } }catch(_e){}
   if(aluno && aluno.concluido){ const [mc, jg] = await Promise.all([chamar({ acao: 'meus_cursos' }), chamar({ acao: 'jogo_ver' })]); if(mc.ok){ meusCursos = mc.cursos || []; meusAtual = mc.atual; } if(jg && jg.ok) jogo = jg; }
   if(aluno) desenhar(); else entrar();
+}
+
+// ---- Redes sociais (Facebook, Instagram, TikTok, YouTube) ----
+async function redesChamar(corpo){
+  const { data: sess } = await sb.auth.getSession(); const tk = sess && sess.session && sess.session.access_token;
+  const r = await fetch(`${SUPABASE_URL}/functions/v1/redes`, { method:'POST', headers:{ 'Content-Type':'application/json', apikey:SUPABASE_ANON_KEY, Authorization:'Bearer ' + tk }, body: JSON.stringify(corpo) });
+  return await r.json().catch(() => ({ erro: 'Resposta inválida' }));
+}
+async function renderRedesCEO(container){
+  container.innerHTML = '<div class="loading-screen">A carregar as redes…</div>';
+  const e = await redesChamar({ acao:'estado' });
+  if(e.erro){ container.innerHTML = `<p class="pcx-muted">${esc(e.erro)}</p>`; return; }
+  const msg = new URLSearchParams(location.search).get('redes');
+  const cp = (id, t) => `<button class="icon-btn" data-cp="${id}" style="margin-left:6px">${t}</button>`;
+  const campo = (nome, rot, ph) => `<div class="field"><label>${rot}</label><div style="display:flex;gap:6px"><input type="password" autocomplete="off" id="rd_${nome}" placeholder="${ph}" style="flex:1"><button class="icon-btn" data-g="${nome}">Guardar</button></div></div>`;
+  const cartao = (rede, titulo, st, chavesOk, extra) => `<div class="pcx-card" style="margin-bottom:12px">
+    <h4>${titulo} ${st.ligado ? `<span style="color:#1F7A55">· ligado${st.nome ? ': ' + esc(st.nome) : ''}</span>` : '<span style="color:#C0392B">· por ligar</span>'}</h4>
+    ${extra || ''}
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+      <button class="btn-submit" data-login="${rede}" ${chavesOk ? '' : 'disabled style="opacity:.5"'}>${st.ligado ? 'Ligar de novo' : 'Entrar e ligar'}</button>
+      ${st.ligado ? `<button class="icon-btn" data-des="${rede}">Desligar</button>` : ''}
+    </div>${chavesOk ? '' : '<p class="pcx-muted" style="margin-top:8px">Guarde primeiro as chaves acima.</p>'}</div>`;
+  container.innerHTML = `
+    <div class="page-head"><h2>Redes sociais</h2><p>Ligue uma vez e publique daqui. As chaves ficam guardadas no servidor e nunca voltam a aparecer no ecrã.</p></div>
+    ${msg ? `<div class="pcx-card" style="margin-bottom:12px"><b>${esc(msg)}</b></div>` : ''}
+    <div class="pcx-card" style="margin-bottom:12px"><h4>Endereço de regresso (copie e cole nas três redes)</h4>
+      <div style="display:flex;gap:6px"><input readonly id="rd_uri" value="${escAttr(e.redirect_uri)}" style="flex:1"><button class="icon-btn" id="rd_uri_cp">Copiar</button></div></div>
+    <div class="pcx-card" style="margin-bottom:12px"><h4>Facebook e Instagram (Meta)${e.chaves.meta ? ' · chaves guardadas' : ''}</h4>
+      ${campo('META_APP_ID', 'ID da app', 'Cole o ID da app')}${campo('META_APP_SECRET', 'Chave secreta da app', 'Cole a chave secreta')}</div>
+    ${cartao('meta', 'Facebook', e.facebook, e.chaves.meta)}
+    <div class="pcx-card" style="margin-bottom:12px"><h4>Instagram ${e.instagram.ligado ? `<span style="color:#1F7A55">· ligado: ${esc(e.instagram.nome)}</span>` : '<span style="color:#C0392B">· por ligar (vem junto com o Facebook, precisa de conta profissional ligada à página)</span>'}</h4></div>
+    <div class="pcx-card" style="margin-bottom:12px"><h4>TikTok${e.chaves.tiktok ? ' · chaves guardadas' : ''}</h4>
+      ${campo('TIKTOK_CLIENT_KEY', 'Client key', 'Cole a Client key')}${campo('TIKTOK_CLIENT_SECRET', 'Client secret', 'Cole o Client secret')}</div>
+    ${cartao('tiktok', 'TikTok', e.tiktok, e.chaves.tiktok, e.tiktok.aviso ? `<p class="pcx-muted">${esc(e.tiktok.aviso)}</p>` : '')}
+    <div class="pcx-card" style="margin-bottom:12px"><h4>YouTube${e.chaves.youtube ? ' · chaves guardadas' : ''}</h4>
+      ${campo('YOUTUBE_CLIENT_ID', 'ID de cliente (Google)', 'Cole o ID de cliente')}${campo('YOUTUBE_CLIENT_SECRET', 'Segredo do cliente', 'Cole o segredo')}</div>
+    ${cartao('youtube', 'YouTube', e.youtube, e.chaves.youtube)}
+    <div class="pcx-card"><h4>Publicar agora</h4>
+      <div class="field"><label>Texto</label><textarea id="rd_texto" rows="4" placeholder="Escreva a publicação"></textarea></div>
+      <div class="field"><label>Endereço da imagem (obrigatório no Instagram)</label><input id="rd_img" placeholder="https://..."></div>
+      <label style="display:block;margin:6px 0"><input type="checkbox" id="rd_fb" checked> Facebook</label>
+      <label style="display:block;margin:6px 0"><input type="checkbox" id="rd_ig" ${e.instagram.ligado ? 'checked' : ''}> Instagram</label>
+      <button class="btn-submit" id="rd_pub" style="margin-top:8px">Publicar</button><div id="rd_res" class="pcx-muted" style="margin-top:8px"></div></div>`;
+  container.querySelector('#rd_uri_cp').addEventListener('click', async () => { try{ await navigator.clipboard.writeText(e.redirect_uri); showToast('Copiado ✓'); }catch(_e){ prompt('Copie:', e.redirect_uri); } });
+  container.querySelectorAll('[data-g]').forEach(b => b.addEventListener('click', async () => {
+    const n = b.dataset.g, i = container.querySelector('#rd_' + n); if(!i.value.trim()) return showToast('Cole o valor primeiro');
+    const r = await redesChamar({ acao:'guardar', nome:n, valor:i.value.trim() }); if(r.ok){ i.value = ''; showToast('Guardado ✓'); renderRedesCEO(container); } else showToast(r.erro || 'Falhou');
+  }));
+  container.querySelectorAll('[data-login]').forEach(b => b.addEventListener('click', async () => {
+    const r = await redesChamar({ acao:'login', rede:b.dataset.login }); if(r.url) location.href = r.url; else showToast(r.erro || 'Falhou');
+  }));
+  container.querySelectorAll('[data-des]').forEach(b => b.addEventListener('click', async () => { await redesChamar({ acao:'desligar', rede:b.dataset.des }); renderRedesCEO(container); }));
+  container.querySelector('#rd_pub').addEventListener('click', async () => {
+    const redes = [container.querySelector('#rd_fb').checked && 'facebook', container.querySelector('#rd_ig').checked && 'instagram'].filter(Boolean);
+    const r = await redesChamar({ acao:'publicar', texto:container.querySelector('#rd_texto').value, imagem_url:container.querySelector('#rd_img').value, redes });
+    container.querySelector('#rd_res').textContent = r.erro ? r.erro : Object.entries(r.resultado || {}).map(([k, v]) => k + ': ' + v).join(' · ');
+  });
 }
 async function renderVisitantesCEO(container, dias = 7, marca = ''){
   container.innerHTML = '<div class="loading-screen">A carregar visitantes…</div>';
