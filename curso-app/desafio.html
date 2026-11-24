@@ -2,6 +2,30 @@
 <html lang="pt">
 <head>
 <script>
+/* Medição anónima (sem nome, telefone nem IP): visitantes, tempo e jogos. */
+(function(){ try{
+  var U='https://tgcdnmhhqrukjjeohhdj.supabase.co', K='sb_publishable_AhO1lLje28vW7cHsCHg_Zg_sVA9N5k1', sid=null;
+  try{ sid=localStorage.getItem('pc_sid'); }catch(e){}
+  if(!sid || !/^[A-Za-z0-9]{12,40}$/.test(sid)){ var c='abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789'; sid=''; var a=crypto.getRandomValues(new Uint8Array(24)); for(var i=0;i<a.length;i++) sid+=c[a[i]%c.length]; try{ localStorage.setItem('pc_sid',sid); }catch(e){} }
+  var ua=navigator.userAgent||'', q=new URLSearchParams(location.search), org='';
+  try{ org=sessionStorage.getItem('pc_origem')||''; }catch(e){}
+  if(!org){ var ref=''; try{ ref=document.referrer?new URL(document.referrer).hostname:''; }catch(e){}
+    var m=[[/facebook|fb\./i,'facebook'],[/instagram/i,'instagram'],[/tiktok/i,'tiktok'],[/whatsapp|wa\.me/i,'whatsapp'],[/google\./i,'google'],[/youtube/i,'youtube']].filter(function(x){return x[0].test(ref);})[0];
+    org=q.get('utm_source')||(ref&&ref!==location.hostname?(m?m[1]:ref.replace(/^www\./,'')):'')||'direto'; try{ sessionStorage.setItem('pc_origem',org); }catch(e){} }
+  var disp=/iPad|Tablet/i.test(ua)?'tablet':/Mobi|Android|iPhone/i.test(ua)?'telemovel':'computador', sis=/Android/i.test(ua)?'android':/iPhone|iPad/i.test(ua)?'ios':/Windows/i.test(ua)?'windows':/Mac OS/i.test(ua)?'mac':'outro';
+  var ult=Date.now(), acc=0, nova=true;
+  ['pointerdown','keydown','scroll','touchstart'].forEach(function(e){ addEventListener(e,function(){ ult=Date.now(); },{passive:true}); });
+  function env(s,ev,fim){ var corpo=JSON.stringify({p_sid:sid,p_marca:'curso',p_pagina:'/jogos',p_origem:org,p_campanha:q.get('utm_campaign')||'',p_dispositivo:disp,p_sistema:sis,p_app:/PlataformaApp/i.test(ua),p_segundos:Math.round(s),p_nova_pagina:nova,p_evento:ev||''}); nova=false;
+    try{ var url=U+'/rest/v1/rpc/site_ping?apikey='+encodeURIComponent(K); if(fim&&navigator.sendBeacon){ navigator.sendBeacon(url,new Blob([corpo],{type:'application/json'})); return; }
+      fetch(url,{method:'POST',headers:{'Content-Type':'application/json',apikey:K},body:corpo,keepalive:true}).catch(function(){}); }catch(e){} }
+  setInterval(function(){ if(document.visibilityState==='visible'&&Date.now()-ult<60000) acc+=5; },5000);
+  setInterval(function(){ if(acc>0){ var s=acc; acc=0; env(s); } },30000);
+  addEventListener('visibilitychange',function(){ if(document.visibilityState==='hidden'&&acc>0){ var s=acc; acc=0; env(s,null,true); } });
+  window.medirEvento=function(ev){ try{ env(0,String(ev||'').replace(/[^a-z_]/g,'').slice(0,30)); }catch(e){} };
+  setTimeout(function(){ env(0); },1500);
+}catch(e){} })();
+</script>
+<script>
 /* O Google/Supabase pode devolver o login a esta página: passa para a app com a sessão. */
 (function(){ var h = location.hash || '', q = location.search || '';
   if(/access_token=|refresh_token=|error_description=/.test(h) || /[?&](code|error_description)=/.test(q)){ location.replace('/cursos' + q + h); }

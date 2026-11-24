@@ -7992,6 +7992,7 @@ async function renderVisitantesCEO(container, dias = 7, marca = ''){
     <div class="vs-tiles"><div><b>${n(d.agora)}</b><span>agora no site</span></div><div><b>${n(d.visitantes)}</b><span>visitantes</span></div><div><b>${n(d.minutos)}</b><span>minutos ativos</span></div><div><b>${esc(String(d.minutos_por_visita || 0))}</b><span>min por visita</span></div><div><b>${n(d.paginas)}</b><span>páginas vistas</span></div></div>
     <div class="vs-caixa"><div class="vs-t">Por dia</div>${(d.por_dia || []).map(x => `<div class="vs-dia"><span>${esc(String(x.dia).slice(5))}</span><i style="width:${Math.max(3, Math.round(100 * x.visitantes / maxDia))}%"></i><b>${n(x.visitantes)}</b><small>${n(x.minutos)} min</small></div>`).join('') || '<div style="opacity:.7;font-size:13px;">Ainda sem dados.</div>'}</div>
     <div class="vs-caixa"><div class="vs-t">Caminho até pagar</div>${etapas.map(([t, v], i) => `<div class="vs-linha"><span>${t}</span><b>${n(v)}${i ? ` <small>${pct(v, etapas[i - 1][1])} do passo anterior</small>` : ''}</b></div>`).join('')}</div>
+    <div class="vs-caixa"><div class="vs-t">Jogadores (pessoas diferentes por ação)</div>${(d.jogadores || []).map(x => { const N = {jogo_diferente:'Jogo: Encontrar o diferente',jogo_stroop:'Jogo: Cor ou palavra',jogo_sequencia:'Jogo: Sequência',jogo_relogio:'Jogo: Relógio de 10 segundos',jogo_biblia:'Jogo: Quiz bíblico',palavra_quiz:'Palavra do dia: foi ao quiz',palavra_estudar:'Palavra do dia: foi estudar',psico_inicio:'Teste psicotécnico: começaram',psico_curso:'Curso de psicotecnia: abriram',psico_pagar:'Curso de psicotecnia: foram pagar'}; const k = String(x.evento); const t = N[k] || (k.startsWith('convite_inscrever_') ? 'Aceitaram o convite para as aulas (' + k.slice(18) + ')' : k.startsWith('convite_outro_') ? 'Aceitaram outro jogo sugerido (' + k.slice(14) + ')' : k.startsWith('partilhou_') ? 'Partilharam: ' + k.slice(10) : k); return `<div class="vs-linha"><span>${esc(t)}</span><b>${n(x.jogadores)}</b></div>`; }).join('') || '<div style="font-size:13px;opacity:.7;">Ainda sem jogadores medidos.</div>'}</div>
     ${lista('De onde vêm', d.origens, 'origem', 'minutos')}${lista('Aparelhos', d.aparelhos, 'aparelho')}${lista('Por marca', d.marcas, 'marca', 'minutos')}${lista('Páginas de entrada', d.entradas, 'pagina')}
   </div>`;
   if(!document.getElementById('vsCss')){ const st = document.createElement('style'); st.id = 'vsCss'; st.textContent = `
@@ -8011,7 +8012,8 @@ async function renderVisitantesCEO(container, dias = 7, marca = ''){
 }
 async function renderAlunosCEO(container){
   container.innerHTML = '<div class="loading-screen">A carregar alunos…</div>';
-  const { data, error } = await sb.functions.invoke('annan-ensino', { body: { acao: 'alunos', n: 100 } });
+  let { data, error } = await sb.functions.invoke('annan-ensino', { body: { acao: 'alunos', n: 100 } });
+  if(error || !data){ const r = await sb.rpc('ceo_alunos', { p_n: 100 }); if(!r.error && r.data){ data = { alunos: r.data }; error = null; } }
   if(error || !data){ container.innerHTML = `<div class="error-banner">${esc((error && error.message) || 'Erro')}</div>`; return; }
   const L = data.alunos || []; const link = 'https://placurso.netlify.app/cursos?aprender=1';
   const { data: tl } = await sb.functions.invoke('annan-ensino', { body: { acao: 'talentos', n: 30 } }).catch(() => ({ data: null }));
