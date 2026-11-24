@@ -5,7 +5,7 @@
    Carregado DEPOIS do app.js (index.html, arranque) para substituir o renderAnnan antigo. */
 (function(){
   'use strict';
-  const OFFLINE_URL='https://dionuel.dionuel.workers.dev/annan-offline/';
+  const OFFLINE_URL='/annan-offline/';
   const journal=async(type,payload={})=>{try{if(typeof sb==='undefined')return null;const event={event_id:`online-${Date.now()}-${Math.random().toString(36).slice(2,9)}`,type,origin:'annan-online',payload,created_at:new Date().toISOString(),observable:true,schema_version:1};const r=await sb.functions.invoke('annan-learning-ingest',{body:{event}});if(r?.error)throw r.error;return r?.data||null}catch(_){return null}};
   window.ANNAN_ONLINE_JOURNAL={record:journal,recordCapability:(p)=>journal('capability.learned',p),recordProcedure:(p)=>journal('procedure.learned',p),recordCode:(p)=>journal('code.learned',p),recordTool:(p)=>journal('tool.created',p),recordReasoningArtifact:(p)=>journal('reasoning.artifact',p),recordDecision:(p)=>journal('decision.created',p),recordTask:(p)=>journal('task.completed',p)};
 
@@ -25,33 +25,33 @@
       ['Clientes à espera','Mostre os clientes que escreveram e ainda não fecharam, com o próximo passo para cada um.'],
       ['Contas do mês','Situação financeira do mês: recebido, por receber, custos e o que falta para o equilíbrio.'],
       ['Publicações de hoje','Mostre as publicações de hoje e o estado de cada uma.'],
-      ['Alterar o site','Altere no site da Dionuel o seguinte: '],
+      ['Alterar o site','Altere no site da Plataforma Curso o seguinte: '],
       ['Testar o site','Teste o site no navegador e diga os erros encontrados.'],
       ['Criar página de venda','Crie uma página de venda para: '],
-      ['Propostas a empresas','Prepare propostas de fardamento para as empresas mais próximas do atelier.'],
+      ['Propostas a parceiros','Prepare propostas de parceria para escolas e empresas que possam usar os cursos.'],
       ['Reel de um produto','Crie um reel que explica e vende este produto: '],
-      ['Empresas do Mordomo','Mostre as empresas do ANNAN Mordomo: plano de cada uma, experiências a acabar e pagamentos por confirmar.']]},
+      ['Pagamentos por confirmar','Mostre os pagamentos por confirmar e os alunos com plano a acabar.']]},
     pesquisar:{rotulo:'Pesquisa',titulo:'Pesquisar',desc:'O ANNAN parte a pergunta, procura primeiro em fontes oficiais, lê as páginas, cruza e separa o que está confirmado do que não está. As fontes ficam guardadas.',ph:'O que quer investigar?',
       pre:'[MODO PESQUISA] Use o método de investigação (ferramenta investigar ou pesquisar_web): parta a pergunta em partes, fontes oficiais primeiro, leia as páginas, cruze as fontes. Responda em secções: Resposta curta; Confirmado; Não confirmado; O que fazer. Termine com "Fontes:" (uma por linha: título e link) e guarde as fontes em fontes_investigacao.\n\nPergunta: ',ini:[
-      ['Fornecedores de tecido','Onde comprar tecido para fatos em Luanda e quanto custa o metro hoje?'],
-      ['Concursos de fardamento','Que concursos ou empresas em Angola estão a comprar fardamento este mês?'],
-      ['O que fazem os melhores','O que fazem nas redes sociais as alfaiatarias com mais clientes no mundo? Dê exemplos que a Dionuel pode aplicar.'],
+      ['Método dos melhores países','Que fontes oficiais e estudos mostram o que os países com melhor ensino fazem neste tema?'],
+      ['Concursos abertos','Que concursos públicos e processos de seleção estão abertos este mês?'],
+      ['O que fazem os melhores','O que fazem nas redes sociais as plataformas de ensino com mais alunos no mundo? Dê exemplos que a Plataforma Curso pode aplicar.'],
       ['Regras das redes','Quais são as regras atuais do Instagram e do TikTok para chegar a mais pessoas sem pagar?']]},
     verificar:{rotulo:'Verificação',titulo:'Verificar',desc:'Cole um texto, um número ou uma afirmação. O ANNAN confirma cada parte com os dados do sistema ou com fontes da internet e devolve a versão corrigida.',ph:'Cole o texto a verificar…',
-      pre:'[MODO VERIFICAR] Verifique o texto abaixo, afirmação a afirmação. Para cada uma escreva: Confirmado, Falso ou Não confirmado, e a prova (dados do sistema ou fonte com link). Sobre a Dionuel use os dados reais (dionuel_situacao, dionuel_mes, obras, conversas); sobre o mundo use a internet. Nunca diga confirmado sem prova. Termine com "Versão corrigida:" e com "Fontes:".\n\nTexto: ',ini:[
+      pre:'[MODO VERIFICAR] Verifique o texto abaixo, afirmação a afirmação. Para cada uma escreva: Confirmado, Falso ou Não confirmado, e a prova (dados do sistema ou fonte com link). Sobre a Plataforma Curso use os dados reais do sistema; sobre o mundo use a internet. Nunca diga confirmado sem prova. Termine com "Versão corrigida:" e com "Fontes:".\n\nTexto: ',ini:[
       ['Verificar a última resposta','@ultima'],
       ['Verificar os números do mês','Os números do mês que o ANNAN me deu estão certos? Confira com as obras, recebimentos e despesas registadas.'],
       ['Colar um texto','']]},
-    estudar:{rotulo:'Estudo',titulo:'Estudar',desc:'Aprenda um tema passo a passo: objetivo, explicação simples, exemplo da Dionuel, erros comuns e perguntas para testar. Use também a Academia na secção Conhecimento.',ph:'Que tema quer aprender?',
-      pre:'[MODO ESTUDO] Ensine como um bom professor: 1) objetivo em 1 frase; 2) explicação simples em 3 a 5 partes com títulos; 3) um exemplo aplicado à Dionuel; 4) erros comuns; 5) três perguntas para eu testar (respostas só quando eu pedir). Use a base de saber, a Academia e fontes; termine com "Fontes:".\n\nTema: ',ini:[
+    estudar:{rotulo:'Estudo',titulo:'Estudar',desc:'Aprenda um tema passo a passo: objetivo, explicação simples, exemplo da Plataforma Curso, erros comuns e perguntas para testar. Use também a Academia na secção Conhecimento.',ph:'Que tema quer aprender?',
+      pre:'[MODO ESTUDO] Ensine como um bom professor: 1) objetivo em 1 frase; 2) explicação simples em 3 a 5 partes com títulos; 3) um exemplo aplicado à Plataforma Curso; 4) erros comuns; 5) três perguntas para eu testar (respostas só quando eu pedir). Use a base de saber, a Academia e fontes; termine com "Fontes:".\n\nTema: ',ini:[
       ['Preço de um fato','Como calcular o preço certo de um fato sob medida.'],
-      ['Negociar com empresas','Como negociar um contrato de fardamento com uma empresa.'],
+      ['Negociar com escolas','Como negociar uma parceria de formação com uma escola ou empresa.'],
       ['Ler o resultado do mês','Como ler o resultado do mês: faturado, recebido, custos e equilíbrio.'],
       ['Abrir a Academia','@academia']]},
-    escrever:{rotulo:'Escrita',titulo:'Escrever',desc:'Textos prontos a usar: posts, propostas, mensagens a clientes, cartas. Português de Angola, sem emojis e sem números inventados.',ph:'O que quer que eu escreva?',
-      pre:'[MODO ESCRITA] Escreva o texto pedido, pronto a usar: título; texto em blocos curtos; português de Angola; trate o leitor por você; sem emojis; nunca invente números, preços ou clientes (use os dados do sistema). No fim, dê 2 alternativas curtas para o título ou gancho.\n\nPedido: ',ini:[
+    escrever:{rotulo:'Escrita',titulo:'Escrever',desc:'Textos prontos a usar: posts, propostas, mensagens a clientes, cartas. Português claro, sem emojis e sem números inventados.',ph:'O que quer que eu escreva?',
+      pre:'[MODO ESCRITA] Escreva o texto pedido, pronto a usar: título; texto em blocos curtos; português claro; trate o leitor por você; sem emojis; nunca invente números, preços ou clientes (use os dados do sistema). No fim, dê 2 alternativas curtas para o título ou gancho.\n\nPedido: ',ini:[
       ['Post para as redes','Post para o Instagram e Facebook sobre: '],
-      ['Proposta de fardamento','Proposta de fardamento para a empresa: '],
+      ['Proposta de formação','Proposta de formação para a organização: '],
       ['Cobrança educada','Mensagem educada para lembrar um cliente do pagamento em falta: '],
       ['Resposta a pedido de desconto','Resposta a um cliente que pediu desconto num fato de noivo.']]}
   };

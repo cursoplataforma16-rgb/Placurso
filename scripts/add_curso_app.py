@@ -29,7 +29,7 @@ EM_RAIZ_COM_NOME = {"index.html": "cursos-app.html", "sw.js": "cursos-sw.js"}
 NA_RAIZ = [
     "vendor", "manifest-curso.json", "annan-online-bridge.js", "creative-studio.js",
     "creative-studio-ui.js", "annan-creative.js", "optimize-supabase-media.js",
-    "privacidade-curso.html", "termos-curso.html", "curso-tiktok-icon-1024.png", "annan-drive", "psico.js", "annan-guia.js", "guias",
+    "privacidade-curso.html", "termos-curso.html", "curso-tiktok-icon-1024.png", "psico.js", "annan-guia.js", "guias",
     "annan-offline",
 ]
 
