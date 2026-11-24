@@ -1626,7 +1626,7 @@ async function init(){
       loadOrCreateUsuario();
     } else {
       currentUsuario = null; 
-      renderVitrineLoja();
+      if(new URLSearchParams(location.search).get('entrar') && !lerAprenderDoUrl()) renderLogin(); else renderVitrineLoja();
     }
   });
 
